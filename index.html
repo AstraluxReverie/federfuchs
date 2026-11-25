@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.30</title>
+  <title>Zum träumenden Federfuchs – v0.31</title>
   <style>
     :root{
       --bg:#10151b;
@@ -265,7 +265,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.30 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.31 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -301,7 +301,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.30 · Danzelots Erdbeergarten</div>
+    <div id="sub">v0.31 · Ein Garten zum Verweilen</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -1664,14 +1664,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     addMesh(new THREE.BoxGeometry(.49,1.3,.62),facadeMat,w*.25,h+h*.12,0,g,false,true);
     addMesh(new THREE.BoxGeometry(.64,.13,.74),dressedStone,w*.25,h+h*.12+.66,0,g,false,true);
   }
-  const garden=buildGarden(THREE,{wood:woodMat,stone:dressedStone,iron:ironMat,paving:pavingMat,roof:roofMat});outside.add(garden.group);
+  const garden=buildGarden(THREE,{wood:woodMat,stone:dressedStone,iron:ironMat,paving:pavingMat,roof:roofMat});outside.add(garden.group);doors.push(garden.shedDoor);
   // Real raindrops beyond the glass; light, low-cost line geometry.
   const outdoorRainCount=180,orr=new Float32Array(outdoorRainCount*6);
   for(let i=0;i<outdoorRainCount;i++){const k=i*6,side=i%2===0?-1:1;orr[k]=i<60?-8.4+Math.random()*16.8:side*(9.4+Math.random()*5.2);orr[k+1]=Math.random()*14;orr[k+2]=i<60?-16.2+Math.random()*10.2:-7+Math.random()*13;orr[k+3]=orr[k]-.025;orr[k+4]=orr[k+1]-.18;orr[k+5]=orr[k+2];}
   const outdoorRainGeo=new THREE.BufferGeometry();outdoorRainGeo.setAttribute('position',new THREE.BufferAttribute(orr,3));
   const outdoorRain=new THREE.LineSegments(outdoorRainGeo,new THREE.LineBasicMaterial({color:0xacc1d0,transparent:true,opacity:.20,depthWrite:false}));outside.add(outdoorRain);
   function animateExterior(dt){
-    outside.visible=walkMode||currentArea==='garden'||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);garden.group.visible=walkMode||currentArea==='garden'||houseView.floor===-1;outdoorRain.visible=weather.rain||weather.snow;
+    outside.visible=walkMode||(currentArea==='garden'&&houseView.floor===1)||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);garden.group.visible=walkMode||(currentArea==='garden'&&houseView.floor===1)||houseView.floor===-1;outdoorRain.visible=weather.rain||weather.snow;
     if(garden.group.visible&&outside.visible)garden.update(visualTime,lightMood.value);
     if(!outside.visible||(!weather.rain&&!weather.snow))return;
     for(let i=0;i<outdoorRainCount;i++){const k=i*6;orr[k+1]-=dt*(weather.snow?.65:5.5);if(orr[k+1]<-.05)orr[k+1]=14;orr[k+4]=orr[k+1]-(weather.snow?.035:.18);orr[k+3]=orr[k]-(weather.snow?.012:.025);}
@@ -1875,7 +1875,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const d=walkMode&&navigation.flight===null?nearestDoor():null;
     interaction.hidden=!d; if(d)interaction.textContent=d.secret?(d.open?'Regal schließen · E':'Geheimregal öffnen · E'):(d.open?'Tür schließen · E':'Tür öffnen · E');
     locationLabel.hidden=!walkMode;
-    if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':navigation.floor===1&&player.pos.z<-5.55?'Privater Garten':['Keller','Antiquariat','Wohnung'][navigation.floor];
+    if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':navigation.floor===1&&player.pos.x>5.34&&player.pos.x<8.16&&player.pos.z<-13.52&&player.pos.z>-15.81?'Gartenhaus':navigation.floor===1&&player.pos.z<-5.55?'Privater Garten':['Keller','Antiquariat','Wohnung'][navigation.floor];
   }
 
   // A touch of hidden movement on the secret shelf
@@ -2477,7 +2477,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const dir=camera.position.clone().sub(controls.target);dir.y=Math.max(6,dir.y);dir.setLength(22);
     const target=new THREE.Vector3(0,y,0);currentArea=['cellar','shop','upper'][houseView.floor];setActiveButton(currentArea);tweenCamera(fitPosition(target.clone().add(dir),target,10.6),target,480);
   }
-  function selectFloor(f){roomFocus=null;houseView.floor=f;applyHouseView(true);focusFloor();}
+  function selectFloor(f){roomFocus=null;currentArea=f===-1?'overview':['cellar','shop','upper'][f];houseView.floor=f;applyHouseView(true);focusFloor();}
   hvToggle.addEventListener('click',()=>{hvPanel.hidden=!hvPanel.hidden;hvToggle.setAttribute('aria-expanded',String(!hvPanel.hidden));});
   for(const b of wallModes)b.addEventListener('click',()=>{if(walkMode)return;const requested=b.dataset.wallmode;houseView.mode=WALL_MODES.includes(requested)?requested:'full';applyHouseView(true);});
   floorCycle.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:houseView.floor===0?-1:houseView.floor-1));
@@ -2904,10 +2904,10 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(roomFocus&&houseView.floor===roomById(roomFocus)?.floor)return roomById(roomFocus);
     return houseView.floor<0?null:roomAt(houseView.floor,controls.target.x,controls.target.z);
   }
-  function saveVisitUi(){visitStatus.textContent=savedVisit?'Letzte Ansicht · '+(roomById(savedVisit.room)?.name||['Untergeschoss','Antiquariat','Obergeschoss'][savedVisit.floor]||'Gesamtgebäude'):'Noch kein Besuch gespeichert.';document.getElementById('restoreVisit').disabled=!savedVisit;}
-  function snapshotVisit(){return validateVisit({version:1,floor:houseView.floor,mode:houseView.mode,scope:houseView.scope,roof:houseView.roof,camera:camera.position.toArray(),target:controls.target.toArray(),mood:lightMood.value,room:roomFocus});}
+  function saveVisitUi(){visitStatus.textContent=savedVisit?'Letzte Ansicht · '+((savedVisit.area==='garden'?'Danzelots Erdbeergarten':roomById(savedVisit.room)?.name)||['Untergeschoss','Antiquariat','Obergeschoss'][savedVisit.floor]||'Gesamtgebäude'):'Noch kein Besuch gespeichert.';document.getElementById('restoreVisit').disabled=!savedVisit;}
+  function snapshotVisit(){return validateVisit({version:1,floor:houseView.floor,mode:houseView.mode,scope:houseView.scope,roof:houseView.roof,camera:camera.position.toArray(),target:controls.target.toArray(),mood:lightMood.value,room:roomFocus,area:currentArea==='garden'?'garden':null});}
   function rememberVisit(explicit=false){if(tourState||walkMode||!dialog.hidden)return;const v=snapshotVisit();if(!v)return;savedVisit=v;try{localStorage.setItem('federfuchs-visit-v1',JSON.stringify(v));}catch(e){if(explicit)visitStatus.textContent='Speicher nicht verfügbar';return;}saveVisitUi();}
-  function applyVisit(v){if(!v)return;if(walkMode)setWalkMode(false);tween=null;houseView.floor=v.floor;houseView.mode=v.mode;houseView.scope=v.scope;houseView.roof=v.roof;roomFocus=roomById(v.room)?.id||null;currentArea=v.floor===-1?'overview':['cellar','shop','upper'][v.floor];setActiveButton(currentArea);camera.position.fromArray(v.camera);controls.target.fromArray(v.target);camera.lookAt(controls.target);controls.update();applyHouseView(true);if(clockChoice==='manual'){lightMood.value=v.mood;updateLightMood();}}
+  function applyVisit(v){if(!v)return;if(walkMode)setWalkMode(false);tween=null;houseView.floor=v.floor;houseView.mode=v.mode;houseView.scope=v.scope;houseView.roof=v.roof;roomFocus=roomById(v.room)?.id||null;currentArea=v.floor===1&&v.area==='garden'?'garden':v.floor===-1?'overview':['cellar','shop','upper'][v.floor];setActiveButton(currentArea);camera.position.fromArray(v.camera);controls.target.fromArray(v.target);camera.lookAt(controls.target);controls.update();applyHouseView(true);if(clockChoice==='manual'){lightMood.value=v.mood;updateLightMood();}}
   function focusRoom(id,duration=750){const r=roomById(id);if(!r)return;if(walkMode)setWalkMode(false);roomFocus=id;currentArea=['cellar','shop','upper'][r.floor];setActiveButton(currentArea);houseView.floor=r.floor;houseView.scope='single';houseView.roof=false;houseView.mode='auto';applyHouseView(true);const target=new THREE.Vector3(...r.focus),p=new THREE.Vector3(...r.camera);tweenCamera(fitPosition(p,target,r.radius),target,duration);roomSelect.value=id;}
   function setWeatherChoice(){const season=new Date().getMonth(),v=weatherChoice==='season'?([11,0,1].includes(season)?'snow':'rain'):weatherChoice;weather.rain=v==='rain';weather.snow=v==='snow';outdoorRain.material.color.setHex(weather.snow?0xe5edf1:0xacc1d0);outdoorRain.material.opacity=weather.snow?.66:.20;weatherBtn.textContent=weather.snow?'Schnee: an':weather.rain?'Regen: an':'Regen: aus';weatherBtn.setAttribute('aria-pressed',String(weather.rain||weather.snow));paintRain(0,0);}
   function syncTime(t){if(t-lastClockCheck<30000)return;lastClockCheck=t;if(clockChoice==='real'){const mood=naturalMood(new Date().getHours());if(lightMood.value!==mood){lightMood.value=mood;updateLightMood();}}if(weatherChoice==='season')setWeatherChoice();}
@@ -3093,7 +3093,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=030',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=031',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
