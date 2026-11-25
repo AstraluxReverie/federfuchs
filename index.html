@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.29</title>
+  <title>Zum träumenden Federfuchs – v0.30</title>
   <style>
     :root{
       --bg:#10151b;
@@ -265,7 +265,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.29 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.30 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -301,13 +301,13 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.29 · Buchhaims Gassen & Fotografie</div>
+    <div id="sub">v0.30 · Danzelots Erdbeergarten</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
       <button data-view="upper">Wohnräume</button>
       <button data-view="cellar">Keller</button>
-      <button data-view="nook">Lesehöhle</button>
+      <button data-view="nook">Lesehöhle</button><button data-view="garden">Garten</button>
       <button id="toggleWalk" type="button">Freie Bewegung</button>
       <button id="weatherToggle" type="button" aria-pressed="true">Regen: an</button>
       <button id="soundToggle" type="button" aria-pressed="false">Ton: aus</button>
@@ -330,7 +330,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
     <div id="walkPanel" class="drawerSection" hidden><p class="drawerHint">Gehe mit dem linken Stick. Ziehe mit einem Finger über den Raum, um dich umzusehen. Der rechte Stick funktioniert weiterhin.</p><label class="drawerLabel" for="walkSpeed">Lauftempo</label><input id="walkSpeed" type="range" min="1.2" max="4" step=".2" value="2.6"><button id="walkRecenter" class="wideTool">Zum Startpunkt</button></div>
     <div id="helpPanel" class="drawerSection" hidden><p class="drawerHint"><b>Touch:</b> ein Finger drehen/schieben, zwei Finger zoomen. Bücher oder Antiquitäten antippen, um sie zu betrachten.</p><p class="drawerHint"><b>PC:</b> WASD/Pfeile verschieben die Kamera, Q/E drehen, +/− zoomen, T Draufsicht, Bild auf/ab Etagen, H Menü ein-/ausblenden.</p><p class="drawerHint">Im Gehmodus: WASD laufen, Maus oder Finger ziehen zum Umsehen, E Türen bedienen. Die Menüs bleiben vom Spiel getrennt.</p></div>
     <div id="journeyPanel" class="drawerSection" hidden>
-<label class="drawerLabel" for="roomJump">Räume entdecken</label><select id="roomJump"></select><button id="roomVisit" class="wideTool">Raum betrachten</button><button id="startTour" class="wideTool">Filmische Rundreise</button>
+<label class="drawerLabel" for="roomJump">Räume entdecken</label><select id="roomJump"></select><button id="roomVisit" class="wideTool">Raum betrachten</button><div class="toolPair"><button id="gardenView">Garten ansehen</button><button id="gardenWalk">Garten betreten</button></div><button id="startTour" class="wideTool">Filmische Rundreise</button>
 <label class="drawerLabel">Erinnerungen</label><p id="visitStatus" class="drawerHint"></p><div class="toolPair"><button id="saveVisit">Ansicht merken</button><button id="restoreVisit">Zurückkehren</button></div><button id="resumeBook" class="wideTool">Zuletzt gelesenes Buch</button><button id="saveRoomState" class="wideTool">Raumzustand merken</button><button id="restoreRoomState" class="wideTool">Raumzustand wiederherstellen</button><p id="roomMemoryStatus" class="drawerHint"></p>
 <label class="drawerLabel" for="clockMode">Licht und Zeit</label><select id="clockMode"><option value="manual">Manuell</option><option value="real">Lokale Uhrzeit</option></select>
 <label class="drawerLabel" for="weatherMode">Wetter</label><select id="weatherMode"><option value="rain">Regen</option><option value="snow">Schnee</option><option value="clear">Trocken</option><option value="season">Jahreszeit (lokal)</option></select><p id="roomProfileStatus" class="drawerHint"></p></div>
@@ -430,6 +430,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import {moodFor,reflectionArtwork,roughnessArtwork,contactArtwork} from './lighting-art.js';
   import {flameArtwork,shaftArtwork,ROOM_FINISH,acousticImpulse,reverbFor} from './atmosphere-art.js';
   import {streetDetails,BOOK_WORLD,photoDimensions} from './world-details.js';
+  import {GARDEN,shopDomain,gardenBlocked} from './garden-plan.js';
+  import {buildGarden} from './garden-scene.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -959,7 +961,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     perforatedWall(axis,at,-half,half,baseByFloor[floor],mat,[...openings,...extra]);
   }
   // Exterior walls: the front can now be cut away, but exists in walk mode.
-  facade('z',-D/2,1,plasterMat);
+  facade('z',-D/2,1,plasterMat,[{center:0,w:1.32,y:levels.shop+1.175,h:2.35}]);
   facade('x',-W/2,1,plasterMat);
   facade('x',W/2,1,plasterMat);
   facade('z',-D/2,2,plasterMat);
@@ -1036,6 +1038,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const door={g,leaf,x,z,floor:y,open:false,axis,secret};doors.push(door);return door;
   }
   const entranceDoor=makeDoor(0,levels.shop,D/2,{axis:'z',side:'front'});
+  const gardenDoor=makeDoor(0,levels.shop,-D/2,{axis:'z',side:'back'});
   partitionX(-2.7,levels.cellar,stoneMat,[-2.45,2.05]);
   partitionX(3.4,levels.cellar,stoneMat,[-2.45,2.05]);
   // archive left
@@ -1598,7 +1601,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const darkWindow=new THREE.MeshBasicMaterial({color:0x1d2d3b});
   function outBox(w,h,d,x,y,z,m=exteriorStone){const geo=new THREE.BoxGeometry(w,h,d);if(m===pavingMat){const p=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,(p.getX(i)+x)/2.2,(p.getZ(i)+z)/2.2);}return addMesh(geo,m,x,y,z,outside,false,true);}
   // Sloping terrain is omitted; instead two actual open basement light wells break the paving.
-  outBox(36,.23,8.4,0,-.19,-9.625,pavingMat);
+  outBox(8.8,.23,11.075,-13.6,-.19,-10.9625,pavingMat);outBox(8.8,.23,11.075,13.6,-.19,-10.9625,pavingMat);outBox(36,.23,4.0,0,-.19,-18.5,pavingMat);
   for(const side of [-1,1]){
     const sx=side*10.15;
     outBox(2.0,.23,4.60,sx,-.19,-3.15,pavingMat);
@@ -1633,7 +1636,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
   }
   outBox(36,.22,8.3,0,-.18,9.575,pavingMat);neighbour(-7,15.7,8,4.6,8.5,Math.PI);neighbour(4,17,9,5,10.2,Math.PI-.035);
-  neighbour(-6,-13,7,4,8.2,.03);neighbour(2,-15.2,7,5.4,10,-.07);neighbour(9,-14,5.2,4.8,7.5,.04);
+  neighbour(-6,-21.4,7,4,8.2,.03);neighbour(2,-22.7,7,5.4,10,-.07);neighbour(9,-22,5.2,4.8,7.5,.04);
   neighbour(-16,-2.9,7.2,4.4,8.7,Math.PI/2);neighbour(-17,4.8,6.6,5,7.1,Math.PI/2);
   neighbour(16,-3.6,7,4.2,8.8,-Math.PI/2);neighbour(17,4.7,6.4,5.2,7.5,-Math.PI/2);
   for(const side of [-1,1]){
@@ -1661,13 +1664,15 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     addMesh(new THREE.BoxGeometry(.49,1.3,.62),facadeMat,w*.25,h+h*.12,0,g,false,true);
     addMesh(new THREE.BoxGeometry(.64,.13,.74),dressedStone,w*.25,h+h*.12+.66,0,g,false,true);
   }
+  const garden=buildGarden(THREE,{wood:woodMat,stone:dressedStone,iron:ironMat,paving:pavingMat,roof:roofMat});outside.add(garden.group);
   // Real raindrops beyond the glass; light, low-cost line geometry.
   const outdoorRainCount=180,orr=new Float32Array(outdoorRainCount*6);
-  for(let i=0;i<outdoorRainCount;i++){const k=i*6,side=i%2===0?-1:1;orr[k]=side*(9.4+Math.random()*5.2);orr[k+1]=Math.random()*14;orr[k+2]=-7+Math.random()*13;orr[k+3]=orr[k]-.025;orr[k+4]=orr[k+1]-.18;orr[k+5]=orr[k+2];}
+  for(let i=0;i<outdoorRainCount;i++){const k=i*6,side=i%2===0?-1:1;orr[k]=i<60?-8.4+Math.random()*16.8:side*(9.4+Math.random()*5.2);orr[k+1]=Math.random()*14;orr[k+2]=i<60?-16.2+Math.random()*10.2:-7+Math.random()*13;orr[k+3]=orr[k]-.025;orr[k+4]=orr[k+1]-.18;orr[k+5]=orr[k+2];}
   const outdoorRainGeo=new THREE.BufferGeometry();outdoorRainGeo.setAttribute('position',new THREE.BufferAttribute(orr,3));
   const outdoorRain=new THREE.LineSegments(outdoorRainGeo,new THREE.LineBasicMaterial({color:0xacc1d0,transparent:true,opacity:.20,depthWrite:false}));outside.add(outdoorRain);
   function animateExterior(dt){
-    outside.visible=walkMode||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);outdoorRain.visible=weather.rain||weather.snow;
+    outside.visible=walkMode||currentArea==='garden'||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);garden.group.visible=walkMode||currentArea==='garden'||houseView.floor===-1;outdoorRain.visible=weather.rain||weather.snow;
+    if(garden.group.visible&&outside.visible)garden.update(visualTime,lightMood.value);
     if(!outside.visible||(!weather.rain&&!weather.snow))return;
     for(let i=0;i<outdoorRainCount;i++){const k=i*6;orr[k+1]-=dt*(weather.snow?.65:5.5);if(orr[k+1]<-.05)orr[k+1]=14;orr[k+4]=orr[k+1]-(weather.snow?.035:.18);orr[k+3]=orr[k]-(weather.snow?.012:.025);}
     outdoorRainGeo.attributes.position.needsUpdate=true;
@@ -1697,12 +1702,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     upper:{pos:new THREE.Vector3(11.5,12.8,14), target:new THREE.Vector3(.3,7.4,.7)},
     cellar:{pos:new THREE.Vector3(12.5,2.8,15.5), target:new THREE.Vector3(.2,-2.4,.2)},
     nook:{pos:new THREE.Vector3(11.8,10.2,8.8), target:new THREE.Vector3(6.2,7.7,2.55)},
+    garden:{pos:new THREE.Vector3(13,15,-23),target:new THREE.Vector3(0,1.0,-10.8)},
   };
   const walkSpawns = {
     shop:{pos:new THREE.Vector3(0, elevations[1]+1.65, 3.95), yaw:0},
     upper:{pos:new THREE.Vector3(-1.43, elevations[2]+1.65, 3.9), yaw:0},
     cellar:{pos:new THREE.Vector3(0, elevations[0]+1.65, 3.95), yaw:0},
     nook:{pos:new THREE.Vector3(5.89, elevations[2]+1.65, 1.58), yaw:-1.15},
+    garden:{pos:new THREE.Vector3(...GARDEN.spawn),yaw:0},
   };
   let roomFocus=null;
   let tween = null;
@@ -1732,12 +1739,12 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(key==='overview' && walkMode){walkMode=false;document.body.classList.remove('walk');controls.enabled=true;toggleWalkBtn.classList.remove('active');toggleWalkBtn.textContent='Freie Bewegung';} currentArea = key; setActiveButton(key);
     if(walkMode && key !== 'overview'){
       const spawn = walkSpawns[key];
-      if(spawn){ player.pos.copy(spawn.pos); navigation.floor=key==='cellar'?0:key==='shop'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06; syncWalkCamera(); }
+      if(spawn){ player.pos.copy(spawn.pos); navigation.floor=key==='cellar'?0:key==='shop'||key==='garden'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06; syncWalkCamera(); }
       return;
     }
     const v=views[key]||views.overview;
-    houseView.floor=key==='cellar'?0:key==='shop'?1:key==='upper'||key==='nook'?2:-1;applyHouseView(true);
-    tweenCamera(fitPosition(v.pos,v.target,key==='nook'?4.5:houseView.floor<0?12.2:10.6),v.target,550);
+    houseView.floor=key==='cellar'?0:key==='shop'||key==='garden'?1:key==='upper'||key==='nook'?2:-1;if(key==='garden'){houseView.mode='full';houseView.scope='single';houseView.roof=false;}applyHouseView(true);
+    tweenCamera(fitPosition(v.pos,v.target,key==='nook'?4.5:key==='garden'?11.7:houseView.floor<0?12.2:10.6),v.target,550);
   }
   viewButtons.forEach(btn=>btn.addEventListener('click',()=>goView(btn.dataset.view)));
 
@@ -1755,10 +1762,10 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     toggleWalkBtn.classList.toggle('active', on);
     toggleWalkBtn.textContent = on ? 'Überblick' : 'Freie Bewegung';
     if(on){
-      if(houseView.floor>=0&&currentArea!=='nook')currentArea=['cellar','shop','upper'][houseView.floor];
+      if(houseView.floor>=0&&currentArea!=='nook'&&currentArea!=='garden')currentArea=['cellar','shop','upper'][houseView.floor];
       if(currentArea === 'overview') currentArea = 'shop';
       const spawn = walkSpawns[currentArea] || walkSpawns.shop;
-      player.pos.copy(spawn.pos); navigation.floor=currentArea==='cellar'?0:currentArea==='shop'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06;
+      player.pos.copy(spawn.pos); navigation.floor=currentArea==='cellar'?0:currentArea==='shop'||currentArea==='garden'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06;
       syncWalkCamera();
     } else {
       goView(currentArea === 'overview' ? 'overview' : currentArea);
@@ -1821,7 +1828,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const RADIUS=.19;
   function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
   function solid(x,z,floor){
-    if(x<-8.63||x>8.63||z<-4.94||z>4.94)return true;
+    if(floor===1){if(!shopDomain(x,z,RADIUS))return true;if(z<-5.55&&gardenBlocked(x,z,RADIUS))return true;}
+    else if(x<-8.63||x>8.63||z<-4.94||z>4.94)return true;
     const foot=elevations[floor]+.05,head=elevations[floor]+1.70;
     if(wallBoxes.some(r=>head>r.y0+.01&&foot<r.y1-.01&&hitRect(x,z,r)))return true;
     if(furniture.some(r=>r.floor===floor&&hitRect(x,z,r)))return true;
@@ -1854,6 +1862,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     let result=moveNav(navigation,player.pos.x,player.pos.z,dx,0);
     result=moveNav(navigation,result.x,result.z,0,dz);
     player.pos.set(result.x,result.height+1.65,result.z);
+    if(navigation.floor===1&&navigation.flight===null){if(result.z<-5.55)currentArea='garden';else if(currentArea==='garden')currentArea='shop';}
   }
   const interaction=document.createElement('button');interaction.id='interactDoor';interaction.textContent='Tür öffnen';interaction.hidden=true;document.body.appendChild(interaction);
   const locationLabel=document.createElement('div');locationLabel.id='floorLabel';locationLabel.hidden=true;document.body.appendChild(locationLabel);
@@ -1866,7 +1875,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const d=walkMode&&navigation.flight===null?nearestDoor():null;
     interaction.hidden=!d; if(d)interaction.textContent=d.secret?(d.open?'Regal schließen · E':'Geheimregal öffnen · E'):(d.open?'Tür schließen · E':'Tür öffnen · E');
     locationLabel.hidden=!walkMode;
-    if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':['Keller','Antiquariat','Wohnung'][navigation.floor];
+    if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':navigation.floor===1&&player.pos.z<-5.55?'Privater Garten':['Keller','Antiquariat','Wohnung'][navigation.floor];
   }
 
   // A touch of hidden movement on the secret shelf
@@ -1980,7 +1989,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const high=ctx.createBiquadFilter();high.type='highpass';high.frequency.value=330;
     const rg=ctx.createGain();rg.gain.value=0;rain.connect(high).connect(low).connect(rg).connect(master);rain.start();
     const reverb=ctx.createConvolver(),wet=ctx.createGain();reverb.buffer=acousticImpulse(ctx,1.25,390);wet.gain.value=.11;reverb.connect(wet).connect(master);
-    return {ctx,master,noise,rg,rainFilter:low,reverb,wet};
+    const fountain=ctx.createBufferSource(),fountainFilter=ctx.createBiquadFilter(),fountainGain=ctx.createGain();fountain.buffer=noise;fountain.loop=true;fountainFilter.type='bandpass';fountainFilter.frequency.value=1800;fountainFilter.Q.value=.7;fountainGain.gain.value=0;fountain.connect(fountainFilter).connect(fountainGain).connect(master);fountain.start();
+    return {ctx,master,noise,rg,rainFilter:low,reverb,wet,fountainGain};
   }
   function setSoundUi(on){soundOn=on;soundBtn.textContent=on?'Ton: an':'Ton: aus';soundBtn.setAttribute('aria-pressed',String(on));}
   soundBtn.addEventListener('click',async()=>{
@@ -2004,7 +2014,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(!audio||!soundOn||audio.ctx.state!=='running')return;
     const pos=walkMode?player.pos:controls.target;
     const cellar=walkMode?navigation.floor===0:pos.y<0;
-    const profile=activeRoomProfile();audio.wet.gain.setTargetAtTime(reverbFor(profile?.id),audio.ctx.currentTime,.35);audio.rg.gain.setTargetAtTime(weather.rain?.105*(profile?.rain??(cellar?.18:1)):0,audio.ctx.currentTime,.35);audio.rainFilter.frequency.setTargetAtTime(650+1800*(profile?.rain??1),audio.ctx.currentTime,.35);
+    const profile=activeRoomProfile();const waterDistance=Math.hypot(pos.x,pos.z+12.5);audio.fountainGain.gain.setTargetAtTime(profile?.id==='garden'?.075/(1+waterDistance*.45):0,audio.ctx.currentTime,.35);audio.wet.gain.setTargetAtTime(reverbFor(profile?.id),audio.ctx.currentTime,.35);audio.rg.gain.setTargetAtTime(weather.rain?.105*(profile?.rain??(cellar?.18:1)):0,audio.ctx.currentTime,.35);audio.rainFilter.frequency.setTargetAtTime(650+1800*(profile?.rain??1),audio.ctx.currentTime,.35);
     const fireDist=pos.distanceTo(stove.position);const fireLevel=(!profile||profile.floor===2?1:.15)*.19*(profile?.fire??.5)/(1+fireDist*.65);
     if(t>nextCrackle){nextCrackle=t+.12+Math.random()*.95;audioBurst(900+Math.random()*1400,.8,.035+Math.random()*.06,fireLevel);}
     if(walkMode&&distMoved>0){walkDistance+=distMoved;if(walkDistance>.62){walkDistance=0;audioBurst(cellar?155:240,.9,.13,.12);if(!cellar&&Math.random()<.38)audioBurst(450+Math.random()*250,3,.19,.047);}}
@@ -2484,7 +2494,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // Existing room buttons select the corresponding floor as well, unless walking.
   for(const b of viewButtons)b.addEventListener('click',()=>{
     if(walkMode)return;
-    houseView.floor=b.dataset.view==='overview'?-1:b.dataset.view==='cellar'?0:b.dataset.view==='shop'?1:2;
+    houseView.floor=b.dataset.view==='overview'?-1:b.dataset.view==='cellar'?0:b.dataset.view==='shop'||b.dataset.view==='garden'?1:2;
     applyHouseView(true);
   });
   // Furniture editor: persistent IDs, real world boxes, validated placement, transaction history.
@@ -2739,9 +2749,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('quickTop').addEventListener('click',()=>topView.click());
   let quickKey='';
   function updateCompactUI(){
-    const k=[houseView.floor,houseView.mode,houseView.roof,walkMode,editMode,!!seatedState,drawer,navigation.floor,navigation.flight].join('|');if(k===quickKey)return;quickKey=k;
+    const k=[houseView.floor,houseView.mode,houseView.roof,walkMode,editMode,!!seatedState,drawer,navigation.floor,navigation.flight,currentArea].join('|');if(k===quickKey)return;quickKey=k;
     quickFloor.textContent=houseView.floor===-1?'Alle':floorShort[houseView.floor];
-    document.getElementById('sceneMode').textContent=walkMode?'Erkundung':'Gebäudeansicht';document.getElementById('sceneFloor').textContent=walkMode?(navigation.flight!==null?'Treppenhaus':names[navigation.floor]):houseView.floor<0?'Alle Etagen':names[houseView.floor];document.getElementById('sceneWalkExit').hidden=!walkMode;
+    document.getElementById('sceneMode').textContent=walkMode?'Erkundung':'Gebäudeansicht';document.getElementById('sceneFloor').textContent=currentArea==='garden'?'Privater Garten':walkMode?(navigation.flight!==null?'Treppenhaus':names[navigation.floor]):houseView.floor<0?'Alle Etagen':names[houseView.floor];document.getElementById('sceneWalkExit').hidden=!walkMode;
     quickWalls.textContent=({auto:'Auto',full:'Hoch',half:'Halb',off:'Aus'})[houseView.mode];quickWalls.title='Wände: '+quickWalls.textContent;quickWalls.setAttribute('aria-label',quickWalls.title+' · Auswahl öffnen');
     quickRoof.setAttribute('aria-pressed',String(houseView.roof));quickStand.hidden=!seatedState;
     document.getElementById('quickFloorDown').disabled=houseView.floor===0;document.getElementById('quickFloorUp').disabled=editMode&&houseView.floor===2;
@@ -2886,9 +2896,11 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   for(const room of ROOMS)roomSelect.add(new Option((['UG','EG','OG'][room.floor])+' · '+room.name,room.id));
   roomSelect.value='shop';
   const roomById=id=>ROOMS.find(r=>r.id===id);
+  const gardenProfile={id:'garden',name:'Danzelots Erdbeergarten',floor:1,light:1.10,rain:1,fire:0};
   function activeRoomProfile(){
     if(tourState)return roomById(TOUR[tourState.index]);
-    if(walkMode)return roomAt(navigation.floor,player.pos.x,player.pos.z);
+    if(walkMode)return navigation.floor===1&&player.pos.z<-5.55?gardenProfile:roomAt(navigation.floor,player.pos.x,player.pos.z);
+    if(currentArea==='garden'&&houseView.floor===1)return gardenProfile;
     if(roomFocus&&houseView.floor===roomById(roomFocus)?.floor)return roomById(roomFocus);
     return houseView.floor<0?null:roomAt(houseView.floor,controls.target.x,controls.target.z);
   }
@@ -3067,6 +3079,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('photoStart').addEventListener('click',enterPhoto);document.getElementById('photoExit').addEventListener('click',exitPhoto);document.getElementById('photoCapture').addEventListener('click',capturePhoto);document.getElementById('photoClear').addEventListener('click',clearPhoto);
   photoLens.addEventListener('change',()=>{if(photoMode){camera.fov=Number(photoLens.value);camera.updateProjectionMatrix();}});
   addEventListener('keydown',e=>{if(e.code==='Escape'&&photoMode)exitPhoto();});
+  document.getElementById('gardenView').addEventListener('click',()=>{if(walkMode)setWalkMode(false);goView('garden');setDrawer(null);});
+  document.getElementById('gardenWalk').addEventListener('click',()=>{if(walkMode)goView('garden');else{goView('garden');setWalkMode(true);}setDrawer(null);});
   let detailActive=false,detailTotal=0,detailCompleted=0;
   function showDetailProgress(){const bar=document.getElementById('detailBar'),label=document.getElementById('detailProgress');bar.max=Math.max(1,detailTotal);bar.value=detailCompleted;label.textContent=detailActive?'Detailressourcen geprüft: '+detailCompleted+' / '+detailTotal:detailTotal?'Detailprüfung beendet: '+detailCompleted+' / '+detailTotal:'Lokale Grundszene bereit';}
   function detailDone(){if(detailActive){detailCompleted=Math.min(detailTotal,detailCompleted+1);showDetailProgress();}}
@@ -3079,7 +3093,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=029',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=030',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
