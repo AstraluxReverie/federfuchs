@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.8</title>
+  <title>Zum träumenden Federfuchs – v0.9</title>
   <style>
     :root{
       --bg:#10151b;
@@ -140,7 +140,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.8 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.9 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -155,7 +155,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.8 · Die Restaurierung</div>
+    <div id="sub">3D-Studie v0.9 · Der Innenausbau</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -240,7 +240,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   controls.enableDamping = true;
   controls.enablePan = true;
   controls.target.set(0, 7.2, 0);
-  controls.minDistance = 8;
+  controls.minDistance = 2.5;
   controls.maxDistance = 46;
   controls.maxPolarAngle = Math.PI * 0.48;
 
@@ -452,6 +452,15 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const goldDetail=new THREE.MeshStandardMaterial({color:0xc2a46e,roughness:.68,metalness:.2});
   const dummy=new THREE.Object3D();
   const colors=[0x69423a,0x405548,0x374955,0x753d43,0x897047,0x5e5048,0x45435b,0x967d61];
+  // Reusable carved trim and turned wood details. Small details are instanced per furniture piece.
+  const trimMat=new THREE.MeshStandardMaterial({color:0x50321d,map:woodTex,roughness:.76});
+  const shadeMat=new THREE.MeshStandardMaterial({color:0xd6ad68,emissive:0xffaa43,emissiveIntensity:.34,roughness:.8,side:THREE.DoubleSide});
+  const upholstery=new THREE.MeshStandardMaterial({color:0x343e4b,roughness:.95});
+  const legGeo=new THREE.LatheGeometry([[.03,0],[.065,.025],[.068,.055],[.04,.095],[.054,.14],[.043,.20],[.027,.32],[.043,.62],[.065,.76],[.055,.88],[.078,.96],[.08,1]].map(p=>new THREE.Vector2(...p)),10);
+  function turnedLeg(g,x,z,h,scale=1){
+    const m=addMesh(legGeo,woodMat,x,0,z,g);m.scale.set(scale,h,scale);return m;
+  }
+  function molding(g,w,h,d,x,y,z,mat=trimMat){return addMesh(new THREE.BoxGeometry(w,h,d),mat,x,y,z,g);}
   function bookShelf(x,y,z,w=2.3,h=3.1,d=.45,group=house){
     const g=new THREE.Group();g.position.set(x,y,z);group.add(g);
     const frame=new THREE.MeshStandardMaterial({color:0x51351f,map:woodTex,roughness:.78});
@@ -459,11 +468,22 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.085,h,d),woodMat,sign*(w-.085)/2,h/2,0,g);
     addMesh(new THREE.BoxGeometry(w+.12,.14,d+.09),woodMat,0,h-.04,0,g);
     addMesh(new THREE.BoxGeometry(w+.04,.15,d+.05),woodMat,0,.08,0,g);
+    // Cornice with stepped profiles, fluted pilasters, plinth and brass rosettes.
+    for(const side of [-1,1]){
+      const px=side*(w/2-.055);
+      molding(g,.105,h-.30,.13,px,h/2,d/2+.015);
+      for(const yy of [.16,.23,h-.28,h-.19])molding(g,.17,.047,.19,px,yy,d/2+.028);
+      for(let k=-1;k<=1;k++)molding(g,.011,h-.65,.025,px+k*.028,h/2,d/2+.09,woodMat);
+      const rosette=addMesh(new THREE.SphereGeometry(.039,8,6),brassMat,px,h-.13,d/2+.12,g);rosette.scale.z=.32;
+    }
+    for(const [dy,ww,dd] of [[-.035,.19,.18],[-.10,.14,.13],[-.16,.075,.095]])molding(g,w+ww,.042,d+dd,0,h+dy,0);
+    molding(g,w+.13,.055,d+.11,0,.135,0);
     const books=[],bands=[],catalogOffset=shelfSerial++;
     const step=(h-.25)/5;
     for(let j=0;j<5;j++){
       const bottom=.17+j*step;
       addMesh(new THREE.BoxGeometry(w-.13,.065,d),woodMat,0,bottom,0,g);
+      molding(g,w-.17,.023,.028,0,bottom+.01,d/2+.013,trimMat);
       let cursor=-w/2+.13;
       while(cursor<w/2-.23){
         const bw=Math.min(.085+Math.random()*.13,w/2-.11-cursor),bh=step*(.60+Math.random()*.28),bd=d*(.65+Math.random()*.21);
@@ -481,23 +501,44 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   function table(x,y,z,w=1.6,d=.9,h=.85,group=house){
     const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);
-    addMesh(new THREE.BoxGeometry(w,.1,d), woodMat, 0,h,0,g);
-    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>addMesh(new THREE.BoxGeometry(.08,h,.08), darkMat, sx*(w/2-.08), h/2, sz*(d/2-.08), g));
+    addMesh(new THREE.BoxGeometry(w,.065,d), woodMat, 0,h,0,g);
+    molding(g,w-.035,.035,d-.025,0,h-.038,0);
+    molding(g,w-.13,.13,.065,0,h-.13,-d/2+.075);
+    molding(g,w-.13,.13,.065,0,h-.13,d/2-.075);
+    for(const side of [-1,1])molding(g,.065,.13,d-.16,side*(w/2-.085),h-.13,0);
+    for(const sx of [-1,1])for(const sz of [-1,1])turnedLeg(g,sx*(w/2-.10),sz*(d/2-.10),h-.04,.70);
+    if(w>1.3){
+      molding(g,w*.54,.105,.04,0,h-.13,d/2-.035,woodMat);
+      addMesh(new THREE.SphereGeometry(.032,10,8),brassMat,0,h-.13,d/2+.005,g);
+    }
     return g;
   }
 
   function chair(x,y,z,rot=0,group=house){
     const g=new THREE.Group(); g.position.set(x,y,z); g.rotation.y=rot; group.add(g);
-    addMesh(new THREE.BoxGeometry(.48,.06,.48), woodMat, 0,.46,0,g);
-    addMesh(new THREE.BoxGeometry(.44,.6,.06), woodMat, 0,.78,-.21,g);
-    [[-.18,-.18],[.18,-.18],[-.18,.18],[.18,.18]].forEach(([sx,sz])=>addMesh(new THREE.BoxGeometry(.06,.46,.06), darkMat, sx,.23,sz,g));
+    molding(g,.48,.065,.48,0,.44,0,woodMat);
+    addMesh(new THREE.BoxGeometry(.42,.065,.41),upholstery,0,.497,.015,g);
+    for(const sx of [-1,1]){
+      turnedLeg(g,sx*.18,.17,.44,.52);turnedLeg(g,sx*.18,-.18,1.03,.54);
+      molding(g,.045,.045,.38,sx*.18,.20,0);
+    }
+    molding(g,.43,.10,.065,0,.97,-.18,woodMat);
+    molding(g,.40,.046,.06,0,.64,-.18,woodMat);
+    for(const x of [-.12,0,.12])molding(g,.047,.30,.038,x,.80,-.18,woodMat);
     return g;
   }
 
   function lamp(x,y,z,warm=0xffd39a,intensity=2.3,dist=9,group=house){
     const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);
-    addMesh(new THREE.SphereGeometry(.15,18,18), new THREE.MeshBasicMaterial({color:warm}),0,0,0,g,false,false);
-    const light = new THREE.PointLight(warm, intensity, dist, 2);
+    // Period pendant with brass cap, cream glass shade and warm inner bulb.
+    addMesh(new THREE.CylinderGeometry(.018,.018,.45,8),brassMat,0,.43,0,g,false,true);
+    addMesh(new THREE.CylinderGeometry(.075,.11,.065,12),brassMat,0,.19,0,g,false,true);
+    const shade=new THREE.LatheGeometry([[.065,.17],[.10,.14],[.14,.07],[.215,-.025],[.245,-.08],[.245,-.10]].map(p=>new THREE.Vector2(...p)),20);
+    addMesh(shade,shadeMat,0,0,0,g,false,true);
+    addMesh(new THREE.TorusGeometry(.242,.012,6,24),brassMat,0,-.10,0,g,false,true).rotation.x=Math.PI/2;
+    addMesh(new THREE.SphereGeometry(.066,12,10),new THREE.MeshBasicMaterial({color:warm}),0,-.075,0,g,false,false);
+    const light = new THREE.PointLight(warm, intensity*2.1, dist, 2);
+    light.position.y=-.15;
     light.castShadow = false;
     light.shadow.mapSize.set(512,512);
     g.add(light);
@@ -782,9 +823,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // secret reading nook far right upper
   const hiddenShelf = bookcaseDoor(8.15, levels.upper+.05, .65);
   roundWindow(7.0, levels.upper+2.05, 4.55, 1.0).rotation.y=Math.PI;
-  addMesh(new THREE.BoxGeometry(2.7,.55,1.15), new THREE.MeshStandardMaterial({color:0x556d87, roughness:1}), 6.25, levels.upper+.3, 2.5);
-  addMesh(new THREE.BoxGeometry(2.4,.18,1.0), cushionMat, 6.25, levels.upper+.66, 2.5);
-  addMesh(new THREE.BoxGeometry(.65,.18,.45), new THREE.MeshStandardMaterial({color:0x7890aa, roughness:1}), 7.0, levels.upper+.83, 2.55);
+  // Sofa geometry is built below as individual upholstered components.
   addMesh(new THREE.BoxGeometry(.45,.06,.45), woodMat, 5.15, levels.upper+.65, 2.55);
   addMesh(new THREE.BoxGeometry(.3,.02,.3), paperMat, 5.15, levels.upper+.76, 2.55);
   rug(6.15, levels.upper+.03, 2.45, 3.2, 2.4);
@@ -799,9 +838,26 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const geo=new THREE.ExtrudeGeometry(shape,{depth:d-.04,bevelEnabled:true,bevelThickness:.02,bevelSize:.02,bevelSegments:2,steps:1,curveSegments:5});geo.translate(0,0,-(d-.04)/2);
     return addMesh(geo,mat,x,y,z);
   }
-  softBox(2.64,.66,.22,6.25,levels.upper+1.02,2.99,velvet);
-  for(const x of [5.04,7.46])softBox(.24,.47,1.05,x,levels.upper+.84,2.5,velvet);
-  for(const x of [5.7,6.8])softBox(.48,.40,.16,x,levels.upper+1.03,2.78,cushionMat).rotation.z=x<6?-.17:.16;
+  // Deep-blue Chesterfield-inspired sofa; separate seats, rolled arms, piping and button tufting.
+  const sy=levels.upper;
+  softBox(2.66,.37,1.10,6.25,sy+.40,2.5,velvet);
+  softBox(2.55,.72,.26,6.25,sy+1.0,2.98,velvet);
+  for(const x of [5.58,6.25,6.92])softBox(.65,.20,.79,x,sy+.68,2.40,cushionMat);
+  for(const x of [5.04,7.46]){
+    softBox(.30,.52,1.02,x,sy+.80,2.50,velvet);
+    const roll=addMesh(new THREE.CylinderGeometry(.17,.17,.99,20),velvet,x,sy+1.06,2.50);roll.rotation.x=Math.PI/2;
+    const cap=addMesh(new THREE.TorusGeometry(.137,.016,8,20),cushionMat,x,sy+1.06,1.997);cap.rotation.y=0;
+  }
+  for(const x of [5.14,7.36])for(const z of [2.08,2.91]){
+    const leg=addMesh(legGeo,woodMat,x,sy+.18,z);leg.scale.set(1.05,.12,1.05);
+  }
+  const tuftGeo=new THREE.SphereGeometry(.033,8,6),tuft=new THREE.InstancedMesh(tuftGeo,velvet,27);
+  let ti=0;const td=new THREE.Object3D();
+  for(let row=0;row<3;row++)for(let col=0;col<9;col++){
+    td.position.set(5.25+col*.245+(row===1?.10:0),sy+.79+row*.18,2.836);td.scale.set(1,1,.42);td.updateMatrix();tuft.setMatrixAt(ti++,td.matrix);
+  }
+  house.add(tuft);
+  for(const x of [5.62,6.93])softBox(.47,.38,.17,x,sy+1.0,2.74,cushionMat).rotation.z=x<6?-.20:.17;
   const blanketGeo=new THREE.PlaneGeometry(.72,1.05,18,24);
   const bp=blanketGeo.attributes.position;
   for(let i=0;i<bp.count;i++){const x=bp.getX(i),y=bp.getY(i);const u=(y+.525)/1.05;bp.setXYZ(i,x,Math.min(.47,u*1.05),.025*Math.sin(x*41)+.018*Math.sin(u*18)+(u>.45?-(u-.45)*.70:0));}
@@ -869,10 +925,31 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   signCtx.fillStyle='#e7d6b4';signCtx.textAlign='center';signCtx.font='54px Georgia';signCtx.fillText('Zum träumenden',512,145);signCtx.font='bold 88px Georgia';signCtx.fillText('Federfuchs',512,254);
   const signTex=new THREE.CanvasTexture(signCanvas);signTex.colorSpace=THREE.SRGBColorSpace;
   addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-4.28);
+  // Architectural details around window frames and walls; nothing added in the stair routes.
+  for(const [x,y] of [[-6.2,levels.upper+2.25],[6,levels.upper+2.25]]){
+    addMesh(new THREE.BoxGeometry(2.18,.09,.30),woodMat,x,y-.84,-4.29);
+    for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.09,1.76,.12),trimMat,x+sign*1.04,y,-4.30);
+  }
+  for(const y of [levels.shop,levels.upper]){
+    for(const sign of [-1,1]){
+      addMesh(new THREE.BoxGeometry(.075,.25,D-.35),trimMat,sign*(W/2-.22),y+.30,0);
+      addMesh(new THREE.BoxGeometry(.09,.10,D-.35),woodMat,sign*(W/2-.23),y+.46,0);
+      addMesh(new THREE.BoxGeometry(.11,.17,D-.35),trimMat,sign*(W/2-.24),y+H-.12,0);
+    }
+  }
+  // Shaped trim on the counter front, kept within the existing collision footprint.
+  for(const x of [-.82,0,.82]){
+    molding(counter,.72,.76,.035,x,.58,.476,trimMat);
+    molding(counter,.60,.64,.039,x,.58,.494,woodMat);
+    for(const k of [-1,1]){
+      molding(counter,.025,.65,.025,x+k*.29,.58,.519,trimMat);
+      molding(counter,.60,.025,.025,x,.58+k*.31,.519,trimMat);
+    }
+  }
   // overall lights
-  const hemi = new THREE.HemisphereLight(0x8098b8, 0x49382a, 1.35); scene.add(hemi);
-  const moon = new THREE.DirectionalLight(0x91b6d9, 1.3); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
-  const fill = new THREE.DirectionalLight(0xffefdc, .55); fill.position.set(8,14,8); scene.add(fill);
+  const hemi = new THREE.HemisphereLight(0x9bb0c2, 0x58432e, 1.10); scene.add(hemi);
+  const moon = new THREE.DirectionalLight(0x91b6d9, .86); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
+  const fill = new THREE.DirectionalLight(0xffe6c0, .74); fill.position.set(8,14,8); scene.add(fill);
 
   // subtle ambient glows by levels
   [[levels.cellar+2.2,0xffcf98,.28],[levels.shop+2.2,0xffddb0,.35],[levels.upper+2.2,0xffe0bc,.25]].forEach(([y,col,int])=>{
@@ -1218,13 +1295,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     {id:'dark_wood',label:'Regale und Holzarbeiten',targets:[woodMat],normal:.32,repeat:[1,1]},
     {id:'medieval_blocks_06',label:'Kellermauerwerk',targets:[stoneMat],normal:.78,repeat:[1,1]},
     {id:'beige_wall_001',label:'Beiger Wandputz',targets:[plasterMat],normal:.34,repeat:[1,1]},
-    {id:'rough_linen',label:'Blaues Leinen',targets:[fabricBlueMat,cushionMat,velvet,cloth],normal:.42,repeat:[2,2],tint:0xffffff},
+    {id:'rough_linen',label:'Blaues Leinen',targets:[fabricBlueMat,cushionMat,velvet,cloth,upholstery],normal:.42,repeat:[2,2],normalOnly:true},
     {id:'brown_leather',label:'Lederne Buchrücken',targets:[bookLeather],normal:.33,repeat:[1,1],normalOnly:true},
     {id:'rusty_iron',label:'Gealtertes Eisen',targets:[ironMat],normal:.32,repeat:[1,1],tint:0x92908b}
   ];
   // Frame materials were previously created per shelf; register them for the same wood maps.
   const frames=new Set();house.traverse(o=>{if(o.isMesh&&o.material!==woodMat&&o.material?.map===woodTex)frames.add(o.material);});
   materialSpecs[1].targets.push(...frames);
+  // Keep dark architectural trim tinted, and do not accidentally apply a photo to colored cloth.
   const savedMaterials=new Map();
   for(const spec of materialSpecs)for(const m of spec.targets)savedMaterials.set(m,{map:m.map,normalMap:m.normalMap,roughnessMap:m.roughnessMap,roughness:m.roughness,color:m.color.clone(),normalScale:m.normalScale.clone()});
   const matStatus=document.getElementById('materialStatus'),matRows=document.getElementById('materialRows'),matPanel=document.getElementById('materialPanel'),matBtn=document.getElementById('materialToggle'),qualitySelect=document.getElementById('materialQuality');
@@ -1257,10 +1335,11 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
   async function fetchMap(spec,suffix,res,token,isColor){
     // Normal maps are often provided as PNG and JPEG; try both formats.
-    const ext=suffix==='nor_gl'?['png','jpg']:['jpg','png'];
+    const ext=suffix==='nor_gl'?['jpg','png']:['jpg','png'];
     for(const e of ext){
       if(token!==generation)return null;
-      const t=await loadOne(textureUrl(spec.id,suffix,res,e),token);
+      let t=await loadOne(textureUrl(spec.id,suffix,res,e),token);
+      if(!t&&suffix==='diff'&&token===generation)t=await loadOne(textureUrl(spec.id,'diffuse',res,e),token);
       if(t){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...spec.repeat);t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());t.colorSpace=isColor?THREE.SRGBColorSpace:THREE.NoColorSpace;loadedTextures.add(t);return t;}
     }
     return null;
