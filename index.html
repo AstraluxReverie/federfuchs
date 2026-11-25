@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.25</title>
+  <title>Zum träumenden Federfuchs – v0.26</title>
   <style>
     :root{
       --bg:#10151b;
@@ -261,11 +261,11 @@ body.walk #mobileControls{padding:0 max(16px,env(safe-area-inset-left));bottom:m
 button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #quickDock #quickWalls{width:39px;font-size:10px!important;font-weight:650;letter-spacing:.01em}
 @media(max-width:420px){#quickDock #quickWalls{width:32px;font-size:9px!important}}
-#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}#journeyPanel select{width:100%;min-height:36px;background:#263a3b;color:#e3eade;border:1px solid #8fa69a;border-radius:7px;padding:6px;font-size:12px}#tourHud{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;width:min(360px,calc(100vw - 20px));text-align:center;color:#f3ead8;background:#142021d9;padding:10px;border:1px solid #d6c79e44;border-radius:12px}#tourHud[hidden]{display:none!important}#tourCaption{font-family:Georgia,serif;font-size:17px;margin-bottom:8px}.tourControls{display:flex;gap:6px;justify-content:center}.tourControls button{min-height:40px;padding:5px 12px;background:#2f4444;border:1px solid #a7b9a36b;color:#e8edde}body.touring #toolRail,body.touring #quickDock,body.touring #hud,body.touring #sceneStatus,body.touring #sceneHome,body.touring #sceneWalkExit,body.touring #quickStand,body.touring #quietExit,body.touring #mobileControls{display:none!important}</style>
+#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}#journeyPanel select{width:100%;min-height:36px;background:#263a3b;color:#e3eade;border:1px solid #8fa69a;border-radius:7px;padding:6px;font-size:12px}#tourHud{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;width:min(360px,calc(100vw - 20px));text-align:center;color:#f3ead8;background:#142021d9;padding:10px;border:1px solid #d6c79e44;border-radius:12px}#tourHud[hidden]{display:none!important}#tourCaption{font-family:Georgia,serif;font-size:17px;margin-bottom:8px}.tourControls{display:flex;gap:6px;justify-content:center}.tourControls button{min-height:40px;padding:5px 12px;background:#2f4444;border:1px solid #a7b9a36b;color:#e8edde}body.touring #toolRail,body.touring #quickDock,body.touring #hud,body.touring #sceneStatus,body.touring #sceneHome,body.touring #sceneWalkExit,body.touring #quickStand,body.touring #quietExit,body.touring #mobileControls{display:none!important}#tourVeil{position:fixed;inset:0;background:#12191d;opacity:0;pointer-events:none;z-index:24}#inventoryList button{font-size:10px;min-height:30px;margin-top:3px;color:#dbebdf;background:#2a403e;border:1px solid #90ab9666;border-radius:5px}</style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.25 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.26 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -296,12 +296,12 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht auswählen">◩</button><button id="quickRoof" aria-label="Dach ein oder aus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15l9-10 9 10M6 13v7h12v-7"/></svg></button><button id="quickTop" aria-label="Draufsicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 11h16M11 4v16"/></svg></button></div>
   <div class="dockGroup"><button data-cam="left" aria-label="Kamera nach links drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6"/></svg></button><button data-cam="right" aria-label="Kamera nach rechts drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg></button><button data-cam="in" aria-label="Heranzoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button data-cam="out" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button></div>
 </div>
-<button id="quickStand" type="button" hidden>Aufstehen</button><div id="tourHud" hidden><div id="tourCaption"></div><div class="tourControls"><button id="tourPrev" aria-label="Vorheriger Raum">‹</button><button id="tourPause">Pause</button><button id="tourNext" aria-label="Nächster Raum">›</button><button id="tourStop">Beenden</button></div></div><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
+<button id="quickStand" type="button" hidden>Aufstehen</button><div id="tourVeil" aria-hidden="true"></div><div id="tourHud" hidden><div id="tourCaption"></div><div class="tourControls"><button id="tourPrev" aria-label="Vorheriger Raum">‹</button><button id="tourPause">Pause</button><button id="tourNext" aria-label="Nächster Raum">›</button><button id="tourStop">Beenden</button></div></div><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
 <div id="hud" class="compactHud" hidden>
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.25 · Die Seele des Federfuchses</div>
+    <div id="sub">v0.26 · Raumgedächtnis & Objektanker</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -331,7 +331,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
     <div id="helpPanel" class="drawerSection" hidden><p class="drawerHint"><b>Touch:</b> ein Finger drehen/schieben, zwei Finger zoomen. Bücher oder Antiquitäten antippen, um sie zu betrachten.</p><p class="drawerHint"><b>PC:</b> WASD/Pfeile verschieben die Kamera, Q/E drehen, +/− zoomen, T Draufsicht, Bild auf/ab Etagen, H Menü ein-/ausblenden.</p><p class="drawerHint">Im Gehmodus: WASD laufen, Maus oder Finger ziehen zum Umsehen, E Türen bedienen. Die Menüs bleiben vom Spiel getrennt.</p></div>
     <div id="journeyPanel" class="drawerSection" hidden>
 <label class="drawerLabel" for="roomJump">Räume entdecken</label><select id="roomJump"></select><button id="roomVisit" class="wideTool">Raum betrachten</button><button id="startTour" class="wideTool">Filmische Rundreise</button>
-<label class="drawerLabel">Erinnerungen</label><p id="visitStatus" class="drawerHint"></p><div class="toolPair"><button id="saveVisit">Ansicht merken</button><button id="restoreVisit">Zurückkehren</button></div><button id="resumeBook" class="wideTool">Zuletzt gelesenes Buch</button>
+<label class="drawerLabel">Erinnerungen</label><p id="visitStatus" class="drawerHint"></p><div class="toolPair"><button id="saveVisit">Ansicht merken</button><button id="restoreVisit">Zurückkehren</button></div><button id="resumeBook" class="wideTool">Zuletzt gelesenes Buch</button><button id="saveRoomState" class="wideTool">Raumzustand merken</button><button id="restoreRoomState" class="wideTool">Raumzustand wiederherstellen</button><p id="roomMemoryStatus" class="drawerHint"></p>
 <label class="drawerLabel" for="clockMode">Licht und Zeit</label><select id="clockMode"><option value="manual">Manuell</option><option value="real">Lokale Uhrzeit</option></select>
 <label class="drawerLabel" for="weatherMode">Wetter</label><select id="weatherMode"><option value="rain">Regen</option><option value="snow">Schnee</option><option value="clear">Trocken</option><option value="season">Jahreszeit (lokal)</option></select><p id="roomProfileStatus" class="drawerHint"></p></div>
 <div id="houseViewPanel">
@@ -426,6 +426,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import {timber,cobbles,wallpaper} from './surface-art.js';
   import {DESIGN,WALL_MODES,wallMode,motifPath,sealArtwork} from './design-standard.js';
   import {ROOMS,TOUR,roomAt,naturalMood,validateVisit} from './rooms.js';
+  import {ANCHOR_PLAN,anchorFor} from './asset-anchors.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -2352,9 +2353,13 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       name.textContent=e.id+' · '+e.name;info.textContent=e.floor+' · '+e.room+' · '+e.location;
       const binding=inventoryBindings.get(e.id),loaded=binding?.objects.some(o=>o.userData.localAsset);
       status.textContent=loaded?'Eigenes GLB aktiv':binding?(states[binding.kind]||'Platzhalter'):'Geplant · noch nicht zugeordnet';
-      row.append(name,info,status);inventoryList.append(row);
+      const anchor=anchorFor(e.id),placement=document.createElement('small');
+      placement.textContent=anchor?.position?'Planpunkt (m): '+anchor.position.map(n=>n.toFixed(2)).join(' / ')+' · '+anchor.yawDegrees+'° · vorläufig':anchor?.pattern?'Modul: '+anchor.pattern:'Noch kein Planpunkt';
+      row.append(name,info,status,placement);
+      if(anchor?.position){const locate=document.createElement('button');locate.type='button';locate.textContent='Standort betrachten';locate.addEventListener('click',()=>{const f=['UG','EG','OG'].indexOf(anchor.floor);const p=new THREE.Vector3(...anchor.position);if(walkMode)setWalkMode(false);roomFocus=null;houseView.floor=f;houseView.scope='single';houseView.mode='auto';houseView.roof=false;currentArea=['cellar','shop','upper'][f];setActiveButton(currentArea);applyHouseView(true);const t=p.clone().add(new THREE.Vector3(0,.65,0));tweenCamera(fitPosition(t.clone().add(new THREE.Vector3(4,4,6)),t,3.1),t,750);setDrawer(null);});row.append(locate);}
+      inventoryList.append(row);
     }
-    inventoryStatus.textContent=productionCatalog.entries.length+' Asset-Typen · '+inventoryBindings.size+' Szenenzuordnungen · '+rows.length+' angezeigt. 4 vorläufige Modelle gemeldet (IDs noch offen).';
+    inventoryStatus.textContent=productionCatalog.entries.length+' Asset-Typen · '+Object.keys(ANCHOR_PLAN).length+' Standortpläne · '+inventoryBindings.size+' Szenenzuordnungen · '+rows.length+' angezeigt. 4 vorläufige Modelle gemeldet (IDs noch offen).';
   }
   async function loadProductionCatalog(){
     try{const response=await fetch('./assets/catalog.json',{cache:'no-cache'});if(!response.ok)throw Error('Katalog nicht erreichbar');const catalog=await response.json();if(catalog.version!==1||catalog.entries.length!==160||new Set(catalog.entries.map(e=>e.id)).size!==160)throw Error('Katalog ungültig');productionCatalog=catalog;renderInventory();}
@@ -2862,10 +2867,28 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function focusRoom(id,duration=750){const r=roomById(id);if(!r)return;if(walkMode)setWalkMode(false);roomFocus=id;currentArea=['cellar','shop','upper'][r.floor];setActiveButton(currentArea);houseView.floor=r.floor;houseView.scope='single';houseView.roof=false;houseView.mode='auto';applyHouseView(true);const target=new THREE.Vector3(...r.focus),p=new THREE.Vector3(...r.camera);tweenCamera(fitPosition(p,target,r.radius),target,duration);roomSelect.value=id;}
   function setWeatherChoice(){const season=new Date().getMonth(),v=weatherChoice==='season'?([11,0,1].includes(season)?'snow':'rain'):weatherChoice;weather.rain=v==='rain';weather.snow=v==='snow';outdoorRain.material.color.setHex(weather.snow?0xe5edf1:0xacc1d0);outdoorRain.material.opacity=weather.snow?.66:.20;weatherBtn.textContent=weather.snow?'Schnee: an':weather.rain?'Regen: an':'Regen: aus';weatherBtn.setAttribute('aria-pressed',String(weather.rain||weather.snow));paintRain(0,0);}
   function syncTime(t){if(t-lastClockCheck<30000)return;lastClockCheck=t;if(clockChoice==='real'){const mood=naturalMood(new Date().getHours());if(lightMood.value!==mood){lightMood.value=mood;updateLightMood();}}if(weatherChoice==='season')setWeatherChoice();}
-  function tourStopAt(index){if(!tourState)return;tourState.index=(index+TOUR.length)%TOUR.length;tourState.elapsed=0;const r=roomById(TOUR[tourState.index]);focusRoom(r.id,1900);document.getElementById('tourCaption').textContent=r.name+' · '+(tourState.index+1)+' / '+TOUR.length;}
-  function startTour(){if(tourState)return;if(walkMode)setWalkMode(false);const before=snapshotVisit();if(!before)return;tourState={index:0,elapsed:0,paused:false,before};resetInput();cameraKeys.clear();setDrawer(null);controls.enabled=false;document.body.classList.add('touring');tourHud.hidden=false;document.getElementById('tourPause').textContent='Pause';tourStopAt(0);}
-  function endTour(){if(!tourState)return;const before=tourState.before;tourState=null;tourHud.hidden=true;document.body.classList.remove('touring');controls.enabled=true;applyVisit(before);}
-  function updateJourney(dt,t){syncTime(t);if(tourState&&!tourState.paused){tourState.elapsed+=dt;if(tourState.elapsed>=7){if(tourState.index===TOUR.length-1)endTour();else tourStopAt(tourState.index+1);}}const p=activeRoomProfile(),factor=p?.light??1;roomLight+=(factor-roomLight)*Math.min(1,dt*1.7);const base=lightMood.value==='day'?1.20:lightMood.value==='night'?1.18:1.32;renderer.toneMappingExposure=base*roomLight;const key=p?.id||'overview';if(key!==lastRoomKey){lastRoomKey=key;roomProfileStatus.textContent=p?p.name+' · Raumlicht und gedämpfte Geräuschkulisse':'Gesamtansicht · neutrale Raumstimmung';}}
+  const tourVeil=document.getElementById('tourVeil');
+  function tourStopAt(index){if(!tourState)return;tourState.pending=(index+TOUR.length)%TOUR.length;tourState.framed=false;tourState.transition=0;tourState.elapsed=0;tween=null;}
+  function advanceTourTransition(dt){
+    if(!tourState||tourState.pending===null)return false;
+    tourState.transition+=dt;const p=tourState.transition;
+    if(p<.35){tourVeil.style.opacity=String(p/.35);return true;}
+    if(tourState.index!==tourState.pending||!tourState.framed){
+      tourState.index=tourState.pending;tourState.framed=true;
+      const r=roomById(TOUR[tourState.index]);focusRoom(r.id,1);
+      const target=new THREE.Vector3(...r.focus),pos=fitPosition(new THREE.Vector3(...r.camera),target,r.radius);
+      camera.position.copy(pos);controls.target.copy(target);camera.lookAt(target);tween=null;
+      const drift=pos.clone().sub(target).applyAxisAngle(new THREE.Vector3(0,1,0),.065).multiplyScalar(.965);
+      tweenCamera(target.clone().add(drift),target,5400);
+      document.getElementById('tourCaption').textContent=r.name+' · '+(tourState.index+1)+' / '+TOUR.length;
+    }
+    tourVeil.style.opacity=String(Math.max(0,1-(p-.35)/.55));
+    if(p>=.90){tourState.pending=null;tourState.framed=false;tourVeil.style.opacity='0';}
+    return true;
+  }
+  function startTour(){if(tourState)return;if(walkMode)setWalkMode(false);const before=snapshotVisit();if(!before)return;tourState={index:0,elapsed:0,paused:false,before,pending:null,transition:0,framed:false};resetInput();cameraKeys.clear();setDrawer(null);controls.enabled=false;document.body.classList.add('touring');tourHud.hidden=false;document.getElementById('tourPause').textContent='Pause';tourStopAt(0);}
+  function endTour(){if(!tourState)return;const before=tourState.before;tourState=null;tourVeil.style.opacity='0';tourHud.hidden=true;document.body.classList.remove('touring');controls.enabled=true;applyVisit(before);}
+  function updateJourney(dt,t){syncTime(t);if(tourState&&!tourState.paused&&!advanceTourTransition(dt)){tourState.elapsed+=dt;if(tourState.elapsed>=7){if(tourState.index===TOUR.length-1)endTour();else tourStopAt(tourState.index+1);}}const p=activeRoomProfile(),factor=p?.light??1;roomLight+=(factor-roomLight)*Math.min(1,dt*1.7);const base=lightMood.value==='day'?1.20:lightMood.value==='night'?1.18:1.32;renderer.toneMappingExposure=base*roomLight;const key=p?.id||'overview';if(key!==lastRoomKey){lastRoomKey=key;roomProfileStatus.textContent=p?p.name+' · Raumlicht und gedämpfte Geräuschkulisse':'Gesamtansicht · neutrale Raumstimmung';}}
   try{savedVisit=validateVisit(JSON.parse(localStorage.getItem('federfuchs-visit-v1')||'null'));const a=localStorage.getItem('federfuchs-clock');if(a==='real')clockChoice=a;const b=localStorage.getItem('federfuchs-weather');if(['rain','snow','clear','season'].includes(b))weatherChoice=b;}catch(e){}
   clockMode.value=clockChoice;weatherMode.value=weatherChoice;setWeatherChoice();saveVisitUi();lightMood.disabled=clockChoice==='real';
   clockMode.addEventListener('change',()=>{clockChoice=clockMode.value;lastClockCheck=-Infinity;lightMood.disabled=clockChoice==='real';try{localStorage.setItem('federfuchs-clock',clockChoice);}catch(e){}syncTime(performance.now());});
@@ -2877,8 +2900,17 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('resumeBook').addEventListener('click',()=>{let id=null;try{const v=localStorage.getItem('federfuchs-last-book');if(v!==null)id=Number(v);}catch(e){}setDrawer(null);if(Number.isInteger(id)&&library[id])readBook(id);else catalogView();});
   document.getElementById('startTour').addEventListener('click',startTour);document.getElementById('tourStop').addEventListener('click',endTour);
   document.getElementById('tourPrev').addEventListener('click',()=>{if(tourState)tourStopAt(tourState.index-1);});document.getElementById('tourNext').addEventListener('click',()=>{if(tourState)tourStopAt(tourState.index+1);});
-  document.getElementById('tourPause').addEventListener('click',e=>{if(!tourState)return;tourState.paused=!tourState.paused;if(tourState.paused)tween=null;e.currentTarget.textContent=tourState.paused?'Weiter':'Pause';if(!tourState.paused)focusRoom(TOUR[tourState.index],1000);});
+  document.getElementById('tourPause').addEventListener('click',e=>{if(!tourState)return;tourState.paused=!tourState.paused;if(tourState.paused)tween=null;e.currentTarget.textContent=tourState.paused?'Weiter':'Pause';if(!tourState.paused&&tourState.pending===null)tourStopAt(tourState.index);});
   addEventListener('keydown',e=>{if(e.code==='Escape'&&tourState)endTour();});
+  // Explicit room memory: doors and casements are saved by stable order, versioned with geometry counts.
+  const roomMemoryStatus=document.getElementById('roomMemoryStatus');
+  let roomMemory=null;
+  function validRoomMemory(v){return v?.version===1&&Array.isArray(v.doors)&&v.doors.length===doors.length&&v.doors.every(x=>typeof x==='boolean')&&Array.isArray(v.windows)&&v.windows.length===casements.length&&v.windows.every(x=>typeof x==='boolean');}
+  function memoryUi(){roomMemoryStatus.textContent=roomMemory?'Tür- und Fensterzustände gespeichert':'Noch kein Raumzustand gespeichert';document.getElementById('restoreRoomState').disabled=!roomMemory;}
+  function captureRoomMemory(){const v={version:1,doors:doors.map(d=>!!d.open),windows:casements.map(c=>!!c.open)};try{localStorage.setItem('federfuchs-room-memory-v1',JSON.stringify(v));roomMemory=v;memoryUi();}catch(e){roomMemoryStatus.textContent='Speicherung nicht verfügbar';}}
+  function restoreRoomMemory(){if(!validRoomMemory(roomMemory))return;doors.forEach((d,i)=>d.open=roomMemory.doors[i]);casements.forEach((c,i)=>c.open=roomMemory.windows[i]);memoryUi();}
+  try{const v=JSON.parse(localStorage.getItem('federfuchs-room-memory-v1')||'null');if(validRoomMemory(v))roomMemory=v;}catch(e){}
+  memoryUi();document.getElementById('saveRoomState').addEventListener('click',captureRoomMemory);document.getElementById('restoreRoomState').addEventListener('click',restoreRoomMemory);
   addEventListener('pagehide',()=>rememberVisit());document.addEventListener('visibilitychange',()=>{if(document.hidden)rememberVisit();});
   house.updateMatrixWorld(true);for(const binding of inventoryBindings.values())for(const o of binding.objects){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())continue;const p=b.getCenter(new THREE.Vector3()),room=roomAt(floorOf(p.y),p.x,p.z);if(room)o.userData.roomId=room.id;}
   let detailActive=false,detailTotal=0,detailCompleted=0;
@@ -2893,7 +2925,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=025',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=026',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
