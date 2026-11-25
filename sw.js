@@ -1,5 +1,5 @@
-// Federfuchs 0.37: network-first navigation; bounded cache for immutable game assets.
-const CACHE='federfuchs-assets-v037';
+// Federfuchs 0.38: network-first navigation; bounded cache for immutable game assets.
+const CACHE='federfuchs-assets-v038';
 const LIMIT=100;
 self.addEventListener('install',event=>{self.skipWaiting();});
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
@@ -22,8 +22,8 @@ self.addEventListener('fetch',event=>{
   if(req.mode==='navigate'&&url.origin===self.location.origin&&url.pathname.startsWith(new URL(self.registration.scope).pathname)){
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE);
-      try{const res=await fetch(req);if(res.ok)await cache.put(new Request(self.registration.scope),res.clone());return res;}
-      catch(e){return await cache.match(new Request(self.registration.scope))||Response.error();}
+      try{const res=await fetch(req,{cache:'no-store'});if(res.ok)await cache.put(req,res.clone());return res;}
+      catch(e){return await cache.match(req)||Response.error();}
     })());return;
   }
   if(!permitted(url))return;
