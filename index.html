@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.14</title>
+  <title>Zum träumenden Federfuchs – v0.15</title>
   <style>
     :root{
       --bg:#10151b;
@@ -149,11 +149,31 @@
     #hvStatus{color:#b9ac97;font-size:10px;margin-top:5px}
     @media(max-width:420px){.hvLine button{font-size:10px;padding:6px}.hvLine>span{min-width:33px}}
     @media(max-height:530px){#houseViewPanel{max-height:29dvh;overflow:auto}}
+
+    #editPanel[hidden]{display:none!important}
+    #editPanel{margin-top:8px;padding-top:7px;border-top:1px solid #cdb99440;max-height:54dvh;overflow:auto;overscroll-behavior:contain;touch-action:pan-y}
+    .editTitle,.editLine{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:4px 0}
+    .editLine button{flex:1;min-height:30px}
+    .editTitle strong{font:600 15px Georgia,serif;color:#f2dbb4}
+    .editLabel,#editSelected,#editStatus{font-size:11px;line-height:1.45;color:#dac7a6}
+    #editSelect{width:100%;background:#292823;color:#eadeca;border:1px solid #8c7654;border-radius:8px;padding:7px;font-size:13px;margin:3px 0}
+    #editSelected{min-height:17px;margin:3px 0}
+    .editMovement{display:grid;grid-template-columns:1fr 1fr 1.3fr 1fr 1fr;gap:3px;margin:5px 0}
+    .editMovement button{min-height:32px;font-size:13px}
+    #editStatus{margin-top:6px;min-height:26px}
+    #editStatus[data-error=true]{color:#ffb2a0}
+    #editPanel button:disabled{opacity:.36}
+    #editPlace[aria-pressed=true],#editToggle[aria-pressed=true]{border-color:#dab97d;background:#a78a4c4f}
+    body.editing #houseViewPanel,body.editing #materialPanel{display:none!important}
+    body.editing #toolbar button:not(#editToggle):not([data-view]){display:none}
+    body.editing #toolbar button[data-view]{display:none}
+    body.editing #overlay{display:none}
+    @media(max-width:550px){body.editing #hud .card{max-width:310px}#editPanel button{font-size:11px;padding:7px 6px}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.14 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.15 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -168,7 +188,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.14 · Hausansicht</div>
+    <div id="sub">3D-Studie v0.15 · Einrichtungsmodus</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -182,6 +202,7 @@
       <button id="libraryToggle" type="button">Bücher entdecken</button>
       <button id="materialToggle" type="button" aria-expanded="false">Materialien</button>
       <button id="houseViewToggle" type="button" aria-expanded="true">Hausansicht</button>
+      <button id="editToggle" type="button" aria-pressed="false">✥ Einrichten</button>
     </div>
     <div id="houseViewPanel">
       <div class="hvLine"><span>Wände</span><div class="hvSegments" role="group" aria-label="Wandhöhe">
@@ -197,6 +218,17 @@
       </div></div>
       <div class="hvLine"><button type="button" id="floorScope">Nur diese Etage</button><button type="button" id="roofToggle" aria-pressed="false">Dach: aus</button><button type="button" id="topView">Draufsicht</button></div>
       <div id="hvStatus" role="status">Automatischer Gebäudeschnitt</div>
+    </div>
+    <div id="editPanel" hidden>
+      <div class="editTitle"><strong>Einrichten</strong><button id="editExit" type="button">Fertig</button></div>
+      <div class="editLine"><button id="editFloorDown" type="button" aria-label="Etage tiefer">▼</button><span id="editFloorName">Erdgeschoss</span><button id="editFloorUp" type="button" aria-label="Etage höher">▲</button></div>
+      <label class="editLabel" for="editSelect">Möbel auswählen</label><select id="editSelect" aria-label="Möbel auswählen"><option value="">Bitte auswählen</option></select>
+      <div id="editSelected">Tippe auf ein Möbelstück oder wähle es aus.</div>
+      <div class="editLine"><button id="editPlace" type="button" aria-pressed="false">✥ Platzieren</button><button id="editTurnLeft" type="button" aria-label="15 Grad links drehen">↶ 15°</button><button id="editTurnRight" type="button" aria-label="15 Grad rechts drehen">↷ 15°</button></div>
+      <div class="editMovement"><button data-nudge="0,-1" type="button" aria-label="Nach hinten">↑</button><button data-nudge="-1,0" type="button" aria-label="Nach links">←</button><button id="editStep" type="button" aria-label="Schrittweite ändern">25 cm</button><button data-nudge="1,0" type="button" aria-label="Nach rechts">→</button><button data-nudge="0,1" type="button" aria-label="Nach vorn">↓</button></div>
+      <div class="editLine"><button id="editUndo" type="button">↶ Rückgängig</button><button id="editRedo" type="button">↷ Wiederholen</button></div>
+      <div class="editLine"><button id="editSave" type="button">Speichern</button><button id="editLoad" type="button">Laden</button><button id="editReset" type="button">Original</button></div>
+      <div id="editStatus" role="status">Wähle ein Möbel aus. Rote Markierung = Platzierung nicht möglich.</div>
     </div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
@@ -495,8 +527,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const m=addMesh(legGeo,woodMat,x,0,z,g);m.scale.set(scale,h,scale);return m;
   }
   function molding(g,w,h,d,x,y,z,mat=trimMat){return addMesh(new THREE.BoxGeometry(w,h,d),mat,x,y,z,g);}
+  function markEditable(o,kind,label){o.userData.editKind=kind;o.userData.editLabel=label;return o;}
   function bookShelf(x,y,z,w=2.3,h=3.1,d=.45,group=house){
-    const g=new THREE.Group();g.position.set(x,y,z);group.add(g);
+    const g=new THREE.Group();g.position.set(x,y,z);group.add(g);if(group===house)markEditable(g,'shelf','Bücherregal');
     const frame=new THREE.MeshStandardMaterial({color:0x51351f,map:woodTex,roughness:.78});
     addMesh(new THREE.BoxGeometry(w,h,.065),frame,0,h/2,-d/2,g);
     for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.085,h,d),woodMat,sign*(w-.085)/2,h/2,0,g);
@@ -534,7 +567,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
 
   function table(x,y,z,w=1.6,d=.9,h=.85,group=house){
-    const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);
+    const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);if(group===house)markEditable(g,'table','Holztisch');
     addMesh(new THREE.BoxGeometry(w,.065,d), woodMat, 0,h,0,g);
     molding(g,w-.035,.035,d-.025,0,h-.038,0);
     molding(g,w-.13,.13,.065,0,h-.13,-d/2+.075);
@@ -549,7 +582,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
 
   function chair(x,y,z,rot=0,group=house){
-    const g=new THREE.Group(); g.position.set(x,y,z); g.rotation.y=rot; group.add(g);
+    const g=new THREE.Group(); g.position.set(x,y,z); g.rotation.y=rot; group.add(g);if(group===house)markEditable(g,'chair','Polsterstuhl');
     molding(g,.48,.065,.48,0,.44,0,woodMat);
     addMesh(new THREE.BoxGeometry(.42,.065,.41),upholstery,0,.497,.015,g);
     for(const sx of [-1,1]){
@@ -579,7 +612,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     return g;
   }
 
-  function rug(x,y,z,w=2,d=1.4,group=house){ return addMesh(new THREE.BoxGeometry(w,.03,d), rugMat, x,y,z, group, false, true); }
+  function rug(x,y,z,w=2,d=1.4,group=house){const m=addMesh(new THREE.BoxGeometry(w,.03,d),rugMat,x,y,z,group,false,true);if(group===house)markEditable(m,'rug','Teppich');return m;}
 
   // True clear glazing: rain is an alpha overlay, not a painted exterior.
   const weather={rain:true};
@@ -815,7 +848,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   rug(-4.7, levels.shop+.19, -.1, 2.7, 3.1);
 
   // counter left front
-  const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop, 2.65); house.add(counter);
+  const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop, 2.65); house.add(counter);markEditable(counter,'counter','Verkaufstresen');
   addMesh(new THREE.BoxGeometry(2.6,1.15,.95), woodMat,0,.58,0,counter);
   addMesh(new THREE.BoxGeometry(2.6,.18,1.02), darkMat,0,1.11,0,counter);
 
@@ -963,7 +996,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   for(let i=0;i<bp.count;i++){const x=bp.getX(i),y=bp.getY(i);const u=(y+.525)/1.05;bp.setXYZ(i,x,Math.min(.47,u*1.05),.025*Math.sin(x*41)+.018*Math.sin(u*18)+(u>.45?-(u-.45)*.70:0));}
   blanketGeo.computeVertexNormals();
   const blanket=addMesh(blanketGeo,cloth,7.12,levels.upper+.77,2.93);blanket.rotation.x=-Math.PI/2;
-  for(const child of house.children.slice(sofaStart))child.position.x+=.78;
+  const sofaParts=house.children.slice(sofaStart);for(const child of sofaParts)child.position.x+=.78;
+  const editableSofa=new THREE.Group();editableSofa.position.set(7.03,sy+.175,2.5);house.add(editableSofa);house.updateMatrixWorld(true);for(const child of sofaParts)editableSofa.attach(child);markEditable(editableSofa,'sofa','Blaues Chesterfield-Sofa');
   // decorative cat-like fox sign on shop rear? small logo suggestion
   addMesh(new THREE.BoxGeometry(1.4,.9,.07), woodMat, 0.0, levels.shop+2.15, -4.05);
 
@@ -1002,12 +1036,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.CylinderGeometry(.09,.09,2.9,16),ironMat,0,2.35,0,stove);
   addMesh(new THREE.BoxGeometry(.83,.075,.74),stoneMat,0,.02,0,stove);
   const glow=new THREE.PointLight(0xff9a40,2.4,4);glow.position.set(0,.6,.45);stove.add(glow);
-  const readingTable=table(6.50,levels.upper+.175,1.05,.76,.55,.53);
+  const readingTable=table(6.50,levels.upper+.175,1.05,.76,.55,.53);readingTable.userData.editLabel='Lesetisch';const teaMugStart=house.children.length;
   for(const x of [6.30,6.65]){
     const mugMat=new THREE.MeshStandardMaterial({color:0xd3c4ae,roughness:.4});
     addMesh(new THREE.CylinderGeometry(.095,.075,.13,20),mugMat,x,levels.upper+.82,1.20);
     addMesh(new THREE.TorusGeometry(.052,.017,8,16),mugMat,x+.095,levels.upper+.83,1.20);
   }
+  const readingMugs=house.children.slice(teaMugStart);
   // Open book placed on the sofa-side table, not a floating prop.
   const openBook=new THREE.Group();openBook.position.set(6.51,levels.upper+.75,.89);openBook.rotation.y=.15;house.add(openBook);
   addMesh(new THREE.BoxGeometry(.31,.035,.21),darkMat,0,0,0,openBook);
@@ -1263,6 +1298,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     camera.lookAt(player.pos.clone().add(dir)); controls.target.copy(player.pos.clone().add(dir));
   }
   function setWalkMode(on){
+    if(on&&editMode)exitEditor();
     walkMode = on; tween=null;
     document.body.classList.toggle('walk', on);
     controls.enabled = !on;
@@ -1436,6 +1472,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const rect=renderer.domElement.getBoundingClientRect();
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);
     const visibleHit=h=>{for(let o=h.object;o;o=o.parent)if(!o.visible)return false;return true;};
+    if(editMode){handleEditorRay(visibleHit);return;}
     const bookHit=ray.intersectObjects(pickableBooks,false).find(visibleHit);
     const propHit=ray.intersectObjects(inspectables,true).find(visibleHit);
     const hit=bookHit&&(!propHit||bookHit.distance<=propHit.distance+.04)?bookHit:propHit;
@@ -1529,6 +1566,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       syncWalkCamera();
     }
     applyHouseView();
+    if(editMode)refreshEditorSelection();
     animateExterior(dt);
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
@@ -1681,7 +1719,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       const fallback=[...spec.target.children];
       spec.target.add(model);spec.target.updateWorldMatrix(true,true);
       const placed=new THREE.Box3().setFromObject(model);
-      if(!modelFits(placed)||placed.min.y<spec.target.position.y-.03||placed.max.y>spec.target.position.y+spec.max[1]+.03){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
+      const targetWorld=spec.target.getWorldPosition(new THREE.Vector3());
+      if(!modelFits(placed)||placed.min.y<targetWorld.y-.03||placed.max.y>targetWorld.y+spec.max[1]+.03){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
       model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
       // Remove only after successful replacement. Retain inspectable parent and userData.
       for(const child of fallback)spec.target.remove(child);
@@ -1704,6 +1743,19 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     el.textContent=conflicts.length?'Wandprüfung: '+conflicts.length+' mögliche Überschneidungen · '+conflicts.join(', '):'Wandprüfung: '+candidates.size+' Objektgruppen geprüft, keine gemeldete Überschneidung.';
     return conflicts;
   }
+  // Assemble movable furniture and keep all associated props attached to it.
+  function tableAt(x,z,y){return house.children.find(o=>o.userData.editKind==='table'&&Math.abs(o.position.x-x)<.03&&Math.abs(o.position.z-z)<.03&&Math.abs(o.position.y-y)<.22);}
+  house.updateMatrixWorld(true);
+  const archiveDesk=tableAt(-4.8,-1.3,levels.cellar),workDesk=tableAt(4.75,-1.1,levels.cellar),writingDesk=tableAt(5.5,-2.92,levels.upper);
+  if(archiveDesk){archiveDesk.userData.editLabel='Archivtisch';archiveDesk.attach(stack);}
+  if(workDesk){workDesk.userData.editLabel='Buchbinder-Werkbank';workDesk.attach(press);workDesk.attach(repair);}
+  if(writingDesk){writingDesk.userData.editLabel='Veronimus’ Schreibtisch';writingDesk.attach(typewriter);writingDesk.attach(quill);}
+  clockStand.userData.editLabel='Uhrtisch';clockStand.attach(clockObj);
+  readingTable.attach(openBook);readingTable.attach(glasses);
+  for(const o of readingMugs){if(o.parent===house&&Math.abs(o.position.x-6.5)<.45&&Math.abs(o.position.z-1.2)<.25)readingTable.attach(o);}
+  for(const o of [bell,ledger,till,armillary,vase])counter.attach(o);
+  readerChair.userData.editLabel='Historischer Lesesessel';
+  house.updateMatrixWorld(true);
   // Sims-inspired visual house controls. Collision geometry is intentionally untouched.
   const houseView={mode:'auto',floor:-1,scope:'single',roof:false};
   const hvPanel=document.getElementById('houseViewPanel'),hvToggle=document.getElementById('houseViewToggle'),hvStatus=document.getElementById('hvStatus');
@@ -1793,10 +1845,149 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     houseView.floor=b.dataset.view==='overview'?-1:b.dataset.view==='cellar'?0:b.dataset.view==='shop'?1:2;
     applyHouseView(true);
   });
+  // Furniture editor: persistent IDs, real world boxes, validated placement, transaction history.
+  let editMode=false,editSelection=null,placing=false,stepSize=.25;
+  const editItems=[],editMap=new Map(),editHistory=[],editFuture=[];
+  const editPanel=document.getElementById('editPanel'),editToggle=document.getElementById('editToggle'),editSelect=document.getElementById('editSelect'),editStatus=document.getElementById('editStatus'),editSelected=document.getElementById('editSelected');
+  const editPlace=document.getElementById('editPlace'),editUndo=document.getElementById('editUndo'),editRedo=document.getElementById('editRedo');
+  const originalObstacles=furniture.slice(),matchedObstacles=new Set();
+  const selectionHelper=new THREE.Box3Helper(new THREE.Box3(),0xe1bf7c);scene.add(selectionHelper);selectionHelper.visible=false;
+  const placementPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0),placementPoint=new THREE.Vector3();
+  const rectOverlap=(a,b,pad=0)=>a.x0<b.x1+pad&&a.x1>b.x0-pad&&a.z0<b.z1+pad&&a.z1>b.z0-pad;
+  function itemTransform(o){return {x:o.position.x,z:o.position.z,r:o.rotation.y};}
+  function setItemTransform(o,t){o.position.x=t.x;o.position.z=t.z;o.rotation.y=t.r;o.updateWorldMatrix(true,true);}
+  function worldRect(o){o.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(o);return {box:b,x0:b.min.x,x1:b.max.x,z0:b.min.z,z1:b.max.z};}
+  // Match legacy collision rectangles to editable objects by their original centre. Other obstacles stay fixed.
+  for(const o of house.children){
+    const kind=o.userData.editKind;if(!kind)continue;
+    const floor=floorOf(o.position.y),origin=itemTransform(o),id=kind+'_'+floor+'_'+origin.x.toFixed(2)+'_'+origin.z.toFixed(2);
+    const entry={o,id,kind,floor,label:o.userData.editLabel,origin,rect:null,initialY:o.position.y};
+    if(kind!=='rug'){
+      const old=originalObstacles.find(v=>!matchedObstacles.has(v)&&v.floor===floor&&Math.abs((v.x0+v.x1)/2-origin.x)<.10&&Math.abs((v.z0+v.z1)/2-origin.z)<.10);
+      if(old)matchedObstacles.add(old);
+    }
+    editItems.push(entry);editMap.set(id,entry);
+  }
+  const staticObstacles=originalObstacles.filter(o=>!matchedObstacles.has(o));
+  function rebuildEditorCollisions(){
+    furniture.length=0;furniture.push(...staticObstacles);
+    for(const e of editItems){e.rect=worldRect(e.o);if(e.kind!=='rug')furniture.push({floor:e.floor,x0:e.rect.x0,x1:e.rect.x1,z0:e.rect.z0,z1:e.rect.z1});}
+  }
+  function validatePlacement(e,b){
+    if(b.box.isEmpty()||![b.x0,b.x1,b.z0,b.z1].every(Number.isFinite))return 'Ungültige Abmessungen.';
+    if(b.x0<-8.79||b.x1>8.79||b.z0<-5.04||b.z1>5.04)return 'Außerhalb des Gebäudes.';
+    // Walls use the full physical bounds even when their display is switched off.
+    if(wallBoxes.some(w=>intersectsWall(b.box,w,.018)))return 'Hier steht eine Wand.';
+    for(const d of doors){if(Math.abs(d.floor-baseByFloor[e.floor])>.01)continue;const reserve={x0:d.x-.78,x1:d.x+.78,z0:d.z-.76,z1:d.z+.76};if(rectOverlap(b,reserve,.06))return 'Türbereich freihalten.';}
+    for(const f of flights){if(f.low!==e.floor&&f.high!==e.floor)continue;const reserve={x0:f.x-stairHalf,x1:f.x+stairHalf,z0:zTop-.35,z1:zBottom+.35};if(rectOverlap(b,reserve,.12))return 'Treppen und Podeste freihalten.';}
+    if(e.kind!=='rug'){
+      if(staticObstacles.some(v=>v.floor===e.floor&&rectOverlap(b,v,.025)))return 'Ein festes Möbelstück steht im Weg.';
+      if(editItems.some(other=>other!==e&&other.floor===e.floor&&other.kind!=='rug'&&rectOverlap(b,other.rect||worldRect(other.o),.025)))return 'Hier steht bereits ein Möbelstück.';
+    }
+    return '';
+  }
+  const layoutSnapshot=()=>Object.fromEntries(editItems.map(e=>[e.id,itemTransform(e.o)]));
+  const originalLayout=layoutSnapshot();
+  function restoreSnapshot(snapshot){for(const e of editItems)if(snapshot[e.id])setItemTransform(e.o,snapshot[e.id]);rebuildEditorCollisions();applyHouseView(true);refreshEditorSelection();}
+  function setEditStatus(msg,error=false){editStatus.textContent=msg;editStatus.dataset.error=String(error);if(editSelection)selectionHelper.material.color.setHex(error?0xe47461:0xe1bf7c);}
+  function pushHistory(before){editHistory.push(before);if(editHistory.length>50)editHistory.shift();editFuture.length=0;updateEditorControls();}
+  function updateEditorControls(){
+    const selected=!!editSelection;editPlace.disabled=!selected;
+    for(const b of editPanel.querySelectorAll('[data-nudge],#editTurnLeft,#editTurnRight'))b.disabled=!selected;
+    editUndo.disabled=editHistory.length===0;editRedo.disabled=editFuture.length===0;
+    editPlace.setAttribute('aria-pressed',String(placing));editPlace.textContent=placing?'Ziel antippen · Abbrechen':'✥ Platzieren';
+    document.getElementById('editFloorName').textContent=names[Math.max(0,houseView.floor)];
+    document.getElementById('editFloorDown').disabled=houseView.floor===0;
+    document.getElementById('editFloorUp').disabled=houseView.floor===2;
+  }
+  function refreshEditorSelection(){
+    if(!editMode||!editSelection||editSelection.floor!==houseView.floor||!editSelection.o.visible){selectionHelper.visible=false;return;}
+    editSelection.o.updateWorldMatrix(true,true);selectionHelper.box.setFromObject(editSelection.o);selectionHelper.visible=true;
+  }
+  function pickEditor(e){
+    editSelection=e||null;placing=false;editSelect.value=e?.id||'';editSelected.textContent=e?e.label+' · '+names[e.floor]:'Tippe auf ein Möbelstück oder wähle es aus.';
+    setEditStatus(e?'Mit Platzieren oder den Pfeilen bewegen.':'Wähle ein Möbel aus.');updateEditorControls();refreshEditorSelection();
+  }
+  function fillEditorList(){
+    editSelect.replaceChildren(new Option('Bitte auswählen',''));
+    const counts={};
+    for(const e of editItems.filter(x=>x.floor===houseView.floor)){
+      counts[e.label]=(counts[e.label]||0)+1;editSelect.add(new Option(e.label+' '+counts[e.label],e.id));
+    }
+    pickEditor(null);
+  }
+  function changeEditorFloor(f){houseView.floor=Math.max(0,Math.min(2,f));houseView.scope='single';houseView.mode='off';houseView.roof=false;applyHouseView(true);fillEditorList();const target=new THREE.Vector3(0,baseByFloor[houseView.floor]+.2,0);tweenCamera(target.clone().add(new THREE.Vector3(0,23,6)),target,380);}
+  let previousView=null;
+  function enterEditor(){
+    if(walkMode)setWalkMode(false);
+    previousView={...houseView};
+    editMode=true;document.body.classList.add('editing');editToggle.setAttribute('aria-pressed','true');editPanel.hidden=false;editToggle.textContent='✥ Einrichten aktiv';
+    changeEditorFloor(houseView.floor===-1?1:houseView.floor);rebuildEditorCollisions();
+  }
+  function exitEditor(){
+    editMode=false;placing=false;selectionHelper.visible=false;editSelection=null;
+    document.body.classList.remove('editing');editPanel.hidden=true;editToggle.setAttribute('aria-pressed','false');editToggle.textContent='✥ Einrichten';
+    if(previousView)Object.assign(houseView,previousView);previousView=null;applyHouseView(true);focusFloor();
+  }
+  function moveEditor(e,x,z,r){
+    if(!e)return false;
+    const before=layoutSnapshot(),old=itemTransform(e.o);
+    setItemTransform(e.o,{x,z,r});
+    const rect=worldRect(e.o),problem=validatePlacement(e,rect);
+    if(problem){setItemTransform(e.o,old);setEditStatus(problem,true);refreshEditorSelection();return false;}
+    rebuildEditorCollisions();pushHistory(before);placing=false;updateEditorControls();setEditStatus(e.label+' platziert.');refreshEditorSelection();return true;
+  }
+  function handleEditorRay(visibleHit){
+    if(placing&&editSelection){
+      placementPlane.constant=-elevations[editSelection.floor];
+      if(ray.ray.intersectPlane(placementPlane,placementPoint)){const snap=v=>Math.round(v/stepSize)*stepSize;moveEditor(editSelection,snap(placementPoint.x),snap(placementPoint.z),editSelection.o.rotation.y);}
+      return;
+    }
+    const eligible=editItems.filter(e=>e.floor===houseView.floor&&e.o.visible);
+    const hit=ray.intersectObjects(eligible.map(e=>e.o),true).find(visibleHit);
+    if(!hit){pickEditor(null);return;}
+    for(let o=hit.object;o;o=o.parent){const e=eligible.find(v=>v.o===o);if(e){pickEditor(e);return;}}
+  }
+  function undoEditor(){if(!editHistory.length)return;editFuture.push(layoutSnapshot());restoreSnapshot(editHistory.pop());setEditStatus('Änderung rückgängig gemacht.');updateEditorControls();}
+  function redoEditor(){if(!editFuture.length)return;editHistory.push(layoutSnapshot());restoreSnapshot(editFuture.pop());setEditStatus('Änderung wiederhergestellt.');updateEditorControls();}
+  const EDIT_STORAGE='federfuchs-layout-v1';
+  function saveEditor(){try{localStorage.setItem(EDIT_STORAGE,JSON.stringify({version:1,items:layoutSnapshot()}));setEditStatus('Einrichtung auf diesem Gerät gespeichert.');}catch(e){setEditStatus('Lokales Speichern nicht verfügbar.',true);}}
+  function loadEditor(silent=false){
+    try{
+      const raw=localStorage.getItem(EDIT_STORAGE);if(!raw){if(!silent)setEditStatus('Noch kein gespeicherter Grundriss.',true);return;}
+      const data=JSON.parse(raw);if(data.version!==1||!data.items||typeof data.items!=='object')throw Error('format');
+      const before=layoutSnapshot();let rejected=0;
+      // Saved moves are applied together so swaps can be restored. Revert if any changed item is invalid.
+      for(const e of editItems){const t=data.items[e.id];if(t&&[t.x,t.z,t.r].every(Number.isFinite)&&Math.abs(t.x)<=9&&Math.abs(t.z)<=5.25&&Math.abs(t.r)<1000)setItemTransform(e.o,t);}
+      rebuildEditorCollisions();
+      for(const e of editItems){const t=itemTransform(e.o),o=e.origin;if(Math.abs(t.x-o.x)+Math.abs(t.z-o.z)+Math.abs(t.r-o.r)>.001&&validatePlacement(e,e.rect))rejected++;}
+      if(rejected){restoreSnapshot(before);if(!silent)setEditStatus('Gespeicherte Einrichtung passt nicht mehr in diesen Grundriss.',true);return;}
+      if(!silent){pushHistory(before);setEditStatus('Gespeicherte Einrichtung geladen.');}refreshEditorSelection();
+    }catch(e){if(!silent)setEditStatus('Gespeicherte Einrichtung konnte nicht geladen werden.',true);}
+  }
+  editToggle.addEventListener('click',()=>editMode?exitEditor():enterEditor());
+  document.getElementById('editExit').addEventListener('click',exitEditor);
+  document.getElementById('editFloorDown').addEventListener('click',()=>changeEditorFloor(houseView.floor-1));
+  document.getElementById('editFloorUp').addEventListener('click',()=>changeEditorFloor(houseView.floor+1));
+  editSelect.addEventListener('change',()=>pickEditor(editMap.get(editSelect.value)));
+  editPlace.addEventListener('click',()=>{if(!editSelection)return;placing=!placing;updateEditorControls();setEditStatus(placing?'Tippe auf den gewünschten Bodenpunkt.':'Platzieren beendet.');});
+  for(const b of editPanel.querySelectorAll('[data-nudge]'))b.addEventListener('click',()=>{if(!editSelection)return;const [dx,dz]=b.dataset.nudge.split(',').map(Number);const t=itemTransform(editSelection.o);moveEditor(editSelection,t.x+dx*stepSize,t.z+dz*stepSize,t.r);});
+  document.getElementById('editStep').addEventListener('click',e=>{stepSize=stepSize===.25?.10:stepSize===.10?.50:.25;e.currentTarget.textContent=Math.round(stepSize*100)+' cm';});
+  for(const [id,sign] of [['editTurnLeft',-1],['editTurnRight',1]])document.getElementById(id).addEventListener('click',()=>{if(!editSelection)return;const t=itemTransform(editSelection.o);moveEditor(editSelection,t.x,t.z,t.r+sign*Math.PI/12);});
+  editUndo.addEventListener('click',undoEditor);editRedo.addEventListener('click',redoEditor);
+  document.getElementById('editSave').addEventListener('click',saveEditor);document.getElementById('editLoad').addEventListener('click',()=>loadEditor());
+  document.getElementById('editReset').addEventListener('click',()=>{pushHistory(layoutSnapshot());restoreSnapshot(originalLayout);setEditStatus('Originaleinrichtung wiederhergestellt.');});
+  addEventListener('keydown',e=>{if(!editMode||!dialog.hidden||/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||''))return;
+    if(e.code==='Escape'){if(placing){placing=false;updateEditorControls();}else exitEditor();}
+    else if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();e.shiftKey?redoEditor():undoEditor();}
+    else if((e.ctrlKey||e.metaKey)&&e.code==='KeyS'){e.preventDefault();saveEditor();}
+  });
+  rebuildEditorCollisions();
+  loadEditor(true);
   goView('overview');
   applyHouseView(true);
   auditLayout();
-  setTimeout(()=>{installModels().then(auditLayout).catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
+  setTimeout(()=>{installModels().then(()=>{rebuildEditorCollisions();auditLayout();}).catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
   setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
   setTimeout(()=>loading.classList.add('hide'), 550);
   animate();
