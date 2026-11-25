@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.16</title>
+  <title>Zum träumenden Federfuchs – v0.17</title>
   <style>
     :root{
       --bg:#10151b;
@@ -169,11 +169,70 @@
     body.editing #toolbar button[data-view]{display:none}
     body.editing #overlay{display:none}
     @media(max-width:550px){body.editing #hud .card{max-width:310px}#editPanel button{font-size:11px;padding:7px 6px}}
+
+/* Compact life-simulation UI. Original controls keep their IDs and logic. */
+#toolRail{position:fixed;top:max(8px,env(safe-area-inset-top));left:max(7px,env(safe-area-inset-left));z-index:18;width:44px;display:flex;flex-direction:column;gap:4px;pointer-events:auto}
+#toolRail button{width:44px;height:43px;padding:2px;font-size:21px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:11px;background:#182128ed;border:1px solid #b4c8c340;color:#e7f2e9;box-shadow:0 2px 9px #0004;touch-action:manipulation}
+#toolRail button small{font-size:8px;font-weight:600;letter-spacing:.02em;color:#c5d8d3}
+#toolRail button[aria-pressed=true]{background:#3f6a62;border-color:#a7dfc2;color:#fff}
+#railTools{display:flex;flex-direction:column;gap:4px}
+#railTools[hidden],#hud[hidden],#quickStand[hidden],.drawerSection[hidden]{display:none!important}
+#hud.compactHud{left:58px;top:max(8px,env(safe-area-inset-top));width:min(230px,calc(100vw - 68px));max-width:none;z-index:17}
+#hud.compactHud .card{padding:9px;width:100%;max-width:none;border-radius:12px;background:#182128ed;border-color:#b4c8c34f;max-height:calc(100dvh - 105px);overflow:auto;overscroll-behavior:contain;touch-action:pan-y;text-shadow:none}
+#drawerHeader{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:0 0 5px;color:#e2eee8;font-size:13px}
+#drawerClose{font-size:20px;width:30px;height:30px;padding:0;box-shadow:none}
+#hud h1,#hud #sub,#hud #note,#overlay,#legend{display:none!important}
+#hud #toolbar{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:4px 0}
+#hud #toolbar button{padding:7px 4px;font-size:10px;min-height:34px;box-shadow:none}
+#hud #toolbar button[hidden]{display:none!important}
+#hud button,#quickDock button{background:#283a40;border-color:#a2bab33d;color:#e7eee9;box-shadow:none}
+#hud button[aria-pressed=true],#hud button.active,#quickDock button[aria-pressed=true]{background:#426b61;border-color:#b8e3c1;color:#fff}
+#hud .hvLine{flex-wrap:wrap;gap:4px}
+#hud .hvLine>span{width:100%;font-size:10px;color:#b8d0c7}
+#hud .hvSegments{width:100%;flex-basis:100%}
+#hud .hvLine button{padding:6px 3px;font-size:10px;min-height:30px}
+#hud #houseViewPanel,#hud #editPanel,#hud #materialPanel{margin-top:5px;padding-top:6px;max-height:none;overflow:visible}
+#hud #editPanel .editLine{flex-wrap:wrap}
+#hud #editPanel button{padding:7px 4px;font-size:10px;min-height:32px}
+#hud #editPanel .editMovement{gap:2px}
+#hud #editPanel .editMovement button{padding:4px 1px}
+#hud #editSelect{background:#24363b;color:#e2eee8;border-color:#8db7a3}
+#hud #editSelected,#hud #editStatus,#hud .editLabel{color:#c5d9cf}
+#hud .editTitle strong{color:#e8f4e8}
+#hud #editStatus[data-error=true]{color:#ffb4a4}
+#hud .drawerSection{padding:5px 0}
+.drawerLabel{display:block;color:#b6cfc7;font-size:10px;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.07em}
+.toolPair{display:flex;gap:4px;margin:4px 0}
+.toolPair button{flex:1;font-size:11px;padding:8px 4px;min-height:32px}
+.drawerHint{font-size:10.5px;color:#c1d1cb;line-height:1.45;margin:6px 0}
+.wideTool{width:100%;min-height:34px;font-size:11px;margin-top:5px}
+.camCross{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:5px}
+.camCross button{height:30px;padding:0;font-size:15px}
+.camCross button:first-child{grid-column:2}.camCross button:nth-child(2){grid-column:1}.camCross button:last-child{grid-column:2}
+#cameraSpeed,#walkSpeed{width:100%;accent-color:#82b7a1}
+#quickDock{position:fixed;z-index:15;left:50%;bottom:max(9px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:4px;max-width:calc(100vw - 10px);pointer-events:auto;touch-action:manipulation}
+.dockGroup{display:flex;gap:2px;padding:3px;border-radius:11px;background:#182128e8;border:1px solid #b4c8c33d}
+#quickDock button{padding:0;width:29px;height:33px;border-radius:7px;font-size:17px;min-width:0}
+#quickDock #quickFloor{width:47px;font-size:10px;white-space:nowrap}
+#quickDock button:disabled{opacity:.32}
+#quickStand{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:16;background:#304b43;color:white}
+body.walk #quickDock,body.quiet #quickDock,body.quiet #toolRail,body.quiet #quickStand,body.reading #quickDock,body.reading #toolRail,body.reading #hud{display:none!important}
+body.editing #hud #toolbar{display:none!important}
+body.editing #hud #houseViewPanel,body.editing #hud #materialPanel{display:none!important}
+body.editing #hud #editPanel[hidden]{display:none!important}
+body.railCollapsed #quickDock{display:none!important}
+body.railCollapsed #toolRail #railToggle{opacity:.72}
+body.walk #mobileControls{bottom:max(13px,env(safe-area-inset-bottom))}
+body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
+#movePad:after,#lookPad:after{position:absolute;bottom:-15px;left:0;right:0;text-align:center;color:#b9d3c9;font-size:9px;pointer-events:none}
+#movePad:after{content:'LAUFEN'}#lookPad:after{content:'BLICK'}
+@media(max-width:420px){#toolRail{width:40px}#toolRail button{width:40px;height:39px;font-size:18px}#hud.compactHud{left:51px;width:min(218px,calc(100vw - 59px))}#quickDock{gap:2px}.dockGroup{gap:1px;padding:2px}#quickDock button{width:27px;height:31px}#quickDock #quickFloor{width:38px}}
+@media(max-height:520px){#toolRail{max-height:calc(100dvh - 12px);overflow:auto;scrollbar-width:none}#toolRail button{flex-shrink:0;height:32px}#toolRail button small{display:none}#hud.compactHud .card{max-height:calc(100dvh - 55px)}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.16 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.17 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -185,10 +244,29 @@
     <button id="backCatalog" type="button" style="margin-top:10px">Zum Bücherregal</button>
   </div>
 </div><button id="quietExit" type="button">Menü anzeigen</button>
-<div id="hud">
+<nav id="toolRail" aria-label="Spielwerkzeuge">
+  <button id="railToggle" type="button" aria-label="Werkzeugleiste ein- oder ausblenden" aria-expanded="true" title="Werkzeuge">☰</button>
+  <div id="railTools">
+    <button data-panel="view" aria-label="Hausansicht" title="Hausansicht">⌂<small>Haus</small></button>
+    <button data-panel="camera" aria-label="Kamera" title="Kamera">◎<small>Kamera</small></button>
+    <button data-panel="edit" aria-label="Einrichten" title="Einrichten">✥<small>Bauen</small></button>
+    <button data-panel="walk" aria-label="Gehmodus" title="Gehmodus">♙<small>Gehen</small></button>
+    <button data-panel="library" aria-label="Bücher" title="Bücher">▤<small>Bücher</small></button>
+    <button data-panel="settings" aria-label="Einstellungen" title="Einstellungen">⚙<small>Optionen</small></button>
+    <button data-panel="help" aria-label="Steuerungshilfe" title="Steuerungshilfe">?<small>Hilfe</small></button>
+  </div>
+</nav>
+<div id="quickDock" aria-label="Schnellsteuerung">
+  <div class="dockGroup"><button id="quickFloorDown" aria-label="Etage tiefer">▼</button><button id="quickFloor" aria-label="Etage wechseln">Alle</button><button id="quickFloorUp" aria-label="Etage höher">▲</button></div>
+  <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht wechseln">◩</button><button id="quickRoof" aria-label="Dach ein oder aus">⌂</button><button id="quickTop" aria-label="Draufsicht">▦</button></div>
+  <div class="dockGroup"><button data-cam="left" aria-label="Kamera nach links drehen">↶</button><button data-cam="right" aria-label="Kamera nach rechts drehen">↷</button><button data-cam="in" aria-label="Heranzoomen">＋</button><button data-cam="out" aria-label="Herauszoomen">−</button></div>
+</div>
+<button id="quickStand" type="button" hidden>Aufstehen</button>
+<div id="hud" class="compactHud" hidden>
   <div class="card">
+    <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.16 · Restaurierung & Alltag</div>
+    <div id="sub">v0.17 · Haus & Kamera</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -205,6 +283,17 @@
       <button id="editToggle" type="button" aria-pressed="false">✥ Einrichten</button>
       <button id="standUp" type="button" hidden>Aufstehen</button>
     </div>
+    <div id="cameraPanel" class="drawerSection" hidden>
+      <label class="drawerLabel">Kamerageste</label><div class="toolPair"><button id="camOrbit" aria-pressed="true">Drehen</button><button id="camPan" aria-pressed="false">Schieben</button></div>
+      <label class="drawerLabel">Blickwinkel</label><div class="toolPair"><button data-cam="tiltUp">Steiler</button><button data-cam="tiltDown">Flacher</button></div>
+      <div class="toolPair"><button data-cam="left">↶ 45°</button><button data-cam="right">↷ 45°</button></div>
+      <div class="toolPair"><button data-cam="in">＋ Zoom</button><button data-cam="out">− Zoom</button></div>
+      <div class="camCross"><button data-cam="north">↑</button><button data-cam="west">←</button><button data-cam="home">⌂</button><button data-cam="east">→</button><button data-cam="south">↓</button></div>
+      <button id="cameraReset" class="wideTool">Kamera zurücksetzen</button><label class="drawerLabel" for="cameraSpeed">Empfindlichkeit</label><input id="cameraSpeed" type="range" min=".4" max="1.6" step=".1" value=".8">
+      <p class="drawerHint">Ein Finger dreht oder schiebt. Zwei Finger zoomen und verschieben.</p>
+    </div>
+    <div id="walkPanel" class="drawerSection" hidden><p class="drawerHint">Gehe mit dem linken Stick. Ziehe mit einem Finger über den Raum, um dich umzusehen. Der rechte Stick funktioniert weiterhin.</p><label class="drawerLabel" for="walkSpeed">Lauftempo</label><input id="walkSpeed" type="range" min="1.2" max="4" step=".2" value="2.6"><button id="walkRecenter" class="wideTool">Zum Startpunkt</button></div>
+    <div id="helpPanel" class="drawerSection" hidden><p class="drawerHint"><b>Touch:</b> ein Finger drehen/schieben, zwei Finger zoomen. Möbel antippen, dann im Baumodus ziehen oder platzieren.</p><p class="drawerHint"><b>PC:</b> WASD/Pfeile verschieben die Kamera, Q/E drehen, +/− zoomen, T Draufsicht, Bild auf/ab Etagen, Tab Menü, R Möbel drehen. Strg+Z rückgängig.</p><p class="drawerHint">Im Gehmodus: WASD laufen, Maus oder Finger ziehen zum Umsehen, E Türen bedienen. Die Menüs bleiben vom Spiel getrennt.</p></div>
     <div id="houseViewPanel">
       <div class="hvLine"><span>Wände</span><div class="hvSegments" role="group" aria-label="Wandhöhe">
         <button type="button" data-wallmode="full" title="Wände hoch" aria-label="Wände hoch">▥ Hoch</button>
@@ -225,6 +314,8 @@
       <div class="editLine"><button id="editFloorDown" type="button" aria-label="Etage tiefer">▼</button><span id="editFloorName">Erdgeschoss</span><button id="editFloorUp" type="button" aria-label="Etage höher">▲</button></div>
       <label class="editLabel" for="editSelect">Möbel auswählen</label><select id="editSelect" aria-label="Möbel auswählen"><option value="">Bitte auswählen</option></select>
       <div id="editSelected">Tippe auf ein Möbelstück oder wähle es aus.</div>
+      <div class="toolPair"><button id="editDragMode" aria-pressed="true">✥ Ziehen</button><button id="editGrid" aria-pressed="true">▦ Raster</button></div>
+      <p class="drawerHint">Ausgewählte Möbel direkt am Boden ziehen. Gold = gültig, Rot = blockiert.</p>
       <div class="editLine"><button id="editPlace" type="button" aria-pressed="false">✥ Platzieren</button><button id="editTurnLeft" type="button" aria-label="15 Grad links drehen">↶ 15°</button><button id="editTurnRight" type="button" aria-label="15 Grad rechts drehen">↷ 15°</button></div>
       <div class="editMovement"><button data-nudge="0,-1" type="button" aria-label="Nach hinten">↑</button><button data-nudge="-1,0" type="button" aria-label="Nach links">←</button><button id="editStep" type="button" aria-label="Schrittweite ändern">25 cm</button><button data-nudge="1,0" type="button" aria-label="Nach rechts">→</button><button data-nudge="0,1" type="button" aria-label="Nach vorn">↓</button></div>
       <div class="editLine"><button id="editUndo" type="button">↶ Rückgängig</button><button id="editRedo" type="button">↷ Wiederholen</button></div>
@@ -300,11 +391,15 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
+  controls.addEventListener('start',()=>{tween=null;});
   controls.enablePan = true;
+  controls.rotateSpeed=.8;controls.panSpeed=.8;controls.zoomSpeed=.85;controls.screenSpacePanning=false;controls.zoomToCursor=true;
+  controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+  controls.mouseButtons.LEFT=THREE.MOUSE.ROTATE;controls.mouseButtons.MIDDLE=THREE.MOUSE.DOLLY;controls.mouseButtons.RIGHT=THREE.MOUSE.PAN;
   controls.target.set(0, 7.2, 0);
-  controls.minDistance = .9;
+  controls.minDistance = 1.4;
   controls.maxDistance = 46;
-  controls.minPolarAngle=.035;controls.maxPolarAngle = Math.PI * 0.48;
+  controls.minPolarAngle=.035;controls.maxPolarAngle = Math.PI * 0.495;
 
   const root = new THREE.Group();
   scene.add(root);
@@ -1428,7 +1523,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function setWalkMode(on){
     if(on&&editMode)exitEditor();
     if(!on&&seatedState)leaveSeat();
-    walkMode = on; tween=null;
+    walkMode = on; tween=null;resetInput();
     document.body.classList.toggle('walk', on);
     controls.enabled = !on;
     toggleWalkBtn.classList.toggle('active', on);
@@ -1449,34 +1544,36 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   renderer.domElement.addEventListener('pointerdown', ev=>{
     if(!walkMode) return;
-    if(ev.pointerType === 'mouse'){ lookDrag.active=true; lookDrag.lastX=ev.clientX; lookDrag.lastY=ev.clientY; }
+    if(ev.isPrimary){lookDrag.active=true;lookDrag.pointerId=ev.pointerId;lookDrag.lastX=ev.clientX;lookDrag.lastY=ev.clientY;try{renderer.domElement.setPointerCapture(ev.pointerId);}catch(e){}}
   });
-  addEventListener('pointerup', ()=>{ lookDrag.active=false; });
+  function endLook(ev){if(ev.pointerId===lookDrag.pointerId){lookDrag.active=false;lookDrag.pointerId=null;}}
+  addEventListener('pointerup',endLook);addEventListener('pointercancel',endLook);renderer.domElement.addEventListener('lostpointercapture',endLook);
   addEventListener('pointermove', ev=>{
-    if(!walkMode || !lookDrag.active) return;
+    if(!walkMode || !lookDrag.active || ev.pointerId!==lookDrag.pointerId) return;
     const dx = ev.clientX - lookDrag.lastX, dy = ev.clientY - lookDrag.lastY;
     lookDrag.lastX = ev.clientX; lookDrag.lastY = ev.clientY;
-    player.yaw -= dx * 0.005;
-    player.pitch -= dy * 0.004;
+    player.yaw -= dx * (ev.pointerType==='touch'?.0065:.005);
+    player.pitch -= dy * (ev.pointerType==='touch'?.005:.004);
     player.pitch = Math.max(-1.0, Math.min(.85, player.pitch));
   });
 
   function setupStick(id, state){
     const wrap = document.getElementById(id); const knob = wrap.querySelector('.stickKnob');
-    const R = 38;
+    let activePointer=null;
     function updateFrom(ev){
       const r = wrap.getBoundingClientRect();
       const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const R=Math.max(18,r.width*.32);
       let dx = ev.clientX - cx, dy = ev.clientY - cy;
       const len = Math.hypot(dx,dy) || 1;
       if(len > R){ dx = dx/len*R; dy = dy/len*R; }
       knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
       state.x = dx/R; state.y = dy/R;
     }
-    wrap.addEventListener('pointerdown', ev=>{ wrap.setPointerCapture(ev.pointerId); updateFrom(ev); ev.preventDefault(); });
-    wrap.addEventListener('pointermove', ev=>{ if(ev.pressure || ev.buttons) updateFrom(ev); });
-    function reset(){ knob.style.transform='translate(-50%,-50%)'; state.x=0; state.y=0; }
-    wrap.addEventListener('pointerup', reset); wrap.addEventListener('pointercancel', reset);
+    wrap.addEventListener('pointerdown', ev=>{ if(activePointer!==null)return;activePointer=ev.pointerId;wrap.setPointerCapture(ev.pointerId); updateFrom(ev); ev.preventDefault(); });
+    wrap.addEventListener('pointermove', ev=>{ if(ev.pointerId===activePointer) updateFrom(ev); });
+    function reset(ev){if(ev&&ev.pointerId!==activePointer)return;activePointer=null;knob.style.transform='translate(-50%,-50%)'; state.x=0; state.y=0; }
+    wrap.addEventListener('pointerup', reset); wrap.addEventListener('pointercancel', reset);wrap.addEventListener('lostpointercapture',reset);window.addEventListener('blur',()=>reset());
   }
   setupStick('movePad', moveStick);
   setupStick('lookPad', lookStick);
@@ -1710,7 +1807,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); const px=player.pos.x,pz=player.pos.z;navigate(move.x,move.z);distMoved=Math.hypot(player.pos.x-px,player.pos.z-pz); }
       syncWalkCamera();
     }
+    updateCameraKeys(dt);
     applyHouseView();
+    updateCompactUI();
     if(editMode)refreshEditorSelection();
     animateResidents(visualTime);
     animateExterior(dt);
@@ -2058,6 +2157,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     document.getElementById('editFloorUp').disabled=houseView.floor===2;
   }
   function refreshEditorSelection(){
+    if(dragState&&dragState.started)return;
     if(!editMode||!editSelection||editSelection.floor!==houseView.floor||!editSelection.o.visible){selectionHelper.visible=false;return;}
     editSelection.o.updateWorldMatrix(true,true);selectionHelper.box.setFromObject(editSelection.o);selectionHelper.visible=true;
   }
@@ -2082,6 +2182,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     changeEditorFloor(houseView.floor===-1?1:houseView.floor);rebuildEditorCollisions();
   }
   function exitEditor(){
+    cancelFurnitureDrag();
     editMode=false;placing=false;selectionHelper.visible=false;editSelection=null;
     document.body.classList.remove('editing');editPanel.hidden=true;editToggle.setAttribute('aria-pressed','false');editToggle.textContent='✥ Einrichten';
     if(previousView)Object.assign(houseView,previousView);previousView=null;applyHouseView(true);focusFloor();
@@ -2146,8 +2247,155 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     else if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();e.shiftKey?redoEditor():undoEditor();}
     else if((e.ctrlKey||e.metaKey)&&e.code==='KeyS'){e.preventDefault();saveEditor();}
   });
+  // Mobile-first compact UI and floor-aware direct manipulation.
+  let dragState=null,dragEnabled=true,showGrid=true,drawer=null,railCollapsed=false,gestureMode='orbit';
+  const compactHud=document.getElementById('hud'),railToggle=document.getElementById('railToggle'),railTools=document.getElementById('railTools'),drawerTitle=document.getElementById('drawerTitle');
+  const panelButtons=[...document.querySelectorAll('#railTools button[data-panel]')];
+  const toolbarButtons=[...document.querySelectorAll('#toolbar button')];
+  const quickFloor=document.getElementById('quickFloor'),quickWalls=document.getElementById('quickWalls'),quickRoof=document.getElementById('quickRoof'),quickStand=document.getElementById('quickStand');
+  const wallCycle=['auto','full','half','off'],floorShort=['UG','EG','OG'];
+  const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung'};
+  const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['materialPanel'],help:['helpPanel']};
+  function setDrawer(kind){
+    drawer=kind;compactHud.hidden=!kind;
+    for(const b of panelButtons)b.setAttribute('aria-pressed',String(b.dataset.panel===kind||(b.dataset.panel==='walk'&&walkMode)||(b.dataset.panel==='edit'&&editMode)));
+    if(!kind)return;
+    drawerTitle.textContent=panelNames[kind]||'Werkzeuge';
+    for(const id of Object.values(groups).flat())document.getElementById(id).hidden=!groups[kind]?.includes(id);
+    for(const b of toolbarButtons){
+      const visible=(kind==='view'&&!!b.dataset.view)||(kind==='walk'&&(!!b.dataset.view||b.id==='toggleWalk'))||(kind==='settings'&&['weatherToggle','soundToggle','quietToggle','materialToggle'].includes(b.id));
+      b.hidden=!visible;
+    }
+    document.getElementById('toolbar').style.display=(kind==='view'||kind==='walk'||kind==='settings')?'grid':'none';
+    if(kind==='view')hvToggle.setAttribute('aria-expanded','true');
+    if(kind==='settings')matBtn.setAttribute('aria-expanded','true');
+  }
+  function collapseRail(on){railCollapsed=on;railTools.hidden=on;document.body.classList.toggle('railCollapsed',on);railToggle.setAttribute('aria-expanded',String(!on));if(on)setDrawer(null);}
+  railToggle.addEventListener('click',()=>collapseRail(!railCollapsed));
+  document.getElementById('drawerClose').addEventListener('click',()=>setDrawer(null));
+  for(const b of panelButtons)b.addEventListener('click',()=>{
+    const k=b.dataset.panel;
+    if(k==='library'){catalogView();setDrawer(null);return;}
+    if(k==='walk'){
+      if(editMode)exitEditor();
+      if(!walkMode){setWalkMode(true);setDrawer(null);}else if(drawer==='walk'){setWalkMode(false);setDrawer(null);}else setDrawer('walk');
+      return;
+    }
+    if(k==='edit'){if(!editMode)enterEditor();setDrawer(drawer==='edit'?null:'edit');return;}
+    if(editMode&&k==='view')exitEditor();
+    if(walkMode&&(k==='view'||k==='camera'))setWalkMode(false);
+    setDrawer(drawer===k?null:k);
+  });
+  document.getElementById('editExit').addEventListener('click',()=>setDrawer(null));
+  quickStand.addEventListener('click',leaveSeat);
+  document.getElementById('quickFloorDown').addEventListener('click',()=>{if(editMode)changeEditorFloor(houseView.floor-1);else floorDown.click();});
+  document.getElementById('quickFloorUp').addEventListener('click',()=>{if(editMode)changeEditorFloor(houseView.floor+1);else if(houseView.floor===-1)selectFloor(0);else floorUp.click();});
+  quickFloor.addEventListener('click',()=>{if(editMode)changeEditorFloor((houseView.floor+1)%3);else floorCycle.click();});
+  quickWalls.addEventListener('click',()=>{houseView.mode=wallCycle[(wallCycle.indexOf(houseView.mode)+1)%4];applyHouseView(true);});
+  quickRoof.addEventListener('click',()=>roofToggle.click());
+  document.getElementById('quickTop').addEventListener('click',()=>topView.click());
+  let quickKey='';
+  function updateCompactUI(){
+    const k=[houseView.floor,houseView.mode,houseView.roof,walkMode,editMode,!!seatedState,drawer].join('|');if(k===quickKey)return;quickKey=k;
+    quickFloor.textContent=houseView.floor===-1?'Alle':floorShort[houseView.floor];
+    quickWalls.textContent=({auto:'◩',full:'▥',half:'◧',off:'▱'})[houseView.mode];quickWalls.title='Wände: '+({auto:'Auto',full:'Hoch',half:'Halb',off:'Aus'})[houseView.mode];
+    quickRoof.setAttribute('aria-pressed',String(houseView.roof));quickStand.hidden=!seatedState;
+    document.getElementById('quickFloorDown').disabled=houseView.floor===0;document.getElementById('quickFloorUp').disabled=editMode&&houseView.floor===2;
+    for(const b of panelButtons)b.setAttribute('aria-pressed',String(b.dataset.panel===drawer||(b.dataset.panel==='walk'&&walkMode)||(b.dataset.panel==='edit'&&editMode)));
+    if(!editMode&&drawer==='edit')setDrawer(null);
+    updateBuildGrid();
+  }
+  function setGesture(mode){gestureMode=mode;controls.touches.ONE=mode==='pan'?THREE.TOUCH.PAN:THREE.TOUCH.ROTATE;controls.mouseButtons.LEFT=mode==='pan'?THREE.MOUSE.PAN:THREE.MOUSE.ROTATE;document.getElementById('camOrbit').setAttribute('aria-pressed',String(mode==='orbit'));document.getElementById('camPan').setAttribute('aria-pressed',String(mode==='pan'));}
+  document.getElementById('camOrbit').addEventListener('click',()=>setGesture('orbit'));document.getElementById('camPan').addEventListener('click',()=>setGesture('pan'));
+  document.getElementById('cameraSpeed').addEventListener('input',e=>{controls.rotateSpeed=controls.panSpeed=Number(e.target.value);});
+  document.getElementById('walkSpeed').addEventListener('input',e=>{player.speed=Number(e.target.value);});
+  document.getElementById('walkRecenter').addEventListener('click',()=>goView(currentArea==='overview'?'shop':currentArea));
+  function cameraOffset(){return camera.position.clone().sub(controls.target);}
+  function cameraPan(x,z){
+    const dir=cameraOffset();dir.y=0;if(dir.lengthSq()<.0001)dir.set(0,0,1);dir.normalize();
+    const right=new THREE.Vector3(dir.z,0,-dir.x),delta=right.multiplyScalar(x).addScaledVector(dir,z);
+    const old=controls.target.clone();controls.target.add(delta);controls.target.x=THREE.MathUtils.clamp(controls.target.x,-12,12);controls.target.z=THREE.MathUtils.clamp(controls.target.z,-9,9);
+    camera.position.add(controls.target.clone().sub(old));
+  }
+  function cameraAction(action){
+    if(walkMode||!dialog.hidden)return;tween=null;
+    if(action==='home'){const f=houseView.floor;const target=new THREE.Vector3(0,f<0?2.5:baseByFloor[f]+1.2,0);tweenCamera(target.clone().add(new THREE.Vector3(12,15,22)),target,380);return;}
+    if(['north','south','west','east'].includes(action)){cameraPan(action==='west'?-1.2:action==='east'?1.2:0,action==='north'?-1.2:action==='south'?1.2:0);controls.update();return;}
+    const sp=new THREE.Spherical().setFromVector3(cameraOffset());
+    if(action==='left')sp.theta-=Math.PI/4;if(action==='right')sp.theta+=Math.PI/4;
+    if(action==='tiltUp')sp.phi=Math.max(.07,sp.phi-.18);if(action==='tiltDown')sp.phi=Math.min(controls.maxPolarAngle,sp.phi+.18);
+    if(action==='in')sp.radius=Math.max(controls.minDistance,sp.radius*.80);if(action==='out')sp.radius=Math.min(controls.maxDistance,sp.radius*1.25);
+    camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sp));controls.update();
+  }
+  document.querySelectorAll('[data-cam]').forEach(b=>b.addEventListener('click',()=>cameraAction(b.dataset.cam)));
+  document.getElementById('cameraReset').addEventListener('click',()=>cameraAction('home'));
+  const cameraKeys=new Set();
+  function typing(){return /INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement?.tagName||'');}
+  addEventListener('keydown',e=>{
+    if(!dialog.hidden||typing()||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(e.code==='Tab'&&!walkMode){e.preventDefault();collapseRail(!railCollapsed);return;}
+    if(walkMode)return;
+    if(['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)){cameraKeys.add(e.code);e.preventDefault();}
+    if(e.repeat)return;
+    if(e.code==='KeyQ')cameraAction('left');if(e.code==='KeyE')cameraAction('right');
+    if(e.key==='+'||e.key==='=')cameraAction('in');if(e.key==='-')cameraAction('out');
+    if(e.code==='KeyT')topView.click();
+    if(e.code==='PageUp'){e.preventDefault();document.getElementById('quickFloorUp').click();}
+    if(e.code==='PageDown'){e.preventDefault();document.getElementById('quickFloorDown').click();}
+    if(e.code==='KeyR'&&editMode&&editSelection){e.preventDefault();document.getElementById(e.shiftKey?'editTurnLeft':'editTurnRight').click();}
+  });
+  addEventListener('keyup',e=>cameraKeys.delete(e.code));addEventListener('blur',()=>{cameraKeys.clear();resetInput();cancelFurnitureDrag();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){cameraKeys.clear();resetInput();cancelFurnitureDrag();}});
+  function updateCameraKeys(dt){
+    if(walkMode||!dialog.hidden||dragState||!cameraKeys.size)return;
+    const x=Number(cameraKeys.has('KeyD')||cameraKeys.has('ArrowRight'))-Number(cameraKeys.has('KeyA')||cameraKeys.has('ArrowLeft'));
+    const z=Number(cameraKeys.has('KeyS')||cameraKeys.has('ArrowDown'))-Number(cameraKeys.has('KeyW')||cameraKeys.has('ArrowUp'));
+    if(x||z){tween=null;const speed=Math.max(3,cameraOffset().length()*.30);cameraPan(x*speed*dt,z*speed*dt);}
+  }
+  // A real floor grid, not a decorative UI preview. Only shown while editing.
+  const buildGrid=new THREE.Group();scene.add(buildGrid);buildGrid.visible=false;
+  const gridPositions=[];for(let i=-18;i<=18;i++){const x=i*.5;gridPositions.push(x,0,-5.25,x,0,5.25);}for(let i=-10;i<=10;i++){const z=i*.5;gridPositions.push(-9,0,z,9,0,z);}
+  const gridGeo=new THREE.BufferGeometry();gridGeo.setAttribute('position',new THREE.Float32BufferAttribute(gridPositions,3));const gridLines=new THREE.LineSegments(gridGeo,new THREE.LineBasicMaterial({color:0x97c2a9,transparent:true,opacity:.32,depthWrite:false}));buildGrid.add(gridLines);
+  function updateBuildGrid(){buildGrid.visible=editMode&&showGrid;buildGrid.position.y=elevations[Math.max(0,houseView.floor)]+.028;}
+  const previewHelper=new THREE.Box3Helper(new THREE.Box3(),0xe1bf7c);scene.add(previewHelper);previewHelper.visible=false;
+  document.getElementById('editGrid').addEventListener('click',e=>{showGrid=!showGrid;e.currentTarget.setAttribute('aria-pressed',String(showGrid));updateBuildGrid();});
+  document.getElementById('editDragMode').addEventListener('click',e=>{dragEnabled=!dragEnabled;e.currentTarget.setAttribute('aria-pressed',String(dragEnabled));setEditStatus(dragEnabled?'Ziehe ein ausgewähltes Möbel.':'Direktes Ziehen aus · Kamera frei.');});
+  const dragRay=new THREE.Raycaster(),dragNdc=new THREE.Vector2(),dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0),dragPoint=new THREE.Vector3();
+  function rayAt(ev){const b=renderer.domElement.getBoundingClientRect();dragNdc.set((ev.clientX-b.left)/b.width*2-1,-(ev.clientY-b.top)/b.height*2+1);dragRay.setFromCamera(dragNdc,camera);}
+  function dragPlanePoint(ev,f){rayAt(ev);dragPlane.constant=-elevations[f];return dragRay.ray.intersectPlane(dragPlane,dragPoint);}
+  function stopDragEvent(ev){ev.preventDefault();ev.stopImmediatePropagation();}
+  function cancelFurnitureDrag(){if(!dragState)return;dragState=null;previewHelper.visible=false;controls.enabled=!walkMode&&dialog.hidden;selectionHelper.visible=!!editSelection&&editMode;}
+  renderer.domElement.addEventListener('pointerdown',ev=>{
+    if(!editMode||!dragEnabled||placing||!editSelection||ev.button!==0||!ev.isPrimary||!dialog.hidden)return;
+    rayAt(ev);const hit=dragRay.intersectObject(editSelection.o,true).find(h=>{for(let o=h.object;o;o=o.parent)if(!o.visible)return false;return true;});if(!hit)return;
+    const pt=dragPlanePoint(ev,editSelection.floor);if(!pt)return;
+    const before=itemTransform(editSelection.o);
+    dragState={id:ev.pointerId,e:editSelection,before,dx:before.x-pt.x,dz:before.z-pt.z,sx:ev.clientX,sy:ev.clientY,started:false,next:null,problem:''};
+    tween=null;controls.enabled=false;down=null;try{renderer.domElement.setPointerCapture(ev.pointerId);}catch(e){}stopDragEvent(ev);
+  },true);
+  renderer.domElement.addEventListener('pointermove',ev=>{
+    if(!dragState||dragState.id!==ev.pointerId)return;
+    const d=dragState;if(!d.started&&Math.hypot(ev.clientX-d.sx,ev.clientY-d.sy)<7){stopDragEvent(ev);return;}
+    d.started=true;const pt=dragPlanePoint(ev,d.e.floor);if(!pt){stopDragEvent(ev);return;}
+    const snap=v=>Math.round(v/stepSize)*stepSize;
+    const next={x:snap(pt.x+d.dx),z:snap(pt.z+d.dz),r:d.before.r};
+    // Preview uses a temporary transform and restores it before drawing: collision/history stay intact.
+    setItemTransform(d.e.o,next);const b=worldRect(d.e.o);d.problem=validatePlacement(d.e,b);setItemTransform(d.e.o,d.before);d.next=next;
+    previewHelper.box.copy(b.box);previewHelper.material.color.setHex(d.problem?0xe47461:0xe1bf7c);previewHelper.visible=true;selectionHelper.visible=false;
+    setEditStatus(d.problem||'Zum Platzieren loslassen.',!!d.problem);stopDragEvent(ev);
+  },true);
+  renderer.domElement.addEventListener('pointerup',ev=>{
+    if(!dragState||dragState.id!==ev.pointerId)return;const d=dragState;cancelFurnitureDrag();if(d.started&&d.next&&!d.problem)moveEditor(d.e,d.next.x,d.next.z,d.next.r);else if(d.problem)setEditStatus(d.problem,true);stopDragEvent(ev);
+  },true);
+  renderer.domElement.addEventListener('pointercancel',ev=>{if(dragState?.id===ev.pointerId)cancelFurnitureDrag();},true);
+  renderer.domElement.addEventListener('lostpointercapture',()=>cancelFurnitureDrag());
+  // Second touch cancels an active furniture drag rather than committing a pinch as a move.
+  renderer.domElement.addEventListener('pointerdown',ev=>{if(dragState&&ev.pointerId!==dragState.id)cancelFurnitureDrag();},true);
+  document.getElementById('editExit').addEventListener('click',()=>{buildGrid.visible=false;});
   rebuildEditorCollisions();
   loadEditor(true);
+  setDrawer(null);
+  collapseRail(false);
   goView('overview');
   applyHouseView(true);
   auditLayout();
