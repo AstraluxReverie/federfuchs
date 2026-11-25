@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.24</title>
+  <title>Zum träumenden Federfuchs – v0.25</title>
   <style>
     :root{
       --bg:#10151b;
@@ -261,11 +261,11 @@ body.walk #mobileControls{padding:0 max(16px,env(safe-area-inset-left));bottom:m
 button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #quickDock #quickWalls{width:39px;font-size:10px!important;font-weight:650;letter-spacing:.01em}
 @media(max-width:420px){#quickDock #quickWalls{width:32px;font-size:9px!important}}
-#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}</style>
+#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}#journeyPanel select{width:100%;min-height:36px;background:#263a3b;color:#e3eade;border:1px solid #8fa69a;border-radius:7px;padding:6px;font-size:12px}#tourHud{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;width:min(360px,calc(100vw - 20px));text-align:center;color:#f3ead8;background:#142021d9;padding:10px;border:1px solid #d6c79e44;border-radius:12px}#tourHud[hidden]{display:none!important}#tourCaption{font-family:Georgia,serif;font-size:17px;margin-bottom:8px}.tourControls{display:flex;gap:6px;justify-content:center}.tourControls button{min-height:40px;padding:5px 12px;background:#2f4444;border:1px solid #a7b9a36b;color:#e8edde}body.touring #toolRail,body.touring #quickDock,body.touring #hud,body.touring #sceneStatus,body.touring #sceneHome,body.touring #sceneWalkExit,body.touring #quickStand,body.touring #quietExit,body.touring #mobileControls{display:none!important}</style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.24 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.25 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -286,6 +286,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
     <button data-panel="walk" aria-label="Gehmodus" title="Gehmodus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21l3-7-2-4 3-3 4 3 3 1m-8 3 4 3 2 4m-5-14-4 3-3 1"/><circle cx="12" cy="4" r="2"/></svg><small>Gehen</small></button>
     <button data-panel="library" aria-label="Bücher" title="Bücher"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6C9 3 5 3 3 4v15c3-1 6-1 9 2 3-3 6-3 9-2V4c-2-1-6-1-9 2zm0 0v15"/></svg><small>Bücher</small></button>
     
+    <button data-panel="journey" aria-label="Räume und Erinnerungen" title="Räume und Erinnerungen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg><small>Reise</small></button>
     <button data-panel="settings" aria-label="Einstellungen" title="Einstellungen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2.5"/></svg><small>Optionen</small></button>
     <button data-panel="help" aria-label="Steuerungshilfe" title="Steuerungshilfe"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9a3 3 0 1 1 4 3c-1 1-1 2-1 3m0 3h.01"/><circle cx="12" cy="12" r="9"/></svg><small>Hilfe</small></button>
   </div>
@@ -295,12 +296,12 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht auswählen">◩</button><button id="quickRoof" aria-label="Dach ein oder aus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15l9-10 9 10M6 13v7h12v-7"/></svg></button><button id="quickTop" aria-label="Draufsicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 11h16M11 4v16"/></svg></button></div>
   <div class="dockGroup"><button data-cam="left" aria-label="Kamera nach links drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6"/></svg></button><button data-cam="right" aria-label="Kamera nach rechts drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg></button><button data-cam="in" aria-label="Heranzoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button data-cam="out" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button></div>
 </div>
-<button id="quickStand" type="button" hidden>Aufstehen</button><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
+<button id="quickStand" type="button" hidden>Aufstehen</button><div id="tourHud" hidden><div id="tourCaption"></div><div class="tourControls"><button id="tourPrev" aria-label="Vorheriger Raum">‹</button><button id="tourPause">Pause</button><button id="tourNext" aria-label="Nächster Raum">›</button><button id="tourStop">Beenden</button></div></div><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
 <div id="hud" class="compactHud" hidden>
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.24 · Handwerk & Atmosphäre</div>
+    <div id="sub">v0.25 · Die Seele des Federfuchses</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -328,7 +329,12 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
     </div>
     <div id="walkPanel" class="drawerSection" hidden><p class="drawerHint">Gehe mit dem linken Stick. Ziehe mit einem Finger über den Raum, um dich umzusehen. Der rechte Stick funktioniert weiterhin.</p><label class="drawerLabel" for="walkSpeed">Lauftempo</label><input id="walkSpeed" type="range" min="1.2" max="4" step=".2" value="2.6"><button id="walkRecenter" class="wideTool">Zum Startpunkt</button></div>
     <div id="helpPanel" class="drawerSection" hidden><p class="drawerHint"><b>Touch:</b> ein Finger drehen/schieben, zwei Finger zoomen. Bücher oder Antiquitäten antippen, um sie zu betrachten.</p><p class="drawerHint"><b>PC:</b> WASD/Pfeile verschieben die Kamera, Q/E drehen, +/− zoomen, T Draufsicht, Bild auf/ab Etagen, H Menü ein-/ausblenden.</p><p class="drawerHint">Im Gehmodus: WASD laufen, Maus oder Finger ziehen zum Umsehen, E Türen bedienen. Die Menüs bleiben vom Spiel getrennt.</p></div>
-    <div id="houseViewPanel">
+    <div id="journeyPanel" class="drawerSection" hidden>
+<label class="drawerLabel" for="roomJump">Räume entdecken</label><select id="roomJump"></select><button id="roomVisit" class="wideTool">Raum betrachten</button><button id="startTour" class="wideTool">Filmische Rundreise</button>
+<label class="drawerLabel">Erinnerungen</label><p id="visitStatus" class="drawerHint"></p><div class="toolPair"><button id="saveVisit">Ansicht merken</button><button id="restoreVisit">Zurückkehren</button></div><button id="resumeBook" class="wideTool">Zuletzt gelesenes Buch</button>
+<label class="drawerLabel" for="clockMode">Licht und Zeit</label><select id="clockMode"><option value="manual">Manuell</option><option value="real">Lokale Uhrzeit</option></select>
+<label class="drawerLabel" for="weatherMode">Wetter</label><select id="weatherMode"><option value="rain">Regen</option><option value="snow">Schnee</option><option value="clear">Trocken</option><option value="season">Jahreszeit (lokal)</option></select><p id="roomProfileStatus" class="drawerHint"></p></div>
+<div id="houseViewPanel">
       <div class="hvLine"><span>Wände</span><div class="hvSegments" role="group" aria-label="Wandhöhe">
         <button type="button" data-wallmode="full" title="Wände hoch" aria-label="Wände hoch">▥ Hoch</button>
         <button type="button" data-wallmode="half" title="Wände halbhoch" aria-label="Wände halbhoch">◧ Halb</button>
@@ -419,6 +425,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import {validateManifest,validateGLB,dimensionsFit} from './asset-utils.js';
   import {timber,cobbles,wallpaper} from './surface-art.js';
   import {DESIGN,WALL_MODES,wallMode,motifPath,sealArtwork} from './design-standard.js';
+  import {ROOMS,TOUR,roomAt,naturalMood,validateVisit} from './rooms.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -441,7 +448,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.addEventListener('start',()=>{tween=null;});
+  controls.addEventListener('start',()=>{tween=null;roomFocus=null;});
   controls.enablePan = true;
   controls.rotateSpeed=.65;controls.panSpeed=.8;controls.zoomSpeed=.78;controls.dampingFactor=.10;controls.screenSpacePanning=false;controls.zoomToCursor=true;
   controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
@@ -781,7 +788,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function rug(x,y,z,w=2,d=1.4,group=house){const m=addMesh(new THREE.BoxGeometry(w,.03,d),rugMat,x,y,z,group,false,true);if(group===house)markEditable(m,'rug','Teppich');return m;}
 
   // True clear glazing: rain is an alpha overlay, not a painted exterior.
-  const weather={rain:true};
+  const weather={rain:true,snow:false};
   const pane=document.createElement('canvas');pane.width=256;pane.height=256;
   const paneCtx=pane.getContext('2d');
   const rainTex=new THREE.CanvasTexture(pane);rainTex.colorSpace=THREE.SRGBColorSpace;
@@ -1647,9 +1654,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const outdoorRainGeo=new THREE.BufferGeometry();outdoorRainGeo.setAttribute('position',new THREE.BufferAttribute(orr,3));
   const outdoorRain=new THREE.LineSegments(outdoorRainGeo,new THREE.LineBasicMaterial({color:0xacc1d0,transparent:true,opacity:.20,depthWrite:false}));outside.add(outdoorRain);
   function animateExterior(dt){
-    outside.visible=walkMode||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);outdoorRain.visible=weather.rain;
-    if(!outside.visible||!weather.rain)return;
-    for(let i=0;i<outdoorRainCount;i++){const k=i*6;orr[k+1]-=dt*5.5;if(orr[k+1]<-.05)orr[k+1]=14;orr[k+4]=orr[k+1]-.18;}
+    outside.visible=walkMode||(houseView.mode==='full'&&houseView.roof&&houseView.floor===-1);outdoorRain.visible=weather.rain||weather.snow;
+    if(!outside.visible||(!weather.rain&&!weather.snow))return;
+    for(let i=0;i<outdoorRainCount;i++){const k=i*6;orr[k+1]-=dt*(weather.snow?.65:5.5);if(orr[k+1]<-.05)orr[k+1]=14;orr[k+4]=orr[k+1]-(weather.snow?.035:.18);orr[k+3]=orr[k]-(weather.snow?.012:.025);}
     outdoorRainGeo.attributes.position.needsUpdate=true;
   }
   // overall lights
@@ -1684,6 +1691,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     cellar:{pos:new THREE.Vector3(0, elevations[0]+1.65, 3.95), yaw:0},
     nook:{pos:new THREE.Vector3(5.89, elevations[2]+1.65, 1.58), yaw:-1.15},
   };
+  let roomFocus=null;
   let tween = null;
   let walkMode = false;
   let currentArea = 'overview';
@@ -1706,6 +1714,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     return target.clone().add(delta);
   }
   function goView(key){
+    roomFocus=null;
     if(seatedState)leaveSeat();
     if(key==='overview' && walkMode){walkMode=false;document.body.classList.remove('walk');controls.enabled=true;toggleWalkBtn.classList.remove('active');toggleWalkBtn.textContent='Freie Bewegung';} currentArea = key; setActiveButton(key);
     if(walkMode && key !== 'overview'){
@@ -1877,7 +1886,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const meta=document.createElement('div'),title=document.createElement('h2'),author=document.createElement('div'),body=document.createElement('p');
     meta.className='bookMeta';meta.textContent=b.kind;title.textContent=b.title;author.className='bookMeta';author.textContent=b.author;body.textContent=b.pages[p];
     paper.replaceChildren(meta,title,author,body);pageNum.textContent='Seite '+(p+1)+' / '+b.pages.length;prevBtn.disabled=p===0;nextBtn.disabled=p===b.pages.length-1;
-    bookmarks[readState.id]=p;try{localStorage.setItem('federfuchs-bookmarks-v1',JSON.stringify(bookmarks));}catch(e){}
+    bookmarks[readState.id]=p;try{localStorage.setItem('federfuchs-bookmarks-v1',JSON.stringify(bookmarks));localStorage.setItem('federfuchs-last-book',String(readState.id));}catch(e){}
     document.getElementById('readingPanel').scrollTop=0;
   }
   function turnPage(delta){if(!readState)return;const b=library[readState.id];const p=readState.page+delta;if(p>=0&&p<b.pages.length){readState.page=p;renderPage();}}
@@ -1914,6 +1923,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   renderer.domElement.addEventListener('pointerdown',e=>{if(e.isPrimary)down={x:e.clientX,y:e.clientY,id:e.pointerId};else down=null;});
   renderer.domElement.addEventListener('pointercancel',()=>down=null);
   renderer.domElement.addEventListener('pointerup',e=>{
+    if(tourState){down=null;return;}
     if(!down||e.pointerId!==down.id||Math.hypot(e.clientX-down.x,e.clientY-down.y)>9||!dialog.hidden){down=null;return;}
     down=null;
     const rect=renderer.domElement.getBoundingClientRect();
@@ -1954,7 +1964,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const low=ctx.createBiquadFilter();low.type='lowpass';low.frequency.value=2400;
     const high=ctx.createBiquadFilter();high.type='highpass';high.frequency.value=330;
     const rg=ctx.createGain();rg.gain.value=0;rain.connect(high).connect(low).connect(rg).connect(master);rain.start();
-    return {ctx,master,noise,rg};
+    return {ctx,master,noise,rg,rainFilter:low};
   }
   function setSoundUi(on){soundOn=on;soundBtn.textContent=on?'Ton: an':'Ton: aus';soundBtn.setAttribute('aria-pressed',String(on));}
   soundBtn.addEventListener('click',async()=>{
@@ -1978,8 +1988,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(!audio||!soundOn||audio.ctx.state!=='running')return;
     const pos=walkMode?player.pos:controls.target;
     const cellar=walkMode?navigation.floor===0:pos.y<0;
-    audio.rg.gain.setTargetAtTime(weather.rain?(cellar?.018:.105):0,audio.ctx.currentTime,.2);
-    const fireDist=pos.distanceTo(stove.position);const fireLevel=.19/(1+fireDist*.65);
+    const profile=activeRoomProfile();audio.rg.gain.setTargetAtTime(weather.rain?.105*(profile?.rain??(cellar?.18:1)):0,audio.ctx.currentTime,.35);audio.rainFilter.frequency.setTargetAtTime(650+1800*(profile?.rain??1),audio.ctx.currentTime,.35);
+    const fireDist=pos.distanceTo(stove.position);const fireLevel=.19*(profile?.fire??.5)/(1+fireDist*.65);
     if(t>nextCrackle){nextCrackle=t+.12+Math.random()*.95;audioBurst(900+Math.random()*1400,.8,.035+Math.random()*.06,fireLevel);}
     if(walkMode&&distMoved>0){walkDistance+=distMoved;if(walkDistance>.62){walkDistance=0;audioBurst(cellar?155:240,.9,.13,.12);if(!cellar&&Math.random()<.38)audioBurst(450+Math.random()*250,3,.19,.047);}}
   }
@@ -2014,7 +2024,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); const px=player.pos.x,pz=player.pos.z;navigate(move.x,move.z);distMoved=Math.hypot(player.pos.x-px,player.pos.z-pz); }
       syncWalkCamera();
     }
-    updateCameraKeys(dt);
+    updateJourney(dt,t);
+    if(!tourState)updateCameraKeys(dt);
     applyHouseView();
     updateCompactUI();
     if(editMode)refreshEditorSelection();
@@ -2028,7 +2039,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
     // Secret shelf rotation is controlled by the same physical door system.
     dustPts.rotation.y += 0.0006;
-    if(!walkMode&&dialog.hidden) controls.update();
+    if(!walkMode&&dialog.hidden&&!tourState) controls.update();
     scene.fog.near=walkMode?18:70;scene.fog.far=walkMode?75:170;
     renderer.render(scene, camera);
     updatePerformance(t);
@@ -2418,7 +2429,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const dir=camera.position.clone().sub(controls.target);dir.y=Math.max(6,dir.y);dir.setLength(22);
     const target=new THREE.Vector3(0,y,0);currentArea=['cellar','shop','upper'][houseView.floor];setActiveButton(currentArea);tweenCamera(fitPosition(target.clone().add(dir),target,10.6),target,480);
   }
-  function selectFloor(f){houseView.floor=f;applyHouseView(true);focusFloor();}
+  function selectFloor(f){roomFocus=null;houseView.floor=f;applyHouseView(true);focusFloor();}
   hvToggle.addEventListener('click',()=>{hvPanel.hidden=!hvPanel.hidden;hvToggle.setAttribute('aria-expanded',String(!hvPanel.hidden));});
   for(const b of wallModes)b.addEventListener('click',()=>{if(walkMode)return;const requested=b.dataset.wallmode;houseView.mode=WALL_MODES.includes(requested)?requested:'full';applyHouseView(true);});
   floorCycle.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:houseView.floor===0?-1:houseView.floor-1));
@@ -2645,8 +2656,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const toolbarButtons=[...document.querySelectorAll('#toolbar button')];
   const quickFloor=document.getElementById('quickFloor'),quickWalls=document.getElementById('quickWalls'),quickRoof=document.getElementById('quickRoof'),quickStand=document.getElementById('quickStand');
   const floorShort=['UG','EG','OG'];
-  const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung',shop:'Geschäftsbuch'};
-  const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['performancePanel','materialPanel'],help:['helpPanel'],shop:['businessPanel']};
+  const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung',shop:'Geschäftsbuch',journey:'Reise & Erinnerungen'};
+  const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['performancePanel','materialPanel'],help:['helpPanel'],shop:['businessPanel'],journey:['journeyPanel']};
   function setDrawer(kind){
     if(kind==='edit'||kind==='shop')kind=null;
     drawer=kind;compactHud.hidden=!kind;
@@ -2729,7 +2740,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const cameraKeys=new Set();
   function typing(){return /INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||'');}
   addEventListener('keydown',e=>{
-    if(!dialog.hidden||typing()||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(tourState||!dialog.hidden||typing()||e.metaKey||e.ctrlKey||e.altKey)return;
     if(e.code==='KeyH'&&!walkMode){e.preventDefault();collapseRail(!railCollapsed);return;}
     if(walkMode)return;
     if(['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)){cameraKeys.add(e.code);e.preventDefault();}
@@ -2832,6 +2843,43 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       }accelEl.textContent='BVH aktiv · '+n+' komplexe Meshes';
     }catch(e){accelEl.textContent='BVH nicht verfügbar · Standard-Raycast aktiv';}
   }
+  let tourState=null,roomLight=1,lastRoomKey='',lastClockCheck=-Infinity,weatherChoice='rain',clockChoice='manual',savedVisit=null;
+  const roomSelect=document.getElementById('roomJump'),visitStatus=document.getElementById('visitStatus'),roomProfileStatus=document.getElementById('roomProfileStatus'),tourHud=document.getElementById('tourHud'),clockMode=document.getElementById('clockMode'),weatherMode=document.getElementById('weatherMode');
+  for(const room of ROOMS)roomSelect.add(new Option((['UG','EG','OG'][room.floor])+' · '+room.name,room.id));
+  roomSelect.value='shop';
+  const roomById=id=>ROOMS.find(r=>r.id===id);
+  function activeRoomProfile(){
+    if(tourState)return roomById(TOUR[tourState.index]);
+    if(walkMode)return roomAt(navigation.floor,player.pos.x,player.pos.z);
+    if(roomFocus&&houseView.floor===roomById(roomFocus)?.floor)return roomById(roomFocus);
+    return houseView.floor<0?null:roomAt(houseView.floor,controls.target.x,controls.target.z);
+  }
+  function saveVisitUi(){visitStatus.textContent=savedVisit?'Letzte Ansicht · '+(roomById(savedVisit.room)?.name||['Untergeschoss','Antiquariat','Obergeschoss'][savedVisit.floor]||'Gesamtgebäude'):'Noch kein Besuch gespeichert.';document.getElementById('restoreVisit').disabled=!savedVisit;}
+  function snapshotVisit(){return validateVisit({version:1,floor:houseView.floor,mode:houseView.mode,scope:houseView.scope,roof:houseView.roof,camera:camera.position.toArray(),target:controls.target.toArray(),mood:lightMood.value,room:roomFocus});}
+  function rememberVisit(explicit=false){if(tourState||walkMode||!dialog.hidden)return;const v=snapshotVisit();if(!v)return;savedVisit=v;try{localStorage.setItem('federfuchs-visit-v1',JSON.stringify(v));}catch(e){if(explicit)visitStatus.textContent='Speicher nicht verfügbar';return;}saveVisitUi();}
+  function applyVisit(v){if(!v)return;if(walkMode)setWalkMode(false);tween=null;houseView.floor=v.floor;houseView.mode=v.mode;houseView.scope=v.scope;houseView.roof=v.roof;roomFocus=roomById(v.room)?.id||null;currentArea=v.floor===-1?'overview':['cellar','shop','upper'][v.floor];setActiveButton(currentArea);camera.position.fromArray(v.camera);controls.target.fromArray(v.target);camera.lookAt(controls.target);controls.update();applyHouseView(true);if(clockChoice==='manual'){lightMood.value=v.mood;updateLightMood();}}
+  function focusRoom(id,duration=750){const r=roomById(id);if(!r)return;if(walkMode)setWalkMode(false);roomFocus=id;currentArea=['cellar','shop','upper'][r.floor];setActiveButton(currentArea);houseView.floor=r.floor;houseView.scope='single';houseView.roof=false;houseView.mode='auto';applyHouseView(true);const target=new THREE.Vector3(...r.focus),p=new THREE.Vector3(...r.camera);tweenCamera(fitPosition(p,target,r.radius),target,duration);roomSelect.value=id;}
+  function setWeatherChoice(){const season=new Date().getMonth(),v=weatherChoice==='season'?([11,0,1].includes(season)?'snow':'rain'):weatherChoice;weather.rain=v==='rain';weather.snow=v==='snow';outdoorRain.material.color.setHex(weather.snow?0xe5edf1:0xacc1d0);outdoorRain.material.opacity=weather.snow?.66:.20;weatherBtn.textContent=weather.snow?'Schnee: an':weather.rain?'Regen: an':'Regen: aus';weatherBtn.setAttribute('aria-pressed',String(weather.rain||weather.snow));paintRain(0,0);}
+  function syncTime(t){if(t-lastClockCheck<30000)return;lastClockCheck=t;if(clockChoice==='real'){const mood=naturalMood(new Date().getHours());if(lightMood.value!==mood){lightMood.value=mood;updateLightMood();}}if(weatherChoice==='season')setWeatherChoice();}
+  function tourStopAt(index){if(!tourState)return;tourState.index=(index+TOUR.length)%TOUR.length;tourState.elapsed=0;const r=roomById(TOUR[tourState.index]);focusRoom(r.id,1900);document.getElementById('tourCaption').textContent=r.name+' · '+(tourState.index+1)+' / '+TOUR.length;}
+  function startTour(){if(tourState)return;if(walkMode)setWalkMode(false);const before=snapshotVisit();if(!before)return;tourState={index:0,elapsed:0,paused:false,before};resetInput();cameraKeys.clear();setDrawer(null);controls.enabled=false;document.body.classList.add('touring');tourHud.hidden=false;document.getElementById('tourPause').textContent='Pause';tourStopAt(0);}
+  function endTour(){if(!tourState)return;const before=tourState.before;tourState=null;tourHud.hidden=true;document.body.classList.remove('touring');controls.enabled=true;applyVisit(before);}
+  function updateJourney(dt,t){syncTime(t);if(tourState&&!tourState.paused){tourState.elapsed+=dt;if(tourState.elapsed>=7){if(tourState.index===TOUR.length-1)endTour();else tourStopAt(tourState.index+1);}}const p=activeRoomProfile(),factor=p?.light??1;roomLight+=(factor-roomLight)*Math.min(1,dt*1.7);const base=lightMood.value==='day'?1.20:lightMood.value==='night'?1.18:1.32;renderer.toneMappingExposure=base*roomLight;const key=p?.id||'overview';if(key!==lastRoomKey){lastRoomKey=key;roomProfileStatus.textContent=p?p.name+' · Raumlicht und gedämpfte Geräuschkulisse':'Gesamtansicht · neutrale Raumstimmung';}}
+  try{savedVisit=validateVisit(JSON.parse(localStorage.getItem('federfuchs-visit-v1')||'null'));const a=localStorage.getItem('federfuchs-clock');if(a==='real')clockChoice=a;const b=localStorage.getItem('federfuchs-weather');if(['rain','snow','clear','season'].includes(b))weatherChoice=b;}catch(e){}
+  clockMode.value=clockChoice;weatherMode.value=weatherChoice;setWeatherChoice();saveVisitUi();lightMood.disabled=clockChoice==='real';
+  clockMode.addEventListener('change',()=>{clockChoice=clockMode.value;lastClockCheck=-Infinity;lightMood.disabled=clockChoice==='real';try{localStorage.setItem('federfuchs-clock',clockChoice);}catch(e){}syncTime(performance.now());});
+  weatherMode.addEventListener('change',()=>{weatherChoice=weatherMode.value;setWeatherChoice();try{localStorage.setItem('federfuchs-weather',weatherChoice);}catch(e){}});
+  weatherBtn.addEventListener('click',()=>{weatherChoice=weather.rain?'rain':'clear';weatherMode.value=weatherChoice;setWeatherChoice();try{localStorage.setItem('federfuchs-weather',weatherChoice);}catch(e){}});
+  document.getElementById('roomVisit').addEventListener('click',()=>{focusRoom(roomSelect.value);setDrawer(null);});
+  document.getElementById('saveVisit').addEventListener('click',()=>{if(walkMode){visitStatus.textContent='Bitte zunächst in die Gebäudeansicht wechseln.';return;}rememberVisit(true);});
+  document.getElementById('restoreVisit').addEventListener('click',()=>{applyVisit(savedVisit);setDrawer(null);});
+  document.getElementById('resumeBook').addEventListener('click',()=>{let id=null;try{const v=localStorage.getItem('federfuchs-last-book');if(v!==null)id=Number(v);}catch(e){}setDrawer(null);if(Number.isInteger(id)&&library[id])readBook(id);else catalogView();});
+  document.getElementById('startTour').addEventListener('click',startTour);document.getElementById('tourStop').addEventListener('click',endTour);
+  document.getElementById('tourPrev').addEventListener('click',()=>{if(tourState)tourStopAt(tourState.index-1);});document.getElementById('tourNext').addEventListener('click',()=>{if(tourState)tourStopAt(tourState.index+1);});
+  document.getElementById('tourPause').addEventListener('click',e=>{if(!tourState)return;tourState.paused=!tourState.paused;if(tourState.paused)tween=null;e.currentTarget.textContent=tourState.paused?'Weiter':'Pause';if(!tourState.paused)focusRoom(TOUR[tourState.index],1000);});
+  addEventListener('keydown',e=>{if(e.code==='Escape'&&tourState)endTour();});
+  addEventListener('pagehide',()=>rememberVisit());document.addEventListener('visibilitychange',()=>{if(document.hidden)rememberVisit();});
+  house.updateMatrixWorld(true);for(const binding of inventoryBindings.values())for(const o of binding.objects){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())continue;const p=b.getCenter(new THREE.Vector3()),room=roomAt(floorOf(p.y),p.x,p.z);if(room)o.userData.roomId=room.id;}
   let detailActive=false,detailTotal=0,detailCompleted=0;
   function showDetailProgress(){const bar=document.getElementById('detailBar'),label=document.getElementById('detailProgress');bar.max=Math.max(1,detailTotal);bar.value=detailCompleted;label.textContent=detailActive?'Detailressourcen geprüft: '+detailCompleted+' / '+detailTotal:detailTotal?'Detailprüfung beendet: '+detailCompleted+' / '+detailTotal:'Lokale Grundszene bereit';}
   function detailDone(){if(detailActive){detailCompleted=Math.min(detailTotal,detailCompleted+1);showDetailProgress();}}
@@ -2844,7 +2892,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=024',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=025',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
