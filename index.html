@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.31</title>
+  <title>Zum träumenden Federfuchs – v0.32</title>
   <style>
     :root{
       --bg:#10151b;
@@ -301,7 +301,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.31 · Ein Garten zum Verweilen</div>
+    <div id="sub">v0.32 · Unter Glas und Apfelblüten</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -3093,7 +3093,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=031',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=032',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
