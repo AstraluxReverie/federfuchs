@@ -62,3 +62,7 @@ Commits 6d70e0f und 6f9650c: identische Eingangsseiten, CSS-Türsimulation, Lade
 ### Begrenzte Außenansicht
 
 Freigegebene neue Bildkomposition: vollständiges Haus, Buchhaimer Gassen, Himmel und Pflaster. Fester Standort; Wischen, Pfeiltasten und Zentrieren implementiert als begrenztes 2D-Panning mit Zoom, keine echte sphärische Projektion. Bild enthält eingebrannte UI-Symbole und abweichenden Schriftzug; vor finaler Integration bereinigen. Bildtransfer und Live-Abnahme offen. Inline-JS syntaktisch geprüft.
+
+### Grafische Navigation – Nutzerentscheidung
+
+Goldene Pfeile der freigegebenen Panorama-Grafik bleiben sichtbar und erhalten deckungsgleiche transparente Buttons. Buchsymbol öffnet ein Besuchermenü; Zentrierung verfügbar. Tür-Hotspot an neue Komposition angepasst, künstlicher CSS-Türflügel deaktiviert. Zielasset assets/buchhaim-panorama.webp noch nicht übertragen. Bildverschiebung bleibt 2D-Prototyp; echte Panorama-Projektion und Originaltür-Freistellung offen. Syntaxprüfung erfolgreich, keine Browser-Abnahme.
