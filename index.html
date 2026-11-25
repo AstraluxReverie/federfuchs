@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.13</title>
+  <title>Zum träumenden Federfuchs – v0.14</title>
   <style>
     :root{
       --bg:#10151b;
@@ -136,11 +136,24 @@
     #materialPanel p,#materialPanel label{font-size:10px;color:#c8b8a3;line-height:1.5}
     #materialQuality{color:#efdfc5;background:#242321;border:1px solid #806e56;border-radius:5px;font-size:12px;padding:4px}
     #materialStatus{font-size:10px;text-align:right}
+
+    #houseViewPanel{margin-top:9px;border-top:1px solid var(--line);padding-top:7px}
+    #houseViewPanel[hidden]{display:none!important}
+    .hvLine{display:flex;align-items:center;gap:5px;margin:4px 0;justify-content:space-between}
+    .hvLine>span{font-size:11px;color:#d6c4a7;min-width:39px}
+    .hvSegments{display:flex;flex:1;gap:3px;justify-content:flex-end}
+    .hvLine button{font-size:11px;padding:7px 8px;min-height:29px;white-space:nowrap}
+    .hvSegments button{flex:1}
+    .hvLine button[aria-pressed=true]{background:#bba06c2c;border-color:#c5a778;color:#fff0d5}
+    .hvLine button:disabled{opacity:.38;cursor:default}
+    #hvStatus{color:#b9ac97;font-size:10px;margin-top:5px}
+    @media(max-width:420px){.hvLine button{font-size:10px;padding:6px}.hvLine>span{min-width:33px}}
+    @media(max-height:530px){#houseViewPanel{max-height:29dvh;overflow:auto}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.13 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.14 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -155,7 +168,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.13 · Echte Fenster · Außenwelt im Gehmodus</div>
+    <div id="sub">3D-Studie v0.14 · Hausansicht</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -168,6 +181,22 @@
       <button id="quietToggle" type="button" aria-pressed="false">Ruhemodus</button>
       <button id="libraryToggle" type="button">Bücher entdecken</button>
       <button id="materialToggle" type="button" aria-expanded="false">Materialien</button>
+      <button id="houseViewToggle" type="button" aria-expanded="true">Hausansicht</button>
+    </div>
+    <div id="houseViewPanel">
+      <div class="hvLine"><span>Wände</span><div class="hvSegments" role="group" aria-label="Wandhöhe">
+        <button type="button" data-wallmode="full" title="Wände hoch" aria-label="Wände hoch">▥ Hoch</button>
+        <button type="button" data-wallmode="half" title="Wände halbhoch" aria-label="Wände halbhoch">◧ Halb</button>
+        <button type="button" data-wallmode="auto" title="Automatischer Schnitt" aria-label="Automatischer Schnitt">◩ Auto</button>
+        <button type="button" data-wallmode="off" title="Wände aus" aria-label="Wände aus">▱ Aus</button>
+      </div></div>
+      <div class="hvLine"><span>Etage</span><div class="hvSegments" role="group" aria-label="Stockwerk">
+        <button type="button" id="floorDown" aria-label="Etage tiefer">▼</button>
+        <button type="button" id="floorCycle" aria-label="Etagenansicht wechseln">Alle</button>
+        <button type="button" id="floorUp" aria-label="Etage höher">▲</button>
+      </div></div>
+      <div class="hvLine"><button type="button" id="floorScope">Nur diese Etage</button><button type="button" id="roofToggle" aria-pressed="false">Dach: aus</button><button type="button" id="topView">Draufsicht</button></div>
+      <div id="hvStatus" role="status">Automatischer Gebäudeschnitt</div>
     </div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
@@ -242,7 +271,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   controls.target.set(0, 7.2, 0);
   controls.minDistance = .9;
   controls.maxDistance = 46;
-  controls.maxPolarAngle = Math.PI * 0.48;
+  controls.minPolarAngle=.035;controls.maxPolarAngle = Math.PI * 0.48;
 
   const root = new THREE.Group();
   scene.add(root);
@@ -400,10 +429,15 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     return m;
   }
 
-  const wallBoxes=[];
+  const wallBoxes=[],visualWalls=[];
+  function wallAttachment(o,floor,facadeSide=null,kind='attachment'){o.userData.cutaway={floor,facadeSide,kind};return o;}
   function wall(w,h,d,mat,x,y,z,group=house){
     wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
-    return addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
+    const m=addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
+    const floor=y<-.15?0:y<5.05?1:2;
+    const side=Math.abs(x)>8.9?(x<0?'left':'right'):z<-5.15?'back':null;
+    m.userData.cutaway={floor,facadeSide:side,kind:'wall'};
+    visualWalls.push({m,y,h,base:y-h/2,scaleY:m.scale.y});return m;
   }
 
   function floorSlab(w,d,x,y,z,mat=floorMat,group=house){
@@ -645,7 +679,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   floorSlab(W,D,0,levels.cellar,0,stoneMat);
   cutFloor(levels.shop,flights[0].x);
   cutFloor(levels.upper,flights[1].x);
-  floorSlab(W,D,0,9.9,0,plasterMat); // ceiling / roof base
+  const roofSlab=floorSlab(W,D,0,9.9,0,plasterMat);roofSlab.userData.roof=true; // ceiling / roof base
 
   // Build real window openings instead of placing glass in front of a solid wall.
   function perforatedWall(axis,at,lo,hi,base,mat,openings){
@@ -700,25 +734,26 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     for(let i=1;i<=16;i++){const a=i*Math.PI/32;shape.lineTo(sideZ*roundR*Math.cos(a),sideY*roundR*Math.sin(a));}
     shape.closePath();
     const geo=new THREE.ExtrudeGeometry(shape,{depth:.35,bevelEnabled:false});geo.translate(0,0,-.175);
-    const infill=addMesh(geo,plasterMat,W/2,roundCy,roundCz,house,false,true);infill.rotation.y=-Math.PI/2;
+    const infill=addMesh(geo,plasterMat,W/2,roundCy,roundCz,house,false,true);infill.rotation.y=-Math.PI/2;wallAttachment(infill,2,'right');
   }
   wall(W,H,.35,stoneMat,0,levels.cellar+H/2,-D/2,house);
   facade('x',-W/2,0,stoneMat);
   facade('x',W/2,0,stoneMat);
 
   for(const v of facadeWindows){
-    if(v.axis==='z')simpleWindow(v.center,v.y,v.at,v.w,v.h);
-    else simpleWindow(v.at,v.y,v.center,v.w,v.h).rotation.y=v.at<0?Math.PI/2:-Math.PI/2;
+    if(v.axis==='z')wallAttachment(simpleWindow(v.center,v.y,v.at,v.w,v.h),v.floor,'back');
+    else {const win=simpleWindow(v.at,v.y,v.center,v.w,v.h);win.rotation.y=v.at<0?Math.PI/2:-Math.PI/2;wallAttachment(win,v.floor,v.at<0?'left':'right');}
   }
-  roundWindow(W/2,roundCy,roundCz,1.0).rotation.y=-Math.PI/2;
+  const roundFrame=roundWindow(W/2,roundCy,roundCz,1.0);roundFrame.rotation.y=-Math.PI/2;wallAttachment(roundFrame,2,'right');
   // inner back trim
   [levels.cellar,levels.shop,levels.upper].forEach(y=>{
-    addMesh(new THREE.BoxGeometry(W,.12,.25), darkMat,0,y+H,-D/2+0.14);
-    addMesh(new THREE.BoxGeometry(W,.12,.25), darkMat,0,y+0.18,-D/2+0.14);
+    const floor=baseByFloor.indexOf(y);
+    wallAttachment(addMesh(new THREE.BoxGeometry(W,.12,.25),darkMat,0,y+H,-D/2+0.14),floor,'back');
+    wallAttachment(addMesh(new THREE.BoxGeometry(W,.12,.25),darkMat,0,y+0.18,-D/2+0.14),floor,'back','baseTrim');
   });
 
   // Posts
-  [-8.2,8.2].forEach(x=>{ post(x,levels.shop+H/2,0,H); post(x,levels.upper+H/2,0,H); post(x,levels.cellar+H/2,0,H); });
+  [-8.2,8.2].forEach(x=>{for(const [floor,y] of baseByFloor.entries()){const m=post(x,y,0,H);wallAttachment(m,floor,x<0?'left':'right');}});
 
   // ===== CELLAR =====
   // partitions
@@ -740,7 +775,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     addMesh(new THREE.BoxGeometry(.12,.09,1.22),darkMat,0,.15,.61,g);
     addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,.095,1.02,1.07,g);
     addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,-.095,1.02,1.07,g);
-    for(const dz of [-.65,.65])addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+dz);
+    const floor=baseByFloor.indexOf(y);wallAttachment(g,floor,null,'door');
+    for(const dz of [-.65,.65])wallAttachment(addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+dz),floor,null,'door');
     doors.push({g,leaf,x,z,floor:y,open:false});
   }
   partitionX(-2.7,levels.cellar,stoneMat,[-2.45,2.05]);
@@ -806,6 +842,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   // Open stairs with railings and actual floor openings.
   for(const f of flights){
+    const stairStart=house.children.length;
     const low=elevations[f.low],high=elevations[f.high],rise=high-low,N=25,run=(zBottom-zTop)/N;
     for(let i=0;i<N;i++){
       const y=low+rise*(i+1)/N,z=zBottom-(i+.5)*run;
@@ -823,6 +860,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     // The upper end is open for entry; close the other end of the upper opening.
     addMesh(new THREE.BoxGeometry(stairHalf*2,.075,.075),woodMat,f.x,high+.92,zBottom);
     for(const side of [-.5,.5])addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,f.x+side,high+.45,zBottom);
+    for(const m of house.children.slice(stairStart))m.userData.stairFlight={low:f.low,high:f.high};
   }
 
   // ground windows and entrance suggestion
@@ -936,8 +974,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   // Extra details: timber ceiling beams, reading corner, stove, framed sign.
   for(const y of [levels.shop,levels.upper]){
-    for(const x of [-7.5,-5,-3.2,3.2,5,7.5])addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,y+H-.14,0);
-    addMesh(new THREE.BoxGeometry(W-.4,.24,.2),woodMat,0,y+H-.18,-D/2+.22);
+    for(const x of [-7.5,-5,-3.2,3.2,5,7.5])wallAttachment(addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,y+H-.14,0),baseByFloor.indexOf(y),null,'ceiling');
+    wallAttachment(addMesh(new THREE.BoxGeometry(W-.4,.24,.2),woodMat,0,y+H-.18,-D/2+.22),baseByFloor.indexOf(y),'back','ceiling');
   }
   const stove=new THREE.Group();stove.position.set(7.85,levels.upper+.18,3.65);house.add(stove);
   addMesh(new THREE.BoxGeometry(.65,.87,.58),ironMat,0,.55,0,stove);
@@ -992,9 +1030,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Window frames and sills now share the facade window registry.
   for(const y of [levels.shop,levels.upper]){
     for(const sign of [-1,1]){
-      addMesh(new THREE.BoxGeometry(.075,.25,D-.35),trimMat,sign*(W/2-.22),y+.30,0);
-      addMesh(new THREE.BoxGeometry(.09,.10,D-.35),woodMat,sign*(W/2-.23),y+.46,0);
-      addMesh(new THREE.BoxGeometry(.11,.17,D-.35),trimMat,sign*(W/2-.24),y+H-.12,0);
+      const floor=baseByFloor.indexOf(y),side=sign<0?'left':'right';
+      wallAttachment(addMesh(new THREE.BoxGeometry(.075,.25,D-.35),trimMat,sign*(W/2-.22),y+.30,0),floor,side,'baseTrim');
+      wallAttachment(addMesh(new THREE.BoxGeometry(.09,.10,D-.35),woodMat,sign*(W/2-.23),y+.46,0),floor,side,'baseTrim');
+      wallAttachment(addMesh(new THREE.BoxGeometry(.11,.17,D-.35),trimMat,sign*(W/2-.24),y+H-.12,0),floor,side);
     }
   }
   // Shaped trim on the counter front, kept within the existing collision footprint.
@@ -1396,13 +1435,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     down=null;
     const rect=renderer.domElement.getBoundingClientRect();
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);
-    const bookHit=ray.intersectObjects(pickableBooks,false)[0];
-    const propHit=ray.intersectObjects(inspectables,true)[0];
+    const visibleHit=h=>{for(let o=h.object;o;o=o.parent)if(!o.visible)return false;return true;};
+    const bookHit=ray.intersectObjects(pickableBooks,false).find(visibleHit);
+    const propHit=ray.intersectObjects(inspectables,true).find(visibleHit);
     const hit=bookHit&&(!propHit||bookHit.distance<=propHit.distance+.04)?bookHit:propHit;
     if(!hit)return;
     if(walkMode&&hit.distance>3.0){flashHint('Geh etwas näher heran.');return;}
     // Prevent selecting through opaque geometry. Gold spine decorations may sit just ahead of a book.
-    const front=ray.intersectObject(house,true).find(h=>h.object.isMesh&&h.object.material?.transparent!==true);
+    const front=ray.intersectObject(house,true).find(h=>visibleHit(h)&&h.object.isMesh&&h.object.material?.transparent!==true);
     if(front&&front.distance<hit.distance-.075)return;
     if(hit===bookHit){const id=hit.object.userData.bookIds[hit.instanceId];if(Number.isInteger(id))readBook(id);return;}
     for(let o=hit.object;o;o=o.parent){if(o.userData.inspectId){inspect(o.userData.inspectId);break;}}
@@ -1488,6 +1528,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); const px=player.pos.x,pz=player.pos.z;navigate(move.x,move.z);distMoved=Math.hypot(player.pos.x-px,player.pos.z-pz); }
       syncWalkCamera();
     }
+    applyHouseView();
     animateExterior(dt);
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
@@ -1663,7 +1704,97 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     el.textContent=conflicts.length?'Wandprüfung: '+conflicts.length+' mögliche Überschneidungen · '+conflicts.join(', '):'Wandprüfung: '+candidates.size+' Objektgruppen geprüft, keine gemeldete Überschneidung.';
     return conflicts;
   }
+  // Sims-inspired visual house controls. Collision geometry is intentionally untouched.
+  const houseView={mode:'auto',floor:-1,scope:'single',roof:false};
+  const hvPanel=document.getElementById('houseViewPanel'),hvToggle=document.getElementById('houseViewToggle'),hvStatus=document.getElementById('hvStatus');
+  const floorCycle=document.getElementById('floorCycle'),floorDown=document.getElementById('floorDown'),floorUp=document.getElementById('floorUp'),roofToggle=document.getElementById('roofToggle'),floorScope=document.getElementById('floorScope'),topView=document.getElementById('topView');
+  const wallModes=[...document.querySelectorAll('[data-wallmode]')];
+  const names=['Keller','Erdgeschoss','Obergeschoss'];
+  function floorOf(y){return y<-.25?0:y<4.95?1:2;}
+  function floorAllowed(f,selection,scope){return selection===-1||(scope==='single'?f===selection:f<=selection);}
+  function effectiveWallMode(mode,side,floor,selection,cameraX,cameraZ,walk){
+    if(walk)return 'full';
+    if(mode!=='auto')return mode;
+    // Camera-facing exterior walls are lowered; far walls remain as a backdrop.
+    if(side==='left')return cameraX<-1?'half':'full';
+    if(side==='right')return cameraX>1?'half':'full';
+    if(side==='back')return cameraZ<-1?'half':'full';
+    return 'half';
+  }
+  const visualFloorEntries=[];
+  house.updateMatrixWorld(true);
+  for(const o of house.children){
+    if(o.userData.cutaway||o.userData.roof)continue;
+    const box=new THREE.Box3().setFromObject(o);
+    const cy=box.isEmpty()?o.position.y:box.getCenter(new THREE.Vector3()).y;
+    visualFloorEntries.push({o,floor:floorOf(cy),stair:o.userData.stairFlight||null,tall:!box.isEmpty()&&box.max.y-box.min.y>2.4});
+  }
+  const wallEntries=new Map(visualWalls.map(v=>[v.m,v]));
+  const attachments=house.children.filter(o=>o.userData.cutaway&&!wallEntries.has(o));
+  let lastHouseKey='';
+  function applyHouseView(force=false){
+    const sideX=camera.position.x>1?1:camera.position.x<-1?-1:0,sideZ=camera.position.z<-1?-1:1;
+    const key=[houseView.mode,houseView.floor,houseView.scope,houseView.roof,walkMode,sideX,sideZ].join('|');
+    if(!force&&key===lastHouseKey)return;lastHouseKey=key;
+    const selection=walkMode?-1:houseView.floor,scope=houseView.scope;
+    const allowed=f=>floorAllowed(f,selection,scope);
+    const modeFor=c=>effectiveWallMode(houseView.mode,c.facadeSide,c.floor,selection,sideX*2,sideZ*2,walkMode);
+    for(const {m,y,h,base,scaleY} of visualWalls){
+      const c=m.userData.cutaway,mode=modeFor(c);
+      const cut=baseByFloor[c.floor]+1.12;
+      const height=mode==='half'?Math.max(0,Math.min(h,cut-base)):h;
+      m.visible=allowed(c.floor)&&mode!=='off'&&height>.005;
+      m.scale.y=scaleY*(height/h);m.position.y=base+height/2;
+    }
+    for(const o of attachments){
+      const c=o.userData.cutaway,mode=modeFor(c);
+      o.visible=allowed(c.floor)&&(mode==='full'||(mode==='half'&&c.kind==='baseTrim'));
+      if(c.kind==='ceiling')o.visible=walkMode||(houseView.roof&&allowed(c.floor)&&mode==='full');
+    }
+    for(const entry of visualFloorEntries){
+      const {o,floor,stair,tall}=entry;
+      o.visible=allowed(floor);
+      if(stair&&selection!==-1&&scope==='single'&&tall)o.visible=false;
+    }
+    roofSlab.visible=walkMode||(houseView.roof&&(selection===-1||selection===2));
+    // The UI remains present in walk mode, with visual controls disabled.
+    for(const b of wallModes){b.setAttribute('aria-pressed',String(b.dataset.wallmode===houseView.mode));b.disabled=walkMode;}
+    floorCycle.textContent=selection===-1?'Alle':names[selection];
+    floorDown.disabled=walkMode||selection===0;floorUp.disabled=walkMode||selection===-1;
+    floorCycle.disabled=walkMode;floorScope.disabled=walkMode||selection===-1;roofToggle.disabled=walkMode;topView.disabled=walkMode;
+    floorScope.textContent=scope==='single'?'Nur diese Etage':'Bis zu dieser Etage';
+    floorScope.setAttribute('aria-pressed',String(scope==='single'));
+    roofToggle.textContent='Dach: '+(houseView.roof?'an':'aus');roofToggle.setAttribute('aria-pressed',String(houseView.roof));
+    hvStatus.textContent=walkMode?'Gehmodus · alle Wände und Kollisionen aktiv':selection===-1?'Gesamtes Gebäude · '+({full:'Wände hoch',half:'Wände halbhoch',auto:'automatischer Schnitt',off:'Wände ausgeblendet'})[houseView.mode]:names[selection]+' · '+(scope==='single'?'isoliert':'darunterliegende Etagen sichtbar');
+  }
+  function focusFloor(){
+    if(houseView.floor<0){goView('overview');return;}
+    const y=baseByFloor[houseView.floor]+1.25;
+    const dir=camera.position.clone().sub(controls.target);dir.y=Math.max(6,dir.y);dir.setLength(22);
+    const target=new THREE.Vector3(0,y,0);tweenCamera(target.clone().add(dir),target,480);
+  }
+  function selectFloor(f){houseView.floor=f;applyHouseView(true);focusFloor();}
+  hvToggle.addEventListener('click',()=>{hvPanel.hidden=!hvPanel.hidden;hvToggle.setAttribute('aria-expanded',String(!hvPanel.hidden));});
+  for(const b of wallModes)b.addEventListener('click',()=>{houseView.mode=b.dataset.wallmode;applyHouseView(true);});
+  floorCycle.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:houseView.floor===0?-1:houseView.floor-1));
+  floorDown.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:Math.max(0,houseView.floor-1)));
+  floorUp.addEventListener('click',()=>selectFloor(houseView.floor===2?-1:houseView.floor+1));
+  floorScope.addEventListener('click',()=>{houseView.scope=houseView.scope==='single'?'stack':'single';applyHouseView(true);});
+  roofToggle.addEventListener('click',()=>{houseView.roof=!houseView.roof;applyHouseView(true);});
+  topView.addEventListener('click',()=>{
+    if(houseView.floor===-1)houseView.floor=2;
+    houseView.roof=false;houseView.mode='off';applyHouseView(true);
+    const target=new THREE.Vector3(0,baseByFloor[houseView.floor]+.2,0);
+    tweenCamera(target.clone().add(new THREE.Vector3(0,24,4.1)),target,550);
+  });
+  // Existing room buttons select the corresponding floor as well, unless walking.
+  for(const b of viewButtons)b.addEventListener('click',()=>{
+    if(walkMode)return;
+    houseView.floor=b.dataset.view==='overview'?-1:b.dataset.view==='cellar'?0:b.dataset.view==='shop'?1:2;
+    applyHouseView(true);
+  });
   goView('overview');
+  applyHouseView(true);
   auditLayout();
   setTimeout(()=>{installModels().then(auditLayout).catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
   setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
