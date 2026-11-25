@@ -40,7 +40,8 @@ export function buildGarden(T,materials){
    for(let n=0;n<5;n++){const a=n*1.257+r()*.3;plants.push({x:x+Math.cos(a)*.115,y:y+.46+r()*.07,z:z+Math.sin(a)*.115,a,s:.085+r()*.04});}
    if(k<3){fruit.push({x:x+.09,y:y+.405,z:z+.07,a:r()*6.28,s:.045+r()*.016});if(j%3===0)blossoms.push({x:x-.04,y:y+.56,z:z-.06,a:r()*6.28,s:.039});}
   }
-  const label=box(.28,.18,.035,wood,b.x-b.w*.35,y+.64,b.z+b.d*.46);box(.035,.32,.035,wood,label.position.x,y+.46,label.position.z);
+  const label=box(.38,.18,.035,wood,b.x-b.w*.35,y+.64,b.z+b.d*.46);box(.035,.32,.035,wood,label.position.x,y+.46,label.position.z);
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;const c=canvas.getContext('2d');c.fillStyle='#e5d3a8';c.fillRect(0,0,256,128);c.strokeStyle='#70583a';c.strokeRect(6,6,244,116);c.fillStyle='#49372a';c.font='bold 26px Georgia';c.textAlign='center';c.fillText(k<3?'Erdbeeren':'Kräuter',128,55);c.font='20px Georgia';c.fillText(k<3?'Danzelots Beet '+(k+1):'Minze · Melisse',128,91);const tex=new T.CanvasTexture(canvas);tex.colorSpace=T.SRGBColorSpace;mesh(new T.PlaneGeometry(.35,.15),new T.MeshStandardMaterial({map:tex,roughness:.9}),label.position.x,label.position.y,label.position.z+.019);
  }
  // Herb pots beside the kitchen-side terrace; tucked against the wall.
  for(let i=0;i<4;i++){const x=-7.6+i*.55,z=-6.03;cyl(.23,.17,.32,pot,x,y+.16,z);cyl(.205,.205,.02,soil,x,y+.32,z);for(let j=0;j<7;j++)plants.push({x:x+(r()-.5)*.25,y:y+.40+r()*.19,z:z+(r()-.5)*.25,a:r()*6.28,s:.085});}
