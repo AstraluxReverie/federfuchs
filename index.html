@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.21</title>
+  <title>Zum träumenden Federfuchs – v0.22</title>
   <style>
     :root{
       --bg:#10151b;
@@ -263,7 +263,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.21 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.22 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -298,7 +298,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.21 · Handwerk & Atmosphäre</div>
+    <div id="sub">v0.22 · Handwerk & Atmosphäre</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -415,6 +415,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import { OrbitControls } from './vendor/OrbitControls.js';
   import {wallExtent,slabExtent,cameraDistance,seededRandom,checkOpenings} from './world-utils.js';
   import {validateManifest,validateGLB,dimensionsFit} from './asset-utils.js';
+  import {timber,cobbles,wallpaper} from './surface-art.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -462,24 +463,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     return t;
   }
 
-  const woodTex = canvasTexture((ctx,w,h)=>{
-    const grad = ctx.createLinearGradient(0,0,0,h);
-    grad.addColorStop(0,'#6f4e31'); grad.addColorStop(.35,'#8a643e'); grad.addColorStop(1,'#5c3f28');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
-    for(let i=0;i<180;i++){
-      ctx.strokeStyle = `rgba(${110+Math.random()*60},${70+Math.random()*35},${35+Math.random()*20},${0.09+Math.random()*0.08})`;
-      ctx.lineWidth = 1+Math.random()*2;
-      ctx.beginPath();
-      const y = Math.random()*h;
-      ctx.moveTo(0,y);
-      for(let x=0;x<=w;x+=32){ ctx.lineTo(x, y + (Math.random()-.5)*12); }
-      ctx.stroke();
-    }
-    for(let x=0;x<w;x+=64){
-      ctx.fillStyle='rgba(40,25,15,.18)';
-      ctx.fillRect(x,0,2,h);
-    }
-  }, 1024, 1024, 3, 3);
+  const woodTex=canvasTexture(timber,1024,1024,1,1);
 
   const plankTex=canvasTexture((c,w,h)=>{
     const rand=seededRandom(627);c.fillStyle='#59412c';c.fillRect(0,0,w,h);
@@ -549,7 +533,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }, 1024, 256, 2, 1);
 
   const woodMat = new THREE.MeshStandardMaterial({map:woodTex, roughness:.82, metalness:.04});
-  const floorMat = new THREE.MeshStandardMaterial({map:plankTex, roughness:.86, metalness:.03});
+  const floorMat = new THREE.MeshStandardMaterial({map:plankTex, roughness:.78, metalness:0});
   const stoneMat = new THREE.MeshStandardMaterial({map:stoneTex, roughness:.95, metalness:0});
   // A visible, local fallback: staggered sandstone masonry with mortar, chips and weathering.
   // Both the outer color and bump maps are continuous in world coordinates.
@@ -568,7 +552,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
     for(let i=0;i<2400;i++){c.fillStyle=i%2?'#281d1015':'#fff3da12';c.fillRect(Math.random()*w,Math.random()*h,2+Math.random()*4,1+Math.random()*3);}
   },1024,1024,1,1);
-  const facadeMat=new THREE.MeshStandardMaterial({map:facadeTex,bumpMap:facadeTex,bumpScale:.035,roughness:.94});
+  const facadeMat=new THREE.MeshStandardMaterial({map:facadeTex,bumpMap:facadeTex,bumpScale:.048,roughness:.94});
   const foundationMat=new THREE.MeshStandardMaterial({map:stoneTex,bumpMap:stoneTex,bumpScale:.055,color:0x9a9282,roughness:.96});
   const plasterMat = new THREE.MeshStandardMaterial({map:plasterTex, roughness:.94, metalness:0});
   const brassMat = new THREE.MeshStandardMaterial({color:0xae8d54, roughness:.35, metalness:.8});
@@ -580,7 +564,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const glassMat = new THREE.MeshStandardMaterial({color:0x87afce, transparent:true, opacity:.55, roughness:.25,emissive:0x294052,emissiveIntensity:.8,side:THREE.DoubleSide});
   const paperMat = new THREE.MeshStandardMaterial({color:0xe6dbc9, roughness:1});
   const grainBump=canvasTexture((c,w,h)=>{c.fillStyle='#888';c.fillRect(0,0,w,h);for(let i=0;i<1000;i++){const y=Math.random()*h,shade=90+Math.random()*85;c.strokeStyle='rgba('+shade+','+shade+','+shade+',.34)';c.lineWidth=.4+Math.random()*1.6;c.beginPath();c.moveTo(0,y);for(let x=0;x<=w;x+=40)c.lineTo(x,y+Math.sin(x*.02+i)*1.6);c.stroke();}},512,512,1,1);grainBump.colorSpace=THREE.NoColorSpace;
-  floorMat.bumpMap=grainBump;floorMat.bumpScale=.014;woodMat.bumpMap=grainBump;woodMat.bumpScale=.012;
+  floorMat.bumpMap=plankTex;floorMat.bumpScale=.018;woodMat.bumpMap=woodTex;woodMat.bumpScale=.014;
   const plasterBump=canvasTexture((c,w,h)=>{c.fillStyle='#858585';c.fillRect(0,0,w,h);for(let i=0;i<12000;i++){const v=90+Math.random()*80;c.fillStyle='rgba('+v+','+v+','+v+',.45)';c.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*2,1+Math.random()*2);}},512,512,1,1);plasterBump.colorSpace=THREE.NoColorSpace;plasterMat.bumpMap=plasterBump;plasterMat.bumpScale=.018;
   const weave=canvasTexture((c,w,h)=>{c.fillStyle='#888';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=4){c.fillStyle=y%8?'#777':'#aaa';c.fillRect(0,y,w,1);}for(let x=0;x<w;x+=4){c.fillStyle=x%8?'#6668':'#bbb8';c.fillRect(x,0,1,h);}},128,128,12,12);weave.colorSpace=THREE.NoColorSpace;rugMat.bumpMap=weave;rugMat.bumpScale=.012;fabricBlueMat.bumpMap=weave;fabricBlueMat.bumpScale=.008;cushionMat.bumpMap=weave;cushionMat.bumpScale=.008;
   const darkMat = new THREE.MeshStandardMaterial({color:0x3c2e28, roughness:.9});
@@ -624,7 +608,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     // Select sides by wall orientation as well as coordinates: a short rear segment near a corner is still rear-facing.
     const side=facadeSide||(d<.45&&Math.abs(z)>5.15?(z<0?'back':'front'):w<.45&&Math.abs(x)>8.9?(x<0?'left':'right'):null);
     const geo=new THREE.BoxGeometry(w,h,d);
-    const m=addMesh(geo,mat,x,y,z,group,false,true);
+    const m=addMesh(geo,mat,x,y,z,group,true,true);
     if(side){const outer=floor===0?foundationMat:facadeMat;const face={right:0,left:1,front:4,back:5}[side];const mats=Array(6).fill(mat);mats[face]=outer;
       // Also cover the cutaway top and wall ends, without changing interior-facing plaster.
       mats[2]=outer;if(side==='front'||side==='back'){mats[0]=outer;mats[1]=outer;}else{mats[4]=outer;mats[5]=outer;}m.material=mats;architecturalUV(geo,outer,x,y,z);
@@ -636,7 +620,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function floorSlab(w,d,x,y,z,mat=floorMat,group=house){
     const {x0,x1,z0,z1}=slabExtent(w,d,x,z);
     const geo=new THREE.BoxGeometry(x1-x0,.35,z1-z0);
-    const mesh=addMesh(geo,mat,(x0+x1)/2,y,(z0+z1)/2,group,false,true);
+    const mesh=addMesh(geo,mat,(x0+x1)/2,y,(z0+z1)/2,group,true,true);
     const sides=[mat,mat,mat,mat,mat,mat],edge=y<-.1?foundationMat:facadeMat;
     if(x1>=9.17)sides[0]=edge;if(x0<=-9.17)sides[1]=edge;if(z1>=5.42)sides[4]=edge;if(z0<=-5.42)sides[5]=edge;mesh.material=sides;
     mesh.userData.floorPlate=y<-1?0:y<2?1:y<8?2:3;return mesh;
@@ -1251,8 +1235,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
 
   // Extra details: timber ceiling beams, reading corner, stove, framed sign.
   for(const y of [levels.shop,levels.upper]){
-    for(const x of [-7.5,-5,-3.2,3.2,5,7.5])wallAttachment(addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,y+H-.14,0),baseByFloor.indexOf(y),null,'ceiling');
-    wallAttachment(addMesh(new THREE.BoxGeometry(W-.4,.24,.2),woodMat,0,y+H-.18,-D/2+.22),baseByFloor.indexOf(y),'back','ceiling');
+    for(const x of [-7.5,-5,-3.2,3.2,5,7.5])wallAttachment(addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,wallExtent(y+H/2,H).top-.11,0),baseByFloor.indexOf(y),null,'ceiling');
+    wallAttachment(addMesh(new THREE.BoxGeometry(W-.4,.24,.2),woodMat,0,wallExtent(y+H/2,H).top-.12,-D/2+.22),baseByFloor.indexOf(y),'back','ceiling');
   }
   const stove=new THREE.Group();stove.position.set(7.85,levels.upper+.18,3.65);house.add(stove);
   addMesh(new THREE.BoxGeometry(.65,.87,.58),ironMat,0,.55,0,stove);
@@ -1537,20 +1521,62 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   for(let i=0;i<5;i++){const h=.55+(i%3)*.12,z=-3.75+i*1.15,y=levels.cellar+.175+h/2;for(const dx of [-.43,.43])addMesh(new THREE.BoxGeometry(.07,h+.014,.82),trimMat,7.95+dx,y,z);for(const dz of [-.35,.35])addMesh(new THREE.BoxGeometry(1.02,.06,.07),woodMat,7.95,y+h/2,z+dz);labelPlane(house,.30,.13,'F-'+(12+i),7.95,y,z+.395);}
   const crestTex=printTexture(384,384,(c,w,h)=>{c.fillStyle='#30251c';c.fillRect(0,0,w,h);c.strokeStyle='#c7a46e';c.lineWidth=7;c.beginPath();c.arc(192,192,172,0,Math.PI*2);c.stroke();c.fillStyle='#e4d6b6';c.beginPath();c.moveTo(75,85);c.lineTo(151,139);c.lineTo(192,117);c.lineTo(233,139);c.lineTo(309,85);c.lineTo(292,226);c.lineTo(192,299);c.lineTo(92,226);c.closePath();c.fill();c.fillStyle='#30251c';for(const x of [147,237]){c.beginPath();c.ellipse(x,204,16,7,0,0,Math.PI*2);c.fill();}c.beginPath();c.moveTo(178,254);c.lineTo(206,254);c.lineTo(192,268);c.closePath();c.fill();c.font='bold 20px Georgia';c.textAlign='center';c.fillStyle='#c7a46e';c.fillText('FEDERFUCHS',192,337);});
   const crest=addMesh(new THREE.CircleGeometry(.38,48),new THREE.MeshStandardMaterial({map:crestTex,roughness:.83}),0,levels.shop+4.32,5.563);wallAttachment(crest,1,'front');
+  // Historic interior finishes, aligned to solid partitions only.
+  const wallCoverTex=canvasTexture(wallpaper,256,512,8,3);
+  const wallCoverMat=new THREE.MeshStandardMaterial({map:wallCoverTex,bumpMap:plasterBump,bumpScale:.009,roughness:.95});
+  const bedroomPaper=addMesh(new THREE.PlaneGeometry(5.57,4.34),wallCoverMat,-5.92,levels.upper+2.39,.685,house,false,true);
+  bedroomPaper.rotation.y=Math.PI;wallAttachment(bedroomPaper,2,null);
+  const panelMat=new THREE.MeshStandardMaterial({map:woodTex,color:0x9f8267,roughness:.8});
+  // Library wainscot: individual panels on uninterrupted walls, not across windows or doors.
+  function wainscot(x,z,width,yaw,floor){
+    const g=new THREE.Group();g.position.set(x,baseByFloor[floor]+.20,z);g.rotation.y=yaw;house.add(g);
+    addMesh(new THREE.BoxGeometry(width,.88,.035),panelMat,0,.44,0,g);
+    const n=Math.max(1,Math.floor(width/.68)),span=width/n;
+    for(let i=0;i<n;i++){const u=-width/2+(i+.5)*span;
+      molding(g,span-.12,.67,.026,u,.44,.026,trimMat);
+      molding(g,span-.19,.57,.028,u,.44,.041,panelMat);
+    }
+    molding(g,width+.04,.065,.085,0,.91,0,trimMat);
+    molding(g,width+.04,.085,.07,0,.05,0,trimMat);
+    return g;
+  }
+  wallAttachment(wainscot(-5.92,.676,5.57,Math.PI,2),2,null,'baseTrim');
+  wallAttachment(wainscot(5.86,-1.615,5.59,Math.PI,2),2,null,'baseTrim');
+  // Dressed stone trim outside the existing window openings. No geometry across glass.
+  const dressedStone=new THREE.MeshStandardMaterial({color:0xb3a28a,map:facadeTex,roughness:.92,bumpMap:facadeTex,bumpScale:.012});
+  for(const v of facadeWindows){
+    if(v.floor===0)continue;
+    const g=new THREE.Group(),sign=Math.sign(v.at);
+    if(v.axis==='z'){g.position.set(v.center,v.y,v.at+sign*.193);g.rotation.y=sign<0?Math.PI:0;}
+    else{g.position.set(v.at+sign*.193,v.y,v.center);g.rotation.y=sign*Math.PI/2;}
+    house.add(g);
+    const tag=v.axis==='z'?(sign<0?'back':'front'):(sign<0?'left':'right');
+    for(const k of [-1,1])addMesh(new THREE.BoxGeometry(.17,v.h+.18,.13),dressedStone,k*(v.w/2+.04),0,0,g);
+    addMesh(new THREE.BoxGeometry(v.w+.30,.19,.16),dressedStone,0,v.h/2+.065,0,g);
+    addMesh(new THREE.BoxGeometry(v.w+.36,.115,.28),dressedStone,0,-v.h/2-.075,.04,g);
+    wallAttachment(g,v.floor,tag);
+  }
+  // Entrance surround and carved keystone, placed outside the physical front wall.
+  const entryTrim=new THREE.Group();entryTrim.position.set(0,levels.shop,5.445);house.add(entryTrim);
+  for(const sign of [-1,1]){addMesh(new THREE.BoxGeometry(.24,2.32,.20),dressedStone,sign*.82,1.16,0,entryTrim);for(const yy of [.14,2.10])addMesh(new THREE.BoxGeometry(.31,.18,.25),dressedStone,sign*.82,yy,.025,entryTrim);}
+  addMesh(new THREE.BoxGeometry(1.94,.27,.24),dressedStone,0,2.44,0,entryTrim);
+  addMesh(new THREE.BoxGeometry(.32,.34,.29),dressedStone,0,2.48,.035,entryTrim);
+  wallAttachment(entryTrim,1,'front');
   // Physical exterior, separate from the cutaway house. Visible while walking indoors.
   const outside=new THREE.Group();root.add(outside);outside.visible=false;
-  const pavingMat=new THREE.MeshStandardMaterial({map:stoneTex,color:0x656974,roughness:.64});
+  const cobbleTex=canvasTexture((c,w,h)=>cobbles(c,w,h,false),1024,1024),cobbleHeight=canvasTexture((c,w,h)=>cobbles(c,w,h,true),1024,1024);cobbleHeight.colorSpace=THREE.NoColorSpace;
+  const pavingMat=new THREE.MeshStandardMaterial({map:cobbleTex,bumpMap:cobbleHeight,bumpScale:.048,color:0xa7a8ac,roughness:.58});
   const exteriorStone=new THREE.MeshStandardMaterial({color:0x525663,map:plasterTex,roughness:.95});
   const roofMat=new THREE.MeshStandardMaterial({color:0x343740,roughness:.91});
   const exteriorLight=new THREE.MeshBasicMaterial({color:0xb99566});
   const darkWindow=new THREE.MeshBasicMaterial({color:0x1d2d3b});
-  function outBox(w,h,d,x,y,z,m=exteriorStone){return addMesh(new THREE.BoxGeometry(w,h,d),m,x,y,z,outside,false,true);}
+  function outBox(w,h,d,x,y,z,m=exteriorStone){const geo=new THREE.BoxGeometry(w,h,d);if(m===pavingMat){const p=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,(p.getX(i)+x)/2.2,(p.getZ(i)+z)/2.2);}return addMesh(geo,m,x,y,z,outside,false,true);}
   // Sloping terrain is omitted; instead two actual open basement light wells break the paving.
-  outBox(30,.23,8,0,-.19,-9.6,pavingMat);
+  outBox(36,.23,8.4,0,-.19,-9.625,pavingMat);
   for(const side of [-1,1]){
     const sx=side*10.15;
-    outBox(2.0,.23,4.4,sx,-.19,-3.05,pavingMat);
-    outBox(2.0,.23,4.05,sx,-.19,3.22,pavingMat);
+    outBox(2.0,.23,4.60,sx,-.19,-3.15,pavingMat);
+    outBox(2.0,.23,4.275,sx,-.19,3.2875,pavingMat);
     outBox(7.0,.23,13,side*14.7,-.19,0,pavingMat);
     outBox(1.86,.20,2.0,sx,-2.0,.15,pavingMat);
     outBox(.19,1.96,2.0,side*11.06,-1.0,.15,exteriorStone);
@@ -1561,6 +1587,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function neighbour(x,z,w,d,h,rot=0){
     const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;outside.add(g);
     const mass=addMesh(new THREE.BoxGeometry(w,h,d),facadeMat,0,h/2,0,g,false,true);architecturalUV(mass.geometry,facadeMat,0,h/2,0);
+    const timberFacade=(Math.round(Math.abs(x)+Math.abs(z))%3===0);
+    if(timberFacade){const infillMat=new THREE.MeshStandardMaterial({map:plasterTex,color:0xa39c88,roughness:.96});addMesh(new THREE.BoxGeometry(w-.07,h*.52,.07),infillMat,0,h*.74,d/2+.012,g,false,true);
+      for(const yy of [h*.49,h*.74,h-.08])addMesh(new THREE.BoxGeometry(w,.13,.10),woodMat,0,yy,d/2+.07,g,false,true);
+      for(const xx of [-w*.47,0,w*.47])addMesh(new THREE.BoxGeometry(.15,h*.50,.11),woodMat,xx,h*.74,d/2+.075,g,false,true);
+    }
+    for(const xx of [-w*.43,w*.43])addMesh(new THREE.BoxGeometry(.26,h,.14),dressedStone,xx,h/2,d/2+.035,g,false,true);
+    addMesh(new THREE.BoxGeometry(.98,2.10,.11),woodMat,0,1.05,d/2+.085,g,false,true);
+    addMesh(new THREE.SphereGeometry(.038,8,6),brassMat,.31,1.07,d/2+.16,g,false,true);
     const roofShape=new THREE.Shape();roofShape.moveTo(-w/2-.16,0);roofShape.lineTo(0,h*.23);roofShape.lineTo(w/2+.16,0);roofShape.closePath();
     const roofGeo=new THREE.ExtrudeGeometry(roofShape,{depth:d+.25,bevelEnabled:false});roofGeo.translate(0,0,-(d+.25)/2);
     addMesh(roofGeo,roofMat,0,h,0,g,false,true);
@@ -1572,7 +1606,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       addMesh(new THREE.BoxGeometry(.75,.045,.025),roofMat,wx,wy,wz+.06,g,false,false);
     }
   }
-  outBox(30,.22,7.9,0,-.18,9.45,pavingMat);neighbour(-7,15.7,8,4.6,8.5,Math.PI);neighbour(4,17,9,5,10.2,Math.PI-.035);
+  outBox(36,.22,8.3,0,-.18,9.575,pavingMat);neighbour(-7,15.7,8,4.6,8.5,Math.PI);neighbour(4,17,9,5,10.2,Math.PI-.035);
   neighbour(-6,-13,7,4,8.2,.03);neighbour(2,-15.2,7,5.4,10,-.07);neighbour(9,-14,5.2,4.8,7.5,.04);
   neighbour(-16,-2.9,7.2,4.4,8.7,Math.PI/2);neighbour(-17,4.8,6.6,5,7.1,Math.PI/2);
   neighbour(16,-3.6,7,4.2,8.8,-Math.PI/2);neighbour(17,4.7,6.4,5.2,7.5,-Math.PI/2);
@@ -1581,6 +1615,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     outBox(.28,.38,.28,side*12.5,3.0,2.7,exteriorLight);
     outBox(.38,.08,.38,side*12.5,3.25,2.7,roofMat);
   }
+  // Street furniture and doorway lighting, kept outside the walking volume.
+  for(const side of [-1,1]){const x=side*3.0;outBox(.08,.42,.12,x,2.35,5.62,ironMat);outBox(.23,.31,.24,x,2.20,5.79,exteriorLight);outBox(.31,.07,.32,x,2.40,5.79,roofMat);const l=new THREE.PointLight(0xffbf73,3.3,4,2);l.position.set(x,2.19,5.9);outside.add(l);}
   // Real raindrops beyond the glass; light, low-cost line geometry.
   const outdoorRainCount=180,orr=new Float32Array(outdoorRainCount*6);
   for(let i=0;i<outdoorRainCount;i++){const k=i*6,side=i%2===0?-1:1;orr[k]=side*(9.4+Math.random()*5.2);orr[k+1]=Math.random()*14;orr[k+2]=-7+Math.random()*13;orr[k+3]=orr[k]-.025;orr[k+4]=orr[k+1]-.18;orr[k+5]=orr[k+2];}
@@ -1996,7 +2032,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   ];
   // Frame materials were previously created per shelf; register them for the same wood maps.
   const frames=new Set();house.traverse(o=>{if(o.isMesh&&o.material!==woodMat&&o.material?.map===woodTex)frames.add(o.material);});
-  materialSpecs[1].targets.push(...frames);
+  materialSpecs.find(spec=>spec.id==='dark_wood').targets.push(...frames);
   // Keep dark architectural trim tinted, and do not accidentally apply a photo to colored cloth.
   const savedMaterials=new Map();
   for(const spec of materialSpecs)for(const m of spec.targets)savedMaterials.set(m,{map:m.map,bumpMap:m.bumpMap,normalMap:m.normalMap,roughnessMap:m.roughnessMap,roughness:m.roughness,color:m.color.clone(),normalScale:m.normalScale.clone()});
@@ -2225,8 +2261,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(walk)return 'full';
     if(mode!=='auto')return mode;
     // Camera-facing exterior walls are lowered; far walls remain as a backdrop.
-    if(side==='left')return cameraX<-1&&selection!==-1?'half':'full';
-    if(side==='right')return cameraX>1&&selection!==-1?'half':'full';
+    if(side==='left')return cameraX<-1?'half':'full';
+    if(side==='right')return cameraX>1?'half':'full';
     if(side==='back')return cameraZ<-1?'half':'full';
     if(side==='front')return cameraZ>1?'off':'full';
     return 'half';
@@ -2712,7 +2748,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=020',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=022',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
