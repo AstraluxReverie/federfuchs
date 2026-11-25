@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.35</title>
+  <title>Zum träumenden Federfuchs – v0.36</title>
   <style>
     :root{
       --bg:#10151b;
@@ -278,6 +278,15 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #hud.compactHud{left:80px;width:min(238px,calc(100vw - 88px))}
 #quickDock button,#sceneHome,#sceneWalkExit{white-space:nowrap;word-break:normal;overflow-wrap:normal}
 @media(max-width:420px){#toolRail{width:58px}#toolRail button{width:58px;min-width:58px}#hud.compactHud{left:72px;width:min(238px,calc(100vw - 80px))}}
+</style><style>
+#hud.compactHud{width:min(310px,calc(100vw - 88px))}
+#hud button,#toolRail button small,.hvSegments button{white-space:nowrap;word-break:normal;overflow-wrap:normal}
+#hud #toolbar{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+#hud .hvSegments,#hud .toolPair{flex-wrap:wrap}
+#hud .hvSegments button,#hud .toolPair button{flex:1 0 auto;max-width:100%}
+#hud .editLine button{flex:1 0 auto}
+#hud #editPanel .editMovement button{font-size:clamp(8px,2.2vw,11px)}
+#toolRail button small{font-size:8px;letter-spacing:0}
 </style></head>
 <body>
 <div id="app"></div>
@@ -1126,6 +1135,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   addMesh(curtainGeometry,curtainMat,5.1,levels.shop+1.70,3.82);
   addMesh(new THREE.BoxGeometry(2.45,.14,.12),woodMat,5.1,levels.shop+3.02,3.85);
   // Open stairs with railings and actual floor openings.
+  const stairRunnerMat=new THREE.MeshStandardMaterial({color:0x641f32,roughness:.96});
   for(const f of flights){
     const stairStart=house.children.length;
     const low=elevations[f.low],high=elevations[f.high],rise=high-low,N=25,run=(zBottom-zTop)/N;
@@ -1133,12 +1143,17 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       const y=low+rise*(i+1)/N,z=zBottom-(i+.5)*run;
       addMesh(new THREE.BoxGeometry(stairHalf*2-.10,.12,run+.015),woodMat,f.x,y-.06,z);
       addMesh(new THREE.BoxGeometry(stairHalf*2-.14,rise/N,.045),darkMat,f.x,y-rise/N/2,z+run/2-.025);
+      // Fitted burgundy runner and brass stair rods; keep the full walking width clear.
+      addMesh(new THREE.BoxGeometry(1.06,.018,run+.012),stairRunnerMat,f.x,y+.009,z);
+      addMesh(new THREE.BoxGeometry(1.10,.025,.025),brassMat,f.x,y+.023,z+run*.43);
+      addMesh(new THREE.BoxGeometry(1.06,rise/N-.025,.018),stairRunnerMat,f.x,y-rise/N/2,z+run/2+.004);
     }
     for(const side of [-1,1]){
       const x=f.x+side*(stairHalf-.025);
       for(let i=0;i<=10;i++){const t=i/10,z=zBottom-(zBottom-zTop)*t,y=low+rise*t;addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,x,y+.45,z);}
       const rail=addMesh(new THREE.BoxGeometry(.075,Math.hypot(rise,zBottom-zTop),.075),woodMat,x,(low+high)/2+.92,(zBottom+zTop)/2);
       rail.rotation.x=-Math.atan2(zBottom-zTop,rise);
+      for(let i=0;i<=10;i++){const t=i/10;addMesh(new THREE.SphereGeometry(.055,8,6),brassMat,x,low+rise*t+.88,zBottom-(zBottom-zTop)*t);}
       for(let i=0;i<=10;i++){const z=zTop+(zBottom-zTop)*i/10;addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,x,high+.45,z);}
       addMesh(new THREE.BoxGeometry(.075,.075,zBottom-zTop),woodMat,x,high+.92,0);
     }
@@ -2291,7 +2306,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
         if(spec.target.userData.localAsset===entry.file){results.push(entry.slot+': aktiv');continue;}
         let model=null;
         try{
-          const res=await fetch('./assets/'+entry.file);if(!res.ok)throw Error('Datei fehlt');
+          const res=await fetch('./assets/'+entry.file+'?v=036',{cache:'no-cache'});if(!res.ok)throw Error('Datei fehlt');
           const data=await res.arrayBuffer();validateGLB(data);
           const gltf=await new GLTFLoader().parseAsync(data,'');model=gltf.scene;model.updateMatrixWorld(true);
           if(spec.normalizeHeight){const raw=new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());if(!Number.isFinite(raw.y)||raw.y<=0)throw Error('Ungültige Modellhöhe');model.scale.multiplyScalar(spec.normalizeHeight/raw.y);model.updateMatrixWorld(true);}
@@ -3113,7 +3128,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=035',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=036',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
