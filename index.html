@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.10</title>
+  <title>Zum träumenden Federfuchs – v0.11</title>
   <style>
     :root{
       --bg:#10151b;
@@ -140,7 +140,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.10 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.11 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -155,7 +155,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.10 · Dinge mit Geschichte</div>
+    <div id="sub">3D-Studie v0.11 · Raumkorrektur & Originalmodelle</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -171,9 +171,9 @@
     </div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
-      <div id="materialRows"></div>
+      <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p>
       <div class="materialActions"><button id="materialClassic" type="button">Originaltexturen</button><button id="materialRetry" type="button">PBR erneut laden</button></div>
-      <p>Fototexturen von <a href="https://polyhaven.com/" target="_blank" rel="noopener">Poly Haven</a> (CC0). Ersatzmaterialien bleiben verfügbar. Mobil: 1K; Desktop: optional 2K.</p>
+      <p>Fototexturen und optionale Originalmodelle von <a href="https://polyhaven.com/" target="_blank" rel="noopener">Poly Haven</a> (CC0). Ersatzmaterialien bleiben verfügbar. Mobil: 1K; Desktop: optional 2K.</p>
       <label for="materialQuality">Auflösung</label> <select id="materialQuality"><option value="1k">1K · Mobil</option><option value="2k">2K · Detail</option></select>
     </div>
     <div id="note">
@@ -694,7 +694,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   bookShelf(4.9, levels.cellar+0.2, -4.65, 2.2, 2.9,.45);
   rug(4.9,levels.cellar+.19,1.2,2,1.4); lamp(.35, levels.cellar+3.55, .6, 0xffc98e, 1.8, 9);
   // storage right
-  for(let i=0;i<7;i++) addMesh(new THREE.BoxGeometry(1+Math.random()*.45,.5+Math.random()*.45, .9+Math.random()*.35), woodMat, 6+Math.random()*1.3, levels.cellar+.25+Math.random()*.4, -3.5 + i*1.1);
+  for(let i=0;i<5;i++){const h=.55+(i%3)*.12;addMesh(new THREE.BoxGeometry(.98,h,.78),woodMat,7.95,levels.cellar+.175+h/2,-3.75+i*1.15);}
   bookShelf(5.3, levels.cellar+0.2,  2.9, 2.4, 2.9,.42);
   lamp(6.4, levels.cellar+3.6, -.7, 0xffd6aa, 1.5, 8);
   // mysterious door
@@ -733,10 +733,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.BoxGeometry(2.15,2.5,.08), new THREE.MeshStandardMaterial({color:0x7d2a3a, roughness:1}), 5.1, levels.shop+1.7, 3.92);
   addMesh(new THREE.BoxGeometry(.1,1.1,.1), darkMat, 5.1, levels.shop+1.05,2.55);
   addMesh(new THREE.BoxGeometry(.55,.05,.45), woodMat, 5.1, levels.shop+1.6,2.55);
-  chair(5.2, levels.shop+.45, 1.5, Math.PI);
-  chair(6.0, levels.shop+.45, 1.15, Math.PI*1.05);
-  chair(4.4, levels.shop+.45, 1.15, Math.PI*.95);
-  table(6.2, levels.shop, 1.95, .8,.5,.45);
+  chair(5.2, levels.shop+.175, 1.10, Math.PI);
+  chair(6.0, levels.shop+.175, 1.10, Math.PI*1.05);
+  chair(4.4, levels.shop+.175, 1.10, Math.PI*.95);
+  table(6.95, levels.shop+.175, 2.00, .65,.5,.45);
 
   // Open stairs with railings and actual floor openings.
   for(const f of flights){
@@ -760,9 +760,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
 
   // ground windows and entrance suggestion
-  simpleWindow(-1.8, levels.shop+2.3, -4.33, 1.8, 1.5);
-  simpleWindow( 2.1, levels.shop+2.3, -4.33, 1.8, 1.5);
-  addMesh(new THREE.BoxGeometry(1.65,2.7,.1), ironMat, 0, levels.shop+1.35, 4.9);
+  simpleWindow(-1.8, levels.shop+2.3, -5.04, 1.8, 1.5);
+  simpleWindow( 2.1, levels.shop+2.3, -5.04, 1.8, 1.5);
+  // The cutaway front is intentionally open; no floating entrance door.
 
   // ceiling lamps
   lamp(-5.2, levels.shop+3.65, -1.3, 0xffd39a, 2.8, 11);
@@ -788,8 +788,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.BoxGeometry(2.35,.28,3.0), fabricBlueMat, -6.2, levels.upper+.63, -2.4);
   addMesh(new THREE.BoxGeometry(2.15,.14,2.8), cushionMat, -6.2, levels.upper+.79, -2.4);
   addMesh(new THREE.BoxGeometry(.8,.18,.48), paperMat, -7.3, levels.upper+.78, -3.3);
-  addMesh(new THREE.BoxGeometry(.9,.58,.9), woodMat, -4.65, levels.upper+.29, -3.2);
-  simpleWindow(-6.2, levels.upper+2.25, -4.33, 2.1, 1.6);
+  addMesh(new THREE.BoxGeometry(.9,.58,.9), woodMat, -4.36, levels.upper+.465, -3.2);
+  simpleWindow(-6.2, levels.upper+2.25, -5.04, 2.1, 1.6);
   lamp(-5.0, levels.upper+3.55, -2.6, 0xffd8ad, 1.9, 8);
 
   // kitchen left front
@@ -809,20 +809,20 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   lamp(5.35, levels.upper+3.45, 2.3, 0xffe4c4, 1.3, 6);
 
   // writing room right rear
-  table(5.5, levels.upper, -2.6, 1.9,.85,.82);
-  chair(5.15, levels.upper, -1.85, Math.PI*.1);
+  table(5.5, levels.upper+.175, -2.92, 1.9,.85,.82);
+  chair(5.15, levels.upper+.175, -2.05, Math.PI*.1);
   bookShelf(7.1, levels.upper+.2, -2.6, 1.8,3.1,.42);
 
   lamp(6.25, levels.upper+3.5, -2.2, 0xffd29a, 1.7, 7);
-  simpleWindow(6.0, levels.upper+2.25, -4.33, 1.8, 1.5);
+  simpleWindow(6.0, levels.upper+2.25, -5.04, 1.8, 1.5);
 
   // secret reading nook far right upper
   const hiddenShelf = bookcaseDoor(8.15, levels.upper+.05, .65);
-  roundWindow(7.0, levels.upper+2.05, 4.55, 1.0).rotation.y=Math.PI;
+  roundWindow(8.79, levels.upper+2.05, 2.25, 1.0).rotation.y=-Math.PI/2;
   // Sofa geometry is built below as individual upholstered components.
-  addMesh(new THREE.BoxGeometry(.45,.06,.45), woodMat, 5.15, levels.upper+.65, 2.55);
+  const clockStand=table(6.05,levels.upper+.175,3.92,.46,.46,.51);
 
-  rug(6.15, levels.upper+.03, 2.45, 3.2, 2.4);
+  rug(7.03, levels.upper+.19, 2.45, 2.7, 2.4);
   lamp(6.25, levels.upper+3.25, 2.65, 0xffd5a4, 1.65, 6);
 
   // Upholstered reading sofa, folded blue throw, two cushions and an open book.
@@ -835,7 +835,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     return addMesh(geo,mat,x,y,z);
   }
   // Deep-blue Chesterfield-inspired sofa; separate seats, rolled arms, piping and button tufting.
-  const sy=levels.upper;
+  const sy=levels.upper;const sofaStart=house.children.length;
   softBox(2.66,.37,1.10,6.25,sy+.40,2.5,velvet);
   softBox(2.55,.72,.26,6.25,sy+1.0,2.98,velvet);
   for(const x of [5.58,6.25,6.92])softBox(.65,.20,.79,x,sy+.68,2.40,cushionMat);
@@ -859,6 +859,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   for(let i=0;i<bp.count;i++){const x=bp.getX(i),y=bp.getY(i);const u=(y+.525)/1.05;bp.setXYZ(i,x,Math.min(.47,u*1.05),.025*Math.sin(x*41)+.018*Math.sin(u*18)+(u>.45?-(u-.45)*.70:0));}
   blanketGeo.computeVertexNormals();
   const blanket=addMesh(blanketGeo,cloth,7.12,levels.upper+.77,2.93);blanket.rotation.x=-Math.PI/2;
+  for(const child of house.children.slice(sofaStart))child.position.x+=.78;
   // decorative cat-like fox sign on shop rear? small logo suggestion
   addMesh(new THREE.BoxGeometry(1.4,.9,.07), woodMat, 0.0, levels.shop+2.15, -4.05);
 
@@ -897,14 +898,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.CylinderGeometry(.09,.09,2.9,16),ironMat,0,2.35,0,stove);
   addMesh(new THREE.BoxGeometry(.83,.075,.74),stoneMat,0,.02,0,stove);
   const glow=new THREE.PointLight(0xff9a40,2.4,4);glow.position.set(0,.6,.45);stove.add(glow);
-  table(4.7,levels.upper,3.7,.76,.55,.53);
-  for(const x of [4.5,4.85]){
+  const readingTable=table(6.50,levels.upper+.175,1.05,.76,.55,.53);
+  for(const x of [6.30,6.65]){
     const mugMat=new THREE.MeshStandardMaterial({color:0xd3c4ae,roughness:.4});
-    addMesh(new THREE.CylinderGeometry(.095,.075,.13,20),mugMat,x,levels.upper+.65,3.7);
-    addMesh(new THREE.TorusGeometry(.052,.017,8,16),mugMat,x+.095,levels.upper+.66,3.7);
+    addMesh(new THREE.CylinderGeometry(.095,.075,.13,20),mugMat,x,levels.upper+.82,1.20);
+    addMesh(new THREE.TorusGeometry(.052,.017,8,16),mugMat,x+.095,levels.upper+.83,1.20);
   }
   // Open book placed on the sofa-side table, not a floating prop.
-  const openBook=new THREE.Group();openBook.position.set(4.71,levels.upper+.60,3.54);openBook.rotation.y=.15;house.add(openBook);
+  const openBook=new THREE.Group();openBook.position.set(6.51,levels.upper+.75,.89);openBook.rotation.y=.15;house.add(openBook);
   addMesh(new THREE.BoxGeometry(.31,.035,.21),darkMat,0,0,0,openBook);
   for(const side of [-1,1]){
     const page=addMesh(new THREE.BoxGeometry(.145,.026,.194),paperMat,side*.074,.026,0,openBook);page.rotation.z=side*-.08;
@@ -923,8 +924,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-4.28);
   // Architectural details around window frames and walls; nothing added in the stair routes.
   for(const [x,y] of [[-6.2,levels.upper+2.25],[6,levels.upper+2.25]]){
-    addMesh(new THREE.BoxGeometry(2.18,.09,.30),woodMat,x,y-.84,-4.29);
-    for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.09,1.76,.12),trimMat,x+sign*1.04,y,-4.30);
+    addMesh(new THREE.BoxGeometry(2.18,.09,.30),woodMat,x,y-.84,-4.96);
+    for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.09,1.76,.12),trimMat,x+sign*1.04,y,-5.00);
   }
   for(const y of [levels.shop,levels.upper]){
     for(const sign of [-1,1]){
@@ -1010,7 +1011,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const awl=addMesh(new THREE.CylinderGeometry(.006,.006,.13,8),ironMat,.12,.023,.10,repair);awl.rotation.z=Math.PI/2;
   const handle=addMesh(new THREE.SphereGeometry(1,12,8),woodMat,.026,.023,.10,repair);handle.scale.set(.047,.022,.022);
   // Private study: a typewriter with keys and carriage, and inkwell with real feather geometry.
-  const typewriter=artifact('typewriter','Veronimus’ Schreibmaschine','Eine schwarz lackierte mechanische Schreibmaschine mit rundlichen Tasten und einem angefangenen Manuskript.',5.15,levels.upper+.855,-2.66,.10);
+  const typewriter=artifact('typewriter','Veronimus’ Schreibmaschine','Eine schwarz lackierte mechanische Schreibmaschine mit rundlichen Tasten und einem angefangenen Manuskript.',5.15,levels.upper+1.03,-2.98,.10);
   addMesh(new THREE.BoxGeometry(.44,.085,.37),blackened,0,.042,0,typewriter);
   addMesh(new THREE.BoxGeometry(.41,.14,.20),blackened,0,.15,-.065,typewriter);
   for(let row=0;row<4;row++)for(let col=0;col<9;col++){const k=addMesh(new THREE.CylinderGeometry(.015,.017,.012,9),ivory,(col-4)*.038,.093+row*.019,.145-row*.046,typewriter);k.rotation.x=.30;}
@@ -1018,7 +1019,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const roller=addMesh(new THREE.CylinderGeometry(.032,.032,.46,18),blackened,0,.25,-.145,typewriter);roller.rotation.z=Math.PI/2;
   for(const x of [-.255,.255]){const knob=addMesh(new THREE.CylinderGeometry(.045,.045,.026,16),antiqueBrass,x,.25,-.145,typewriter);knob.rotation.z=Math.PI/2;}
   const typed=labelPlane(typewriter,.26,.19,'DAS GEWICHT DER|VERLORENEN DINGE',0,.33,-.137);typed.rotation.x=-.21;
-  const quill=artifact('quill','Feder und Tintenfass','Eine hellgraue Schreibfeder, ein dunkelblaues Tintenfass und eine noch leere Karte. Für Einfälle, die nicht bis morgen warten können.',5.89,levels.upper+.855,-2.68,-.19);
+  const quill=artifact('quill','Feder und Tintenfass','Eine hellgraue Schreibfeder, ein dunkelblaues Tintenfass und eine noch leere Karte. Für Einfälle, die nicht bis morgen warten können.',5.89,levels.upper+1.03,-3.00,-.19);
   lathe(quill,[[0,0],[.064,0],[.070,.018],[.062,.071],[.035,.093],[.030,.13],[.037,.132],[.037,.145]],inkBlue,0,0,0,20);
   tube(quill,[[0,.13,0],[.025,.24,0],[.06,.34,.012],[.12,.47,.02]],.004,ivory);
   const feather=new THREE.Shape();feather.moveTo(.02,.21);feather.quadraticCurveTo(-.025,.37,.12,.47);feather.quadraticCurveTo(.16,.35,.02,.21);
@@ -1032,13 +1033,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function cup(g,x,z,mat){lathe(g,[[0,0],[.046,0],[.052,.012],[.059,.086],[.054,.092],[.050,.085],[.043,.015],[0,.012]],mat,x,0,z);const handle=addMesh(new THREE.TorusGeometry(.03,.007,8,20),mat,x+.06,.054,z,g);addMesh(new THREE.CylinderGeometry(.048,.048,.002,22),new THREE.MeshStandardMaterial({color:0x55341f,roughness:.23}),x,.064,z,g);}
   cup(tea,.33,.16,ivory);cup(tea,.08,.21,ivory);
   // Reading corner: a brass clock and spectacles on a closed volume.
-  const clockObj=artifact('mantelclock','Die Uhr in der Lesehöhle','Eine kleine mechanische Uhr mit römischem Zifferblatt. Ob sie wirklich richtig geht, ist eine andere Frage.',5.15,levels.upper+.683,2.55,.08);
+  const clockObj=artifact('mantelclock','Die Uhr in der Lesehöhle','Eine kleine mechanische Uhr mit römischem Zifferblatt. Ob sie wirklich richtig geht, ist eine andere Frage.',6.05,levels.upper+.72,3.92,.08);
   addMesh(new THREE.BoxGeometry(.32,.055,.17),woodMat,0,.027,0,clockObj);
   const caseM=addMesh(new THREE.CylinderGeometry(.135,.135,.095,32),woodMat,0,.183,0,clockObj);caseM.rotation.x=Math.PI/2;
   const dial=printTexture(256,256,(c,w,h)=>{c.fillStyle='#e4d2ad';c.fillRect(0,0,w,h);c.textAlign='center';c.textBaseline='middle';c.fillStyle='#3c2e24';c.font='22px Georgia';const roman=['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];for(let i=0;i<12;i++){const a=i*Math.PI/6;c.fillText(roman[i],128+93*Math.sin(a),128-93*Math.cos(a));}c.strokeStyle='#32291e';c.lineWidth=5;c.beginPath();c.moveTo(128,128);c.lineTo(83,91);c.moveTo(128,128);c.lineTo(190,113);c.stroke();});
   addMesh(new THREE.CircleGeometry(.113,32),new THREE.MeshStandardMaterial({map:dial,roughness:.7}),0,.183,.050,clockObj);
   addMesh(new THREE.TorusGeometry(.122,.008,8,36),antiqueBrass,0,.183,.055,clockObj);
-  const glasses=artifact('glasses','Die vergessene Lesebrille','Eine feine runde Metallbrille liegt auf einem geschlossenen Buch. Vermutlich wurde sie wieder einmal gesucht, während sie direkt vor einem lag.',4.64,levels.upper+.57,3.85,.38);
+  const glasses=artifact('glasses','Die vergessene Lesebrille','Eine feine runde Metallbrille liegt auf einem geschlossenen Buch. Vermutlich wurde sie wieder einmal gesucht, während sie direkt vor einem lag.',6.44,levels.upper+.74,1.20,.38);
   folio(glasses,.22,.15,.032,0,0,0,greenGlaze);
   for(const x of [-.043,.043]){const m=addMesh(new THREE.TorusGeometry(.034,.003,7,20),antiqueBrass,x,.042,0,glasses);m.rotation.x=Math.PI/2;}
   tube(glasses,[[-.012,.042,0],[0,.05,0],[.012,.042,0]],.003,antiqueBrass);
@@ -1070,7 +1071,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     shop:{pos:new THREE.Vector3(0, elevations[1]+1.65, 3.95), yaw:0},
     upper:{pos:new THREE.Vector3(-1.43, elevations[2]+1.65, 3.9), yaw:0},
     cellar:{pos:new THREE.Vector3(0, elevations[0]+1.65, 3.95), yaw:0},
-    nook:{pos:new THREE.Vector3(6.8, elevations[2]+1.65, 1.25), yaw:0},
+    nook:{pos:new THREE.Vector3(6.04, elevations[2]+1.65, 1.85), yaw:-1.15},
   };
   let tween = null;
   let walkMode = false;
@@ -1164,12 +1165,12 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function obstacle(floor,x,z,w,d){furniture.push({floor,x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});}
   for(let z=-3.5;z<=3.5;z+=2.4){obstacle(1,-8.35,z,.48,2.25);obstacle(1,8.35,z,.48,2.25);}
   for(const x of [-6,-4,4,6])obstacle(1,x,-4.75,1.8,.38);
-  obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,1.9);
+  obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,2.15);obstacle(1,6.95,2,.65,.5);for(const x of [4.4,5.2,6])obstacle(1,x,1.1,.48,.48);
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
-  obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);
-  obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.65,-3.2,.9,.9);obstacle(2,-6,2.8,2.8,.8);obstacle(2,-4.95,1.55,1.15,.7);
-  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.6,1.9,.85);obstacle(2,7.1,-2.6,1.8,.42);
-  obstacle(2,6.25,2.5,2.7,1.15);obstacle(2,7.85,3.65,.83,.74);obstacle(2,4.7,3.7,.76,.55);
+  obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);for(let i=0;i<5;i++)obstacle(0,7.95,-3.75+i*1.15,.98,.78);
+  obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-6,2.8,2.8,.8);obstacle(2,-4.95,1.55,1.15,.7);
+  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,7.1,-2.6,1.8,.42);
+  obstacle(2,7.03,2.5,2.72,1.20);obstacle(2,7.85,3.65,.83,.74);obstacle(2,6.50,1.05,.76,.55);obstacle(2,6.05,3.92,.46,.46);
   const RADIUS=.19;
   function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
   function solid(x,z,floor){
@@ -1470,7 +1471,56 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   document.getElementById('materialClassic').addEventListener('click',originalMaterials);
   document.getElementById('materialRetry').addEventListener('click',restorePhotographic);
   qualitySelect.addEventListener('change',()=>{try{localStorage.setItem('federfuchs-texture-quality',qualitySelect.value);}catch(e){}restorePhotographic();});
+  // External glTF model integration: keep procedural objects until a complete model is decoded
+  // and checked against the physical wall volumes. No API key; browser loads public CC0 CDN.
+  const modelStatus=document.getElementById('modelStatus');
+  const modelSpecs=[
+    {id:'mantel_clock_01',target:clockObj,max:[.30,.37,.16],source:'https://polyhaven.com/a/mantel_clock_01'},
+    {id:'tea_set_01',target:tea,max:[.72,.30,.42],source:'https://polyhaven.com/a/tea_set_01'},
+    {id:'wooden_table_02',target:readingTable,max:[.76,.56,.55],source:'https://polyhaven.com/a/WoodenTable_02'}
+  ];
+  const intersectsWall=(box,w,eps=.012)=>box.min.x<w.x1-eps&&box.max.x>w.x0+eps&&box.min.y<w.y1-eps&&box.max.y>w.y0+eps&&box.min.z<w.z1-eps&&box.max.z>w.z0+eps;
+  function modelFits(box){return !box.isEmpty()&&box.min.x>=-8.80&&box.max.x<=8.80&&box.min.z>=-5.06&&box.max.z<=5.12&&!wallBoxes.some(w=>intersectsWall(box,w));}
+  function disposeModel(root){root.traverse(o=>{if(o.isMesh){o.geometry?.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){if(!m)continue;for(const v of Object.values(m))if(v?.isTexture)v.dispose();m.dispose();}}});}
+  async function installModels(){
+    let GLTFLoader;
+    try{({GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js'));}catch(e){modelStatus.textContent='Originalmodelle: Ladebibliothek nicht verfügbar';return;}
+    const lines=[];
+    for(const spec of modelSpecs){
+      modelStatus.textContent=lines.join(' · ')+(lines.length?' · ':'')+spec.id+' lädt …';
+      let model=null;
+      // Try known asset CDN naming variants. A failed or late request never replaces the fallback.
+      const ids=[...new Set([spec.id,spec.id==='wooden_table_02'?'WoodenTable_02':spec.id])];
+      for(const id of ids){
+        if(model)break;
+        const url='https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/'+id+'/'+id+'_1k.gltf';
+        model=await new Promise(resolve=>{
+          let done=false;const timer=setTimeout(()=>{done=true;resolve(null);},16000);
+          new GLTFLoader().load(url,g=>{if(done){disposeModel(g.scene);return;}done=true;clearTimeout(timer);resolve(g.scene);},undefined,()=>{if(done)return;done=true;clearTimeout(timer);resolve(null);});
+        });
+      }
+      if(!model){lines.push(spec.id+': Ersatz');continue;}
+      const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
+      if(![size.x,size.y,size.z].every(v=>Number.isFinite(v)&&v>0)){disposeModel(model);lines.push(spec.id+': ungültig');continue;}
+      const factor=Math.min(spec.max[0]/size.x,spec.max[1]/size.y,spec.max[2]/size.z);
+      model.scale.multiplyScalar(factor);model.updateMatrixWorld(true);
+      const scaled=new THREE.Box3().setFromObject(model),center=scaled.getCenter(new THREE.Vector3());
+      model.position.x-=center.x;model.position.y-=scaled.min.y;model.position.z-=center.z;
+      // Align table height to its existing tabletop so interactive items remain supported.
+      if(spec.target===readingTable){const h=new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y;if(Math.abs(h-.5625)>.05){disposeModel(model);lines.push(spec.id+': Maße unpassend');continue;}}
+      const fallback=[...spec.target.children];
+      spec.target.add(model);spec.target.updateWorldMatrix(true,true);
+      const placed=new THREE.Box3().setFromObject(model);
+      if(!modelFits(placed)){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
+      model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+      // Remove only after successful replacement. Retain inspectable parent and userData.
+      for(const child of fallback)spec.target.remove(child);
+      lines.push(spec.id+': Original');
+    }
+    modelStatus.textContent=lines.join(' · ');
+  }
   goView('overview');
+  setTimeout(()=>{installModels().catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
   setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
   setTimeout(()=>loading.classList.add('hide'), 550);
   animate();
