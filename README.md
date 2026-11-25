@@ -58,3 +58,7 @@ Nutzer sieht weiterhin alte Live-Version. Veröffentlichung und Fassaden-Binärt
 ### Weiterentwicklung ohne Live-Abnahme
 
 Commits 6d70e0f und 6f9650c: identische Eingangsseiten, CSS-Türsimulation, Ladeüberblendung, Prefetch erst bei Eintritt, Außenklang blendet aus, lokale Bild-URLs werden freigegeben, reduzierte Bewegung berücksichtigt. Automatische Cache-Löschung entfernt, um wiederholte Downloads zu vermeiden. Beide Inline-JavaScript-Blöcke syntaktisch geprüft. Keine Browser-Abnahme; Fassadenbild fehlt weiterhin, CSS-Tür ist kein echtes 3D-Türmodell. Live-Deployment weiterhin offen.
+
+### Begrenzte Außenansicht
+
+Freigegebene neue Bildkomposition: vollständiges Haus, Buchhaimer Gassen, Himmel und Pflaster. Fester Standort; Wischen, Pfeiltasten und Zentrieren implementiert als begrenztes 2D-Panning mit Zoom, keine echte sphärische Projektion. Bild enthält eingebrannte UI-Symbole und abweichenden Schriftzug; vor finaler Integration bereinigen. Bildtransfer und Live-Abnahme offen. Inline-JS syntaktisch geprüft.
