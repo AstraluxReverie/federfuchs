@@ -54,3 +54,7 @@ main enthält index.html, entrance.html und interior.html. Service Worker trennt
 ## Eingang und Klangwelt
 
 Nutzer sieht weiterhin alte Live-Version. Veröffentlichung und Fassaden-Binärtransfer bleiben höchste Priorität. Eingang soll Straßenperspektive, fotorealistische Fassade, animierte Tür, Kamerafahrt und direkten Ich-Perspektive-Spawn bieten. Erste synthetische Außenklänge (Rascheln, Schritte, ferne Glockentöne) mit Audio-Opt-in implementiert; keine Originalbuch-Tonaufnahme. Weitere Klanggestaltung: Buchhändler, Papier, Federkiele, Wagen, fantastische Stadtbewohner, dezente Windgeräusche. Mobile Browser benötigen Nutzerinteraktion für Audio. Browser-Abnahme durch Nutzer.
+
+### Weiterentwicklung ohne Live-Abnahme
+
+Commits 6d70e0f und 6f9650c: identische Eingangsseiten, CSS-Türsimulation, Ladeüberblendung, Prefetch erst bei Eintritt, Außenklang blendet aus, lokale Bild-URLs werden freigegeben, reduzierte Bewegung berücksichtigt. Automatische Cache-Löschung entfernt, um wiederholte Downloads zu vermeiden. Beide Inline-JavaScript-Blöcke syntaktisch geprüft. Keine Browser-Abnahme; Fassadenbild fehlt weiterhin, CSS-Tür ist kein echtes 3D-Türmodell. Live-Deployment weiterhin offen.
