@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.7</title>
+  <title>Zum träumenden Federfuchs – v0.8</title>
   <style>
     :root{
       --bg:#10151b;
@@ -124,11 +124,23 @@
     #readHint[hidden],body.quiet #readHint{display:none!important}
     body.reading #mobileControls,body.reading #interactDoor{display:none!important}
     @media(max-height:470px){#readingPanel{max-height:90dvh;padding:10px}#readingPaper{padding:16px;font-size:15px}#readingPaper h2{font-size:22px}}
+
+    #materialPanel{max-height:48dvh;overflow:auto;overscroll-behavior:contain;margin-top:9px;border-top:1px solid #f3d8b62b;padding-top:9px;touch-action:pan-y}
+    #materialPanel[hidden]{display:none!important}
+    .materialTitle,.materialRow{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px}
+    .materialTitle{color:#e9d5b2;margin-bottom:5px}
+    .materialRow{padding:5px 0;border-bottom:1px solid #fff1}
+    .materialRow a,#materialPanel a{color:#e8c48d}
+    .materialRow span{text-align:right;color:#c8b8a3;font-size:10px}
+    .materialActions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+    #materialPanel p,#materialPanel label{font-size:10px;color:#c8b8a3;line-height:1.5}
+    #materialQuality{color:#efdfc5;background:#242321;border:1px solid #806e56;border-radius:5px;font-size:12px;padding:4px}
+    #materialStatus{font-size:10px;text-align:right}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.7 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.8 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -143,7 +155,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.7 · Zwischen den Buchseiten</div>
+    <div id="sub">3D-Studie v0.8 · Die Restaurierung</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -155,6 +167,14 @@
       <button id="soundToggle" type="button" aria-pressed="false">Ton: aus</button>
       <button id="quietToggle" type="button" aria-pressed="false">Ruhemodus</button>
       <button id="libraryToggle" type="button">Bücher entdecken</button>
+      <button id="materialToggle" type="button" aria-expanded="false">Materialien</button>
+    </div>
+    <div id="materialPanel" hidden>
+      <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
+      <div id="materialRows"></div>
+      <div class="materialActions"><button id="materialClassic" type="button">Originaltexturen</button><button id="materialRetry" type="button">PBR erneut laden</button></div>
+      <p>Fototexturen von <a href="https://polyhaven.com/" target="_blank" rel="noopener">Poly Haven</a> (CC0). Ersatzmaterialien bleiben verfügbar. Mobil: 1K; Desktop: optional 2K.</p>
+      <label for="materialQuality">Auflösung</label> <select id="materialQuality"><option value="1k">1K · Mobil</option><option value="2k">2K · Detail</option></select>
     </div>
     <div id="note">
       Fokus dieser Version: <strong>Stimmung und Gestaltung plus echte Erkundung</strong>. Du kannst zwischen Überblick und freier Bewegung wechseln.
@@ -350,10 +370,28 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const paperMat = new THREE.MeshStandardMaterial({color:0xe6dbc9, roughness:1});
   const darkMat = new THREE.MeshStandardMaterial({color:0x3c2e28, roughness:.9});
 
+  // World-scaled UVs for architectural surfaces: continuous grain and mortar across separate slabs.
+  // Existing procedural textures use the same UV scale as their photographic replacements.
+  for(const tex of [plankTex,stoneTex,plasterTex])tex.repeat.set(1,1);
+  function architecturalUV(geo,mat,x,y,z){
+    if(mat!==floorMat&&mat!==stoneMat&&mat!==plasterMat)return;
+    const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv;
+    if(!p||!n||!uv)return;
+    const scale=mat===floorMat?1/2.4:1/2;
+    for(let i=0;i<p.count;i++){
+      const px=p.getX(i)+x,py=p.getY(i)+y,pz=p.getZ(i)+z;
+      const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i));
+      if(ay>ax&&ay>az)uv.setXY(i,px*scale,-pz*scale);
+      else if(ax>az)uv.setXY(i,pz*scale,py*scale);
+      else uv.setXY(i,px*scale,py*scale);
+    }
+    uv.needsUpdate=true;
+  }
   const house = new THREE.Group();
   root.add(house);
 
   function addMesh(geo, mat, x=0,y=0,z=0, group=house, cast=true, receive=true){
+    if(group===house)architecturalUV(geo,mat,x,y,z);
     const m = new THREE.Mesh(geo, mat);
     m.position.set(x,y,z);
     m.castShadow = cast;
@@ -1171,7 +1209,90 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     renderer.setSize(innerWidth, innerHeight);
   });
 
+  // Photographic PBR material restoration.
+  // Asset names checked against Poly Haven's public catalogue. Direct download paths
+  // follow its published texture CDN convention; no API credentials or paid services.
+  // Every image is independently decoded before application. Fallback remains visible.
+  const materialSpecs=[
+    {id:'wood_floor_worn',label:'Historische Dielen',targets:[floorMat],normal:.58,repeat:[1,1]},
+    {id:'dark_wood',label:'Regale und Holzarbeiten',targets:[woodMat],normal:.32,repeat:[1,1]},
+    {id:'medieval_blocks_06',label:'Kellermauerwerk',targets:[stoneMat],normal:.78,repeat:[1,1]},
+    {id:'beige_wall_001',label:'Beiger Wandputz',targets:[plasterMat],normal:.34,repeat:[1,1]},
+    {id:'rough_linen',label:'Blaues Leinen',targets:[fabricBlueMat,cushionMat,velvet,cloth],normal:.42,repeat:[2,2],tint:0xffffff},
+    {id:'brown_leather',label:'Lederne Buchrücken',targets:[bookLeather],normal:.33,repeat:[1,1],normalOnly:true},
+    {id:'rusty_iron',label:'Gealtertes Eisen',targets:[ironMat],normal:.32,repeat:[1,1],tint:0x92908b}
+  ];
+  // Frame materials were previously created per shelf; register them for the same wood maps.
+  const frames=new Set();house.traverse(o=>{if(o.isMesh&&o.material!==woodMat&&o.material?.map===woodTex)frames.add(o.material);});
+  materialSpecs[1].targets.push(...frames);
+  const savedMaterials=new Map();
+  for(const spec of materialSpecs)for(const m of spec.targets)savedMaterials.set(m,{map:m.map,normalMap:m.normalMap,roughnessMap:m.roughnessMap,roughness:m.roughness,color:m.color.clone(),normalScale:m.normalScale.clone()});
+  const matStatus=document.getElementById('materialStatus'),matRows=document.getElementById('materialRows'),matPanel=document.getElementById('materialPanel'),matBtn=document.getElementById('materialToggle'),qualitySelect=document.getElementById('materialQuality');
+  const matStates=new Map(),loadedTextures=new Set();
+  let generation=0,materialsActive=false;
+  const coarse=matchMedia('(pointer:coarse)').matches;
+  qualitySelect.value=coarse?'1k':'2k';
+  try{const q=localStorage.getItem('federfuchs-texture-quality');if(q==='1k'||q==='2k')qualitySelect.value=q;}catch(e){}
+  for(const spec of materialSpecs){
+    const row=document.createElement('div'),a=document.createElement('a'),status=document.createElement('span');
+    row.className='materialRow';a.textContent=spec.label;a.href='https://polyhaven.com/a/'+spec.id;a.target='_blank';a.rel='noopener';status.textContent='Ersatz';
+    row.append(a,status);matRows.append(row);matStates.set(spec.id,{status,mode:'fallback'});
+  }
+  function setMatState(spec,mode,text){const state=matStates.get(spec.id);state.mode=mode;state.status.textContent=text;const n=[...matStates.values()].filter(v=>v.mode==='pbr').length;const partial=[...matStates.values()].filter(v=>v.mode==='partial').length;matStatus.textContent=n+' / '+materialSpecs.length+' PBR'+(partial?' · '+partial+' teilweise':'');}
+  function originalMaterials(){
+    generation++;materialsActive=false;
+    for(const [m,old] of savedMaterials){m.map=old.map;m.normalMap=old.normalMap;m.roughnessMap=old.roughnessMap;m.roughness=old.roughness;m.color.copy(old.color);m.normalScale.copy(old.normalScale);m.needsUpdate=true;}
+    for(const t of loadedTextures)t.dispose();loadedTextures.clear();
+    for(const spec of materialSpecs)setMatState(spec,'fallback','Ersatz');
+  }
+  const cdn='https://dl.polyhaven.org/file/ph-assets/Textures/';
+  const materialLoader=new THREE.TextureLoader();materialLoader.setCrossOrigin('anonymous');
+  function textureUrl(id,suffix,res,ext){return cdn+ext+'/'+res+'/'+id+'/'+id+'_'+suffix+'_'+res+'.'+ext;}
+  function loadOne(url,token){
+    return new Promise(resolve=>{
+      let finished=false;
+      const timer=setTimeout(()=>{if(!finished){finished=true;resolve(null);}},8500);
+      materialLoader.load(url,t=>{if(finished||token!==generation){t.dispose();if(!finished){finished=true;clearTimeout(timer);resolve(null);}return;}finished=true;clearTimeout(timer);resolve(t);},undefined,()=>{if(!finished){finished=true;clearTimeout(timer);resolve(null);}});
+    });
+  }
+  async function fetchMap(spec,suffix,res,token,isColor){
+    // Normal maps are often provided as PNG and JPEG; try both formats.
+    const ext=suffix==='nor_gl'?['png','jpg']:['jpg','png'];
+    for(const e of ext){
+      if(token!==generation)return null;
+      const t=await loadOne(textureUrl(spec.id,suffix,res,e),token);
+      if(t){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...spec.repeat);t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());t.colorSpace=isColor?THREE.SRGBColorSpace:THREE.NoColorSpace;loadedTextures.add(t);return t;}
+    }
+    return null;
+  }
+  async function loadMaterial(spec,res,token){
+    setMatState(spec,'loading','Lädt …');
+    const [diff,norm,rough]=await Promise.all([spec.normalOnly?Promise.resolve(null):fetchMap(spec,'diff',res,token,true),fetchMap(spec,'nor_gl',res,token,false),fetchMap(spec,'rough',res,token,false)]);
+    if(token!==generation)return;
+    for(const m of spec.targets){
+      if(diff){m.map=diff;if(spec.tint!==undefined)m.color.setHex(spec.tint);else if(frames.has(m))m.color.setHex(0xb9a99b);}
+      if(norm){m.normalMap=norm;m.normalScale.set(spec.normal,spec.normal);}
+      if(rough){m.roughnessMap=rough;m.roughness=1;}
+      m.needsUpdate=true;
+    }
+    const complete=(spec.normalOnly||!!diff)&&!!norm&&!!rough;
+    const any=!!(diff||norm||rough);
+    setMatState(spec,complete?'pbr':any?'partial':'fallback',complete?'PBR · '+res:any?'Teilweise · '+res:'Ersatz · nicht geladen');
+  }
+  async function restorePhotographic(){
+    originalMaterials();materialsActive=true;const token=generation,res=qualitySelect.value;
+    let index=0;
+    // Only two materials in flight at once; original scene stays interactive.
+    async function worker(){while(token===generation&&index<materialSpecs.length){const spec=materialSpecs[index++];await loadMaterial(spec,res,token);}}
+    await Promise.all([worker(),worker()]);
+    if(token===generation){const failed=[...matStates.values()].filter(v=>v.mode==='fallback').length;if(failed)matStatus.textContent+=' · '+failed+' Ersatz';}
+  }
+  matBtn.addEventListener('click',()=>{matPanel.hidden=!matPanel.hidden;matBtn.setAttribute('aria-expanded',String(!matPanel.hidden));});
+  document.getElementById('materialClassic').addEventListener('click',originalMaterials);
+  document.getElementById('materialRetry').addEventListener('click',restorePhotographic);
+  qualitySelect.addEventListener('change',()=>{try{localStorage.setItem('federfuchs-texture-quality',qualitySelect.value);}catch(e){}restorePhotographic();});
   goView('overview');
+  setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
   setTimeout(()=>loading.classList.add('hide'), 550);
   animate();
 
