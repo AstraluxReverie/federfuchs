@@ -5,5 +5,8 @@ export function gardenDomain(x,z,r=.19){return x>GARDEN.xmin+r+.15&&x<GARDEN.xma
 export function shopDomain(x,z,r=.19){return (x>=-8.63&&x<=8.63&&z>=-4.94&&z<=4.94)||(Math.abs(x)<GARDEN.doorHalf-r&&z<=-4.94&&z>=-5.78)||gardenDomain(x,z,r)&&z<GARDEN.zmax-r;}
 export function gardenObstacles(){const rows=GARDEN_BEDS.map(b=>({x:b.x,z:b.z,w:b.w,d:b.d}));
  return [...rows,...Array.from({length:4},(_,i)=>({x:-7.6+i*.55,z:-6.03,w:.46,d:.46})),{x:4.5,z:-8.5,w:1.15,d:1.15},{x:3.48,z:-8.5,w:.48,d:.55},{x:5.52,z:-8.5,w:.48,d:.55},{x:0,z:-12.5,w:1.15,d:1.15},{x:5.27,z:-14.7,w:.14,d:2.5},{x:8.23,z:-14.7,w:.14,d:2.5},{x:6.75,z:-15.88,w:3.1,d:.14},{x:5.645,z:-13.45,w:.89,d:.14},{x:7.855,z:-13.45,w:.89,d:.14},{x:6.75,z:-15.47,w:2.45,d:.48},{x:7.95,z:-14.55,w:.43,d:.80},{x:-7.65,z:-15.15,w:1.2,d:1.1},{x:7.3,z:-11.7,w:1.5,d:.85},...[-1,1].flatMap(i=>[-10.1,-6.65].map(z=>({x:4.5+i*1.95,z,w:.18,d:.18})))];}
-const GARDEN_COLLIDERS=gardenObstacles();
+// Shared footprints for the reading bench, orchard and walk-in greenhouse.
+export const GARDEN_ADDITIONS=Object.freeze({greenhouse:{x:-5.55,z:-14.85,w:2.6,d:2.2},bench:{x:-7.65,z:-8.1},trees:[{x:-7.75,z:-11.1},{x:7.75,z:-9.6}]});
+const g=GARDEN_ADDITIONS.greenhouse,b=GARDEN_ADDITIONS.bench;
+const GARDEN_COLLIDERS=[...gardenObstacles(),{x:b.x,z:b.z,w:.65,d:1.65},...GARDEN_ADDITIONS.trees.map(t=>({...t,w:.36,d:.36})),...[-1,1].flatMap(side=>[{x:g.x+side*g.w/2,z:g.z,w:.09,d:g.d},{x:g.x+side*.96,z:g.z+g.d/2,w:.68,d:.09}]),{x:g.x,z:g.z-g.d/2,w:g.w,d:.09},{x:g.x-.91,z:g.z-.15,w:.45,d:1.35}];
 export function gardenBlocked(x,z,r=.19){return GARDEN_COLLIDERS.some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
