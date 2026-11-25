@@ -203,6 +203,7 @@
       <button id="materialToggle" type="button" aria-expanded="false">Materialien</button>
       <button id="houseViewToggle" type="button" aria-expanded="true">Hausansicht</button>
       <button id="editToggle" type="button" aria-pressed="false">✥ Einrichten</button>
+      <button id="standUp" type="button" hidden>Aufstehen</button>
     </div>
     <div id="houseViewPanel">
       <div class="hvLine"><span>Wände</span><div class="hvSegments" role="group" aria-label="Wandhöhe">
@@ -470,7 +471,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(levelIndex>=0&&Math.abs(originalTop-levelList[levelIndex]-4.5)<.002){h=ceilingList[levelIndex]-originalBottom;y=originalBottom+h/2;}
     wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
     const m=addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
-    const floor=y<-.15?0:y<5.05?1:2;
+    const floor=levelIndex>=0?levelIndex:(y<-.15?0:y<5.05?1:2);
     const side=Math.abs(x)>8.9?(x<0?'left':'right'):z<-5.15?'back':z>5.15?'front':null;
     m.userData.cutaway={floor,facadeSide:side,kind:'wall'};
     visualWalls.push({m,y,h,base:y-h/2,scaleY:m.scale.y});return m;
@@ -791,7 +792,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   facade('x',-W/2,0,stoneMat);
   facade('x',W/2,0,stoneMat);
   facade('z',D/2,0,stoneMat);
-  facade('z',D/2,1,plasterMat,[{center:0,w:1.55,y:levels.shop+1.35,h:2.35}]);
+  facade('z',D/2,1,plasterMat,[{center:0,w:1.32,y:levels.shop+1.175,h:2.35}]);
   facade('z',D/2,2,plasterMat);
 
   for(const v of facadeWindows){
@@ -858,9 +859,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   for(let i=0;i<5;i++){const h=.55+(i%3)*.12;addMesh(new THREE.BoxGeometry(.98,h,.78),woodMat,7.95,levels.cellar+.175+h/2,-3.75+i*1.15);}
   bookShelf(5.3, levels.cellar+0.2,  2.9, 2.4, 2.9,.42);
   lamp(6.4, levels.cellar+3.6, -.7, 0xffd6aa, 1.5, 8);
-  // mysterious door
-  addMesh(new THREE.BoxGeometry(1.4,2.6,.12), ironMat, 8.25, levels.cellar+1.3, 4.0);
-  addMesh(new THREE.RingGeometry(.12,.19,18), brassMat, 7.7, levels.cellar+1.3, 4.09).rotation.y=Math.PI/2;
+  // Real stone-walled cellar passage with an opening behind the gate.
+  wall(.22,H,1.44,stoneMat,6.62,levels.cellar+H/2,4.35);
+  wall(.44,H,.22,stoneMat,6.95,levels.cellar+H/2,3.63);
+  wall(.46,H,.22,stoneMat,8.60,levels.cellar+H/2,3.63);
+  wall(1.32,H-2.35,.22,stoneMat,7.77,levels.cellar+2.35+(H-2.35)/2,3.63);
+  const catacombDoor=makeDoor(7.77,levels.cellar,3.63,{axis:'z'});
+  catacombDoor.leaf.material=ironMat;
+  lamp(7.80,levels.cellar+2.7,4.40,0xffb56f,.7,3);
 
   // ===== SHOP =====
   // left wall shelving
@@ -950,7 +956,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   makeDoor(4.19,levels.upper,3.50,{axis:'z'});
   // Kitchen and a separate compact living room with a connecting door.
   wall(.20,H,.58,plasterMat,-6.15,levels.upper+H/2,1.20);
-  wall(.20,H,2.47,plasterMat,-6.15,levels.upper+H/2,3.84);
+  wall(.20,H,2.265,plasterMat,-6.15,levels.upper+H/2,3.9425);
   wall(.20,H-2.35,1.32,plasterMat,-6.15,levels.upper+2.35+(H-2.35)/2,2.15);
   makeDoor(-6.15,levels.upper,2.15);
 
@@ -976,7 +982,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.CylinderGeometry(.58,.58,.5,26), new THREE.MeshStandardMaterial({color:0xe6e8eb, roughness:.2}), 4.34, levels.upper+.425, 2.68);
   addMesh(new THREE.BoxGeometry(.9,1.0,.55), new THREE.MeshStandardMaterial({color:0xeceff2, roughness:.3}), 4.25, levels.upper+.675, 1.0);
   addMesh(new THREE.BoxGeometry(.82,.06,.5), new THREE.MeshStandardMaterial({color:0xd1d7df, roughness:.3}), 4.25, levels.upper+1.205, 1.0);
-  addMesh(new THREE.CircleGeometry(.26,22), new THREE.MeshStandardMaterial({color:0xc9d7e8, metalness:1, roughness:.2}), 4.25, levels.upper+1.95, -.0).rotation.y=0;
+  // Actual mirror is mounted on the bathroom partition below.
   lamp(5.35, levels.upper+3.45, 2.3, 0xffe4c4, 1.3, 6);
 
   // writing room right rear
@@ -1094,7 +1100,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   signCtx.strokeStyle='#b08d58';signCtx.lineWidth=12;signCtx.strokeRect(16,16,992,352);
   signCtx.fillStyle='#e7d6b4';signCtx.textAlign='center';signCtx.font='54px Georgia';signCtx.fillText('Zum träumenden',512,145);signCtx.font='bold 88px Georgia';signCtx.fillText('Federfuchs',512,254);
   const signTex=new THREE.CanvasTexture(signCanvas);signTex.colorSpace=THREE.SRGBColorSpace;
-  addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-5.055);
+  wallAttachment(addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-5.055),1,'back');
   // Architectural details around window frames and walls; nothing added in the stair routes.
   // Window frames and sills now share the facade window registry.
   for(const y of [levels.shop,levels.upper]){
@@ -1218,6 +1224,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Stage: unique lectern with sloped top replaces the simple plank silhouette.
   const stageNote=artifact('stageNote','Das Pult der offenen Lesebühne','Hier liegen die Notizen für den nächsten Literaturabend. Auf der Karte steht: Unfertige Geschichten sind willkommen.',5.10,levels.shop+1.64,2.55);
   const stagePaper=labelPlane(stageNote,.36,.23,'Offene Lesebühne|Unfertiges willkommen',0,.01,0);stagePaper.rotation.x=-Math.PI/2;
+  // Simple signage and non-flame fire safety details, mounted rather than floating.
+  const passageLabel=labelPlane(house,.85,.20,'KATAKOMBEN',7.77,levels.cellar+2.65,3.505,'#594b3b','#e7d6b4');passageLabel.rotation.y=Math.PI;
+  const exitSign=labelPlane(house,.65,.18,'AUSGANG',0,levels.shop+2.75,5.06,'#344638','#e8e1c9');exitSign.rotation.y=Math.PI;wallAttachment(exitSign,1,'front');
+  const extinguisher=artifact('safety','Löschgerät','Ein geschlossenes Löschgerät neben dem Verkaufstresen, als Teil des Brandschutzes der Bibliothek.',-7.45,levels.shop+.175,4.83);
+  lathe(extinguisher,[[0,0],[.10,0],[.12,.04],[.12,.54],[.09,.60],[.035,.63]],burgundy);
+  addMesh(new THREE.BoxGeometry(.13,.04,.04),ironMat,0,.65,0,extinguisher);
+  tube(extinguisher,[[.06,.61,0],[.18,.60,0],[.19,.41,0]],.015,blackened);
   // Completed domestic details: kitchen fixtures, wardrobe, separate living room and WC.
   const domesticStart=house.children.length;
   const wardrobe=new THREE.Group();wardrobe.position.set(-8.08,levels.upper+.175,-.10);house.add(wardrobe);
@@ -1241,7 +1254,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const seat=addMesh(new THREE.TorusGeometry(.20,.022,8,32),ivory,0,.40,0,wc);seat.rotation.x=Math.PI/2;seat.scale.y=1.18;
   addMesh(new THREE.BoxGeometry(.38,.46,.20),ceramic,0,.51,.25,wc);
   addMesh(new THREE.SphereGeometry(.022,10,8),brassMat,.14,.69,.13,wc);
-  const mirror=new THREE.Group();mirror.position.set(3.02,levels.upper+1.94,1.0);mirror.rotation.y=Math.PI/2;house.add(mirror);
+  const mirror=new THREE.Group();mirror.position.set(3.02,levels.upper+1.94,1.0);mirror.rotation.y=Math.PI/2;house.add(mirror);wallAttachment(mirror,2,null);
   addMesh(new THREE.CircleGeometry(.32,40),new THREE.MeshStandardMaterial({color:0xaabac7,metalness:.75,roughness:.17}),0,0,.04,mirror);
   addMesh(new THREE.TorusGeometry(.325,.027,10,40),antiqueBrass,0,0,.055,mirror);
   // Compact independent living room, styled differently from the blue reading nook.
@@ -1256,7 +1269,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   lamp(-7.55,levels.upper+3.45,3.25,0xffc68c,2.3,6);
   // Two framed original decorative botanical illustrations and a leafy potted plant.
   function botanical(g,x,y,z,rot=0){
-    const a=new THREE.Group();a.position.set(x,y,z);a.rotation.y=rot;g.add(a);
+    const a=new THREE.Group();a.position.set(x,y,z);a.rotation.y=rot;g.add(a);wallAttachment(a,2,x<-8?'left':null);
     addMesh(new THREE.BoxGeometry(.63,.83,.06),trimMat,0,0,0,a);
     const tex=printTexture(256,320,(c,w,h)=>{c.fillStyle='#d6c7a5';c.fillRect(0,0,w,h);c.strokeStyle='#627459';c.lineWidth=4;c.beginPath();c.moveTo(128,280);c.quadraticCurveTo(140,170,120,42);c.stroke();for(let i=0;i<8;i++){const sign=i%2?1:-1,yy=55+i*27;c.fillStyle=i%3===0?'#68795b':'#8b9270';c.beginPath();c.moveTo(128,yy+25);c.quadraticCurveTo(128+sign*95,yy-30,128+sign*70,yy-35);c.quadraticCurveTo(128+sign*25,yy-10,128,yy+25);c.fill();}c.fillStyle='#665641';c.font='italic 16px Georgia';c.textAlign='center';c.fillText('Herbarium No. '+(rot===0?'IV':'VII'),128,302);});
     addMesh(new THREE.PlaneGeometry(.53,.73),new THREE.MeshStandardMaterial({map:tex,roughness:.92}),0,0,.034,a,false,true);
@@ -1395,6 +1408,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     tween = {fromPos: camera.position.clone(), fromTar: controls.target.clone(), toPos: pos.clone(), toTar: target.clone(), start: performance.now(), dur};
   }
   function goView(key){
+    if(seatedState)leaveSeat();
     if(key==='overview' && walkMode){walkMode=false;document.body.classList.remove('walk');controls.enabled=true;toggleWalkBtn.classList.remove('active');toggleWalkBtn.textContent='Freie Bewegung';} currentArea = key; setActiveButton(key);
     if(walkMode && key !== 'overview'){
       const spawn = walkSpawns[key];
@@ -1413,6 +1427,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
   function setWalkMode(on){
     if(on&&editMode)exitEditor();
+    if(!on&&seatedState)leaveSeat();
     walkMode = on; tween=null;
     document.body.classList.toggle('walk', on);
     controls.enabled = !on;
@@ -1471,7 +1486,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function obstacle(floor,x,z,w,d){furniture.push({floor,x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});}
   for(const z of [-3.5,1.3]){obstacle(1,-8.35,z,.60,2.44);obstacle(1,8.35,z,.60,2.44);}
   for(const x of [-6,-4,4,6])obstacle(1,x,-4.75,1.8,.38);
-  obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,2.15);obstacle(1,6.95,2,.65,.5);for(const x of [4.4,5.2,6])obstacle(1,x,1.1,.48,.48);
+  obstacle(1,-7.45,4.83,.28,.28);obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,2.15);obstacle(1,6.95,2,.65,.5);for(const x of [4.4,5.2,6])obstacle(1,x,1.1,.48,.48);
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
   obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);for(let i=0;i<5;i++)obstacle(0,7.95,-3.75+i*1.15,.98,.78);
   obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-4.65,4.35,2.85,.80);obstacle(2,-4.60,1.44,.95,.60);
@@ -1485,7 +1500,11 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const eye=elevations[floor]+1.05;
     if(wallBoxes.some(r=>eye>r.y0&&eye<r.y1&&hitRect(x,z,r)))return true;
     if(furniture.some(r=>r.floor===floor&&hitRect(x,z,r)))return true;
-    return doors.some(d=>!d.open&&Math.abs(elevations[floor]-d.floor-.175)<.02&&(d.axis==='z'?Math.abs(z-d.z)<.19+RADIUS&&Math.abs(x-d.x)<.61+RADIUS:Math.abs(x-d.x)<.19+RADIUS&&Math.abs(z-d.z)<.61+RADIUS));
+    return doors.some(d=>{
+      if(Math.abs(elevations[floor]-d.floor-.175)>.02)return false;
+      const dx=x-d.g.position.x,dz=z-d.g.position.z,a=d.g.rotation.y,c=Math.cos(a),sn=Math.sin(a),lx=c*dx-sn*dz,lz=sn*dx+c*dz;
+      return d.axis==='z'?lx>-.04-RADIUS&&lx<1.22+RADIUS&&Math.abs(lz)<.09+RADIUS:lz>-.04-RADIUS&&lz<1.22+RADIUS&&Math.abs(lx)<(d.secret?.18:.09)+RADIUS;
+    });
   }
   function moveNav(n,x,z,dx,dz,collision=solid){
     let xx=x+dx,zz=z+dz;
@@ -1559,6 +1578,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     document.getElementById('readingPanel').scrollTop=0;
   }
   function turnPage(delta){if(!readState)return;const b=library[readState.id];const p=readState.page+delta;if(p>=0&&p<b.pages.length){readState.page=p;renderPage();}}
+  let seatedState=null;
+  const standBtn=document.getElementById('standUp');
+  function leaveSeat(){if(!seatedState)return;player.pos.copy(seatedState.pos);player.yaw=seatedState.yaw;player.pitch=seatedState.pitch;seatedState=null;standBtn.hidden=true;syncWalkCamera();}
+  standBtn.addEventListener('click',leaveSeat);
   const details={
     stove:{title:'Der kleine Gusseisenofen',text:'Hinter der geschlossenen Glastür flackert das Feuer. Eine Steinplatte schützt den Holzboden. Setz dich in die Leseecke und schalte den Ton ein, wenn du das Knistern hören möchtest.'},
     counter:{title:'Der Verkaufstresen',text:'Hier werden Bücher angenommen, begutachtet und verkauft. Auf der Arbeitsplatte liegen das Kassenbuch und die Dinge, die im Laufe eines Abends immer wieder gebraucht werden.'}
@@ -1597,12 +1620,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const bookHit=ray.intersectObjects(pickableBooks,false).find(visibleHit);
     const propHit=ray.intersectObjects(inspectables,true).find(visibleHit);
     const hit=bookHit&&(!propHit||bookHit.distance<=propHit.distance+.04)?bookHit:propHit;
-    if(!hit)return;
+    if(!hit){if(walkMode){const candidate=ray.intersectObjects(editItems.filter(e=>e.kind==='chair'||e.kind==='sofa').map(e=>e.o),true).find(visibleHit);if(candidate&&candidate.distance<2.4){for(let o=candidate.object;o;o=o.parent){const e=editItems.find(v=>v.o===o&&(v.kind==='chair'||v.kind==='sofa'));if(e){offerSeat(e);break;}}}}return;}
     if(walkMode&&hit.distance>3.0){flashHint('Geh etwas näher heran.');return;}
     // Prevent selecting through opaque geometry. Gold spine decorations may sit just ahead of a book.
     const front=ray.intersectObject(house,true).find(h=>visibleHit(h)&&h.object.isMesh&&h.object.material?.transparent!==true);
     if(front&&front.distance<hit.distance-.075)return;
     if(hit===bookHit){const id=hit.object.userData.bookIds[hit.instanceId];if(Number.isInteger(id))readBook(id);return;}
+    if(walkMode){for(let o=hit.object;o;o=o.parent){const e=editItems.find(v=>v.o===o&&(v.kind==='chair'||v.kind==='sofa'));if(e){offerSeat(e);return;}}}
     for(let o=hit.object;o;o=o.parent){if(o.userData.inspectId){inspect(o.userData.inspectId);break;}}
   });
 
@@ -1672,7 +1696,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       controls.target.lerpVectors(tween.fromTar, tween.toTar, e);
       if(p>=1) tween = null;
     }
-    if(walkMode&&dialog.hidden){
+    if(walkMode&&dialog.hidden&&!seatedState){
       const forward = (keys.KeyW||keys.ArrowUp?1:0) - (keys.KeyS||keys.ArrowDown?1:0) + (-moveStick.y);
       const strafe = (keys.KeyD||keys.ArrowRight?1:0) - (keys.KeyA||keys.ArrowLeft?1:0) + (moveStick.x);
       player.yaw -= lookStick.x * 1.8 * dt;
@@ -2069,6 +2093,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const rect=worldRect(e.o),problem=validatePlacement(e,rect);
     if(problem){setItemTransform(e.o,old);setEditStatus(problem,true);refreshEditorSelection();return false;}
     rebuildEditorCollisions();pushHistory(before);placing=false;updateEditorControls();setEditStatus(e.label+' platziert.');refreshEditorSelection();return true;
+  }
+  function offerSeat(e){
+    if(!walkMode||seatedState||e.floor!==navigation.floor)return;
+    showReader();readState=null;heading.textContent=e.label;catalog.hidden=true;paper.hidden=false;foot.hidden=true;backBtn.hidden=false;
+    const p=document.createElement('p');p.textContent='Hier kannst du dich niederlassen und die Atmosphäre genießen.';const b=document.createElement('button');b.textContent='Hinsetzen';b.style.color='#392b22';
+    b.addEventListener('click',()=>{seatedState={pos:player.pos.clone(),yaw:player.yaw,pitch:player.pitch};const world=e.o.getWorldPosition(new THREE.Vector3());player.pos.set(world.x,elevations[e.floor]+1.08,world.z);player.yaw=e.o.rotation.y+(e.kind==='sofa'?0:Math.PI);player.pitch=0;standBtn.hidden=false;closeReader();syncWalkCamera();});
+    paper.replaceChildren(p,b);
   }
   function handleEditorRay(visibleHit){
     if(placing&&editSelection){
