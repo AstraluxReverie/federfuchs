@@ -42,3 +42,7 @@ Dieser Workflow ist eine technische Vorgabe, noch kein nachgewiesener automatisi
 ## Version 0.36
 
 [Website](https://astraluxreverie.github.io/federfuchs/?v=036). Quellcode-Commit 3224c3675ad58377fa0248efe39189779e89e003: bordeauxrote Treppenläufer mit Messingstangen und Geländerornamenten auf beiden geraden Läufen; responsive einzeilige Schaltflächen, verbreiterter Werkzeugbereich; versionierte GLB-Abrufe und erneuerter Service-Worker-Cache. Bestehende Treppenöffnungen und Navigation unverändert. Browser-Abnahme durch Nutzer ausstehend. Noch offen: integrierte Treppenregale, Efeu, Laternen, tatsächlicher Drive-Transfer, umfassende Kollisionsprüfung. Veröffentlichung über GitHub Pages nicht unabhängig bestätigt.
+
+## Version 0.37 – Eingang
+
+index.html ist jetzt eine eigenständige leichte Startseite; interior.html enthält die vollständige 3D-Welt. Außenumgebung und Garten bleiben im Code, sind ausgeblendet. Mobile initiale Schatten und Antialiasing reduziert. Freigegebene Fassadenvorlage muss noch als assets/facade.webp binär übertragen werden; bis dahin lokale Bildauswahl und direkter Eingang verfügbar. Tür-Hotspot ist relativ zum Bild positioniert. Fassadenabgleich mit tatsächlichen Fenstern/Möbeln, weitere Performance- und Touch-Korrekturen offen. Browser-Abnahme ausschließlich Nutzer.
