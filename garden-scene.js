@@ -1,5 +1,5 @@
 // Procedural garden models. No external textures or GLB required.
-import {GARDEN,GARDEN_BEDS} from './garden-plan.js';
+import {GARDEN,GARDEN_BEDS,GARDEN_ADDITIONS} from './garden-plan.js';
 import {seededRandom} from './world-utils.js';
 export function buildGarden(T,materials){
  const group=new T.Group(),r=seededRandom(300),y=GARDEN.y;
@@ -77,6 +77,34 @@ export function buildGarden(T,materials){
  for(const x of [6.06,7.44])box(.08,2.02,.19,wood,x,y+1.01,-13.45);box(1.46,.085,.19,wood,6.75,y+2.01,-13.45);
  box(1.2,.62,1.1,wood,-7.65,y+.31,-15.15);box(.60,.42,.03,mat(0x282321),-7.65,y+.23,-14.58);box(1.38,.09,1.28,materials.roof,-7.65,y+.66,-15.15);
  box(1.5,.12,.85,wood,7.3,y+.06,-11.7);box(1.40,.13,.75,mat(0x817657),7.3,y+.185,-11.7);
+ // Victorian greenhouse, with an open central entrance and accessible aisle.
+ const gh=GARDEN_ADDITIONS.greenhouse,gx=gh.x,gz=gh.z,hw=gh.w/2,hd=gh.d/2;
+ const frame=mat(0x38534a,.55),glass=new T.MeshPhysicalMaterial({color:0xc7e4d7,transparent:true,opacity:.20,roughness:.12,metalness:.05,depthWrite:false,side:T.DoubleSide});
+ const beam=(a,b,m=frame,th=.045)=>{const A=new T.Vector3(...a),B=new T.Vector3(...b),o=box(th,A.distanceTo(B),th,m,...A.clone().add(B).multiplyScalar(.5).toArray());o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.sub(A).normalize());return o;};
+ path(gh.w,gh.d,gx,gz);
+ for(const side of [-1,1]){
+ const x=gx+side*hw;box(.10,.24,gh.d,stone,x,y+.12,gz);
+ for(let j=0;j<=4;j++)box(.055,1.9,.055,frame,x,y+1.1,gz-hd+j*gh.d/4);
+ box(.025,1.62,gh.d,glass,x,y+1.06,gz);box(.065,.065,gh.d,frame,x,y+1.95,gz);
+ const roofPane=box(Math.hypot(hw,.68),.025,gh.d,glass,gx+side*hw/2,y+2.29,gz);roofPane.rotation.z=-side*Math.atan2(.68,hw);
+ for(let j=0;j<=4;j++){const z=gz-hd+j*gh.d/4;beam([x,y+1.95,z],[gx,y+2.63,z]);}
+ box(.68,1.85,.025,glass,gx+side*.96,y+1.02,gz+hd);
+ for(const xx of [gx+side*.62,x])box(.055,1.95,.055,frame,xx,y+.975,gz+hd);
+ }
+ box(gh.w,1.65,.025,glass,gx,y+1.05,gz-hd);for(let j=0;j<=4;j++)box(.055,1.95,.055,frame,gx-hw+j*gh.w/4,y+.975,gz-hd);
+ for(const z of [gz-hd,gz+hd])box(gh.w,.065,.065,frame,gx,y+1.95,z);
+ box(.065,.065,gh.d,frame,gx,y+2.63,gz);
+ box(.45,.08,1.35,wood,gx-.91,y+.83,gz-.15);for(const z of [gz-.7,gz+.4])box(.38,.8,.08,wood,gx-.91,y+.4,z);
+ for(let i=0;i<4;i++){const z=gz-.66+i*.32;cyl(.13,.10,.19,pot,gx-.91,y+.97,z);for(let j=0;j<5;j++)plants.push({x:gx-.91+(r()-.5)*.16,y:y+1.12+r()*.15,z:z+(r()-.5)*.16,a:r()*6.28,s:.10});}
+ // Reading bench with midnight-blue cushions, facing the strawberry beds.
+ const rb=GARDEN_ADDITIONS.bench,blue=mat(0x172b50,.96);
+ box(.56,.10,1.65,wood,rb.x,y+.43,rb.z);box(.09,.56,1.65,wood,rb.x-.28,y+.76,rb.z);
+ box(.48,.12,1.50,blue,rb.x+.015,y+.54,rb.z);box(.12,.39,1.48,blue,rb.x-.20,y+.80,rb.z);
+ for(const z of [rb.z-.65,rb.z+.65]){box(.48,.43,.08,iron,rb.x,y+.215,z);box(.55,.07,.08,wood,rb.x,y+.72,z);}
+ // Compact espalier-inspired fruit trees along the privacy walls.
+ const bark=mat(0x654b34),apple=mat(0xb64739,.65);
+ for(const t of GARDEN_ADDITIONS.trees){cyl(.075,.13,1.85,bark,t.x,y+.925,t.z,group,9);for(let j=0;j<5;j++){const a=j*2.4,dx=Math.cos(a)*.45,dz=Math.sin(a)*.45;beam([t.x,y+1.05,t.z],[t.x+dx,y+1.95,t.z+dz],bark,.055);}
+ for(let j=0;j<14;j++){const a=j*2.4,rad=.25+r()*.42,xx=t.x+Math.cos(a)*rad,zz=t.z+Math.sin(a)*rad,yy=y+1.7+r()*.65;const crown=mesh(new T.SphereGeometry(.30+r()*.12,8,6),j%2?leaf:leafLight,xx,yy,zz);crown.scale.set(1,.8,1);if(j%2===0)mesh(new T.SphereGeometry(.065,8,6),apple,xx,yy-.23,zz);}}
  // Dense but cheap greenery on the pergola and privacy walls.
  for(let i=0;i<125;i++){const x=2.55+r()*3.9,z=-6.65-r()*3.45;ivy.push({x,y:y+2.83+r()*.11,z,a:r()*6.28,s:.14+r()*.09});}
  for(const side of [-1,1])for(let i=0;i<90;i++){ivy.push({x:side*(8.55+r()*.10),y:y+.20+r()*1.85,z:-5.7-r()*10.45,a:r()*6.28,s:.12+r()*.10});}
