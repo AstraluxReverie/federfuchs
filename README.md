@@ -46,3 +46,7 @@ Dieser Workflow ist eine technische Vorgabe, noch kein nachgewiesener automatisi
 ## Version 0.37 – Eingang
 
 index.html ist jetzt eine eigenständige leichte Startseite; interior.html enthält die vollständige 3D-Welt. Außenumgebung und Garten bleiben im Code, sind ausgeblendet. Mobile initiale Schatten und Antialiasing reduziert. Freigegebene Fassadenvorlage muss noch als assets/facade.webp binär übertragen werden; bis dahin lokale Bildauswahl und direkter Eingang verfügbar. Tür-Hotspot ist relativ zum Bild positioniert. Fassadenabgleich mit tatsächlichen Fenstern/Möbeln, weitere Performance- und Touch-Korrekturen offen. Browser-Abnahme ausschließlich Nutzer.
+
+## Deployment-Diagnose 0.38
+
+main enthält index.html, entrance.html und interior.html. Service Worker trennt Navigationscache nach URL und wird auch aus interior.html mit v038 registriert. Nutzer meldet HTTP 404 für entrance.html; externe Abrufversuche nicht möglich. GitHub Pages Deploymentstatus und Einstellungen sind mit verfügbarem Connector nicht abrufbar. Keine weitere Versionsnummer bis Veröffentlichung geklärt. Fassadenbildtransfer weiterhin offen.
