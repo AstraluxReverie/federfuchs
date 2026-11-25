@@ -732,9 +732,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
         const bw=Math.min(.075+rnd()*.15,w/2-.11-cursor),bh=step*(.49+rnd()*.39),bd=d*(.63+rnd()*.23);
         if(bw<.055)break;
         const bx=cursor+bw/2,by=bottom+.04+bh/2,bz=d/2-bd/2-.025;
-        books.push({x:bx,y:by,z:bz,w:bw,h:bh,d:bd,c:colors[Math.random()*colors.length|0]});
-        if(Math.random()>.38)for(const band of [-.32,.30])bands.push({x:bx,y:by+bh*band,z:bz+bd/2+.001,w:bw*.76,h:.012,d:.005});
-        cursor+=bw+.012+Math.random()*.018;
+        books.push({x:bx,y:by,z:bz,w:bw,h:bh,d:bd,c:colors[rnd()*colors.length|0]});
+        if(rnd()>.38)for(const band of [-.32,.30])bands.push({x:bx,y:by+bh*band,z:bz+bd/2+.001,w:bw*.76,h:.012,d:.005});
+        cursor+=bw+.012+rnd()*.018;
       }
     }
     function batch(items,mat,colored){const m=new THREE.InstancedMesh(bookGeo,mat,items.length);for(let i=0;i<items.length;i++){const v=items[i];dummy.position.set(v.x,v.y,v.z);dummy.scale.set(v.w,v.h,v.d);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(colored)m.setColorAt(i,new THREE.Color(v.c));}g.add(m);m.receiveShadow=true;if(colored){m.userData.bookIds=items.map((_,i)=>(catalogOffset+i)%library.length);pickableBooks.push(m);}}
@@ -899,7 +899,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const roofSlate=new THREE.MeshStandardMaterial({color:0xb8b6b3,map:roofSlateTex,bumpMap:roofSlateTex,bumpScale:.025,roughness:.92});
   const roofRise=3.15,roofRun=D/2+.28,roofSlope=Math.atan2(roofRise,roofRun);
   for(const sign of [-1,1]){
-    const roofPanel=addMesh(new THREE.BoxGeometry(W+.58,.18,Math.hypot(roofRun,roofRise)),roofSlate,0,10.02+roofRise/2,sign*roofRun/2,actualRoof);
+    const roofPanel=addMesh(new THREE.BoxGeometry(W+.58,.18,Math.hypot(roofRun,roofRise)),roofSlate,0,10.075+roofRise/2,sign*roofRun/2,actualRoof);
     roofPanel.rotation.x=sign*roofSlope;
     // Thin slate courses are instanced rather than hundreds of individual draw calls.
     const rows=14,slateGeo=new THREE.BoxGeometry(W+.60,.027,.028),courses=new THREE.InstancedMesh(slateGeo,darkMat,rows);
@@ -1021,7 +1021,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function makeDoor(x,y,z,options={}){
     const axis=options.axis||'x',secret=!!options.secret;
     const g=new THREE.Group();g.position.set(axis==='z'?x-.62:x,y+.175,axis==='z'?z:z-.62);house.add(g);
-    const leaf=axis==='z'?addMesh(new THREE.BoxGeometry(1.20,2.16,.095),woodMat,.61,1.08,0,g):addMesh(new THREE.BoxGeometry(.095,2.16,1.20),woodMat,0,1.08,.61,g);
+    const leaf=axis==='z'?addMesh(new THREE.BoxGeometry(1.24,2.16,.095),woodMat,.62,1.08,0,g):addMesh(new THREE.BoxGeometry(.095,2.16,1.24),woodMat,0,1.08,.62,g);
     if(secret){leaf.visible=false;const shelf=bookShelf(0,0,.61,1.20,2.13,.24,g);shelf.rotation.y=-Math.PI/2;}
     
     if(!secret){
@@ -1273,7 +1273,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     fireTex.needsUpdate=true;
   }
   paintFire(0);
-  addMesh(new THREE.CylinderGeometry(.09,.09,2.9,16),ironMat,0,2.35,0,stove);
+  addMesh(new THREE.CylinderGeometry(.09,.09,3.56,16),ironMat,0,2.63,0,stove);
   addMesh(new THREE.BoxGeometry(.83,.075,.74),stoneMat,0,.02,0,stove);
   const glow=new THREE.PointLight(0xff9a40,2.4,4);glow.position.set(0,.6,.45);stove.add(glow);
   const readingTable=table(6.50,levels.upper+.175,1.05,.76,.55,.53);readingTable.userData.editLabel='Lesetisch';const teaMugStart=house.children.length;
@@ -1519,7 +1519,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function tiledFloor(x,z,w,d){addMesh(new THREE.BoxGeometry(w,.014,d),tileMat,x,levels.upper+.181,z);}
   tiledFloor(4.18,1.85,2.26,6.37);tiledFloor(-4.62,2.94,2.85,4.11);
   const bath=house.children.find(o=>o.isMesh&&Math.abs(o.position.x-4.34)<.001&&Math.abs(o.position.z-2.68)<.001&&o.geometry.type==='CylinderGeometry');
-  if(bath){house.remove(bath);bath.geometry.dispose();const tub=new THREE.Group();tub.position.set(4.34,levels.upper+.175,2.68);house.add(tub);lathe(tub,[[0,0],[.31,0],[.48,.09],[.53,.43],[.56,.49],[.55,.52],[.47,.52],[.44,.46],[.36,.15],[0,.13]],ceramic,0,0,0,40);const rim=addMesh(new THREE.TorusGeometry(.52,.035,10,40),ceramic,0,.50,0,tub);rim.rotation.x=Math.PI/2;tube(tub,[[0,.49,.45],[0,.77,.45],[0,.78,.25],[0,.68,.20]],.023,antiqueBrass);}
+  if(bath){house.remove(bath);bath.geometry.dispose();const tub=new THREE.Group();tub.position.set(4.70,levels.upper+.175,2.68);tub.scale.x=.82;house.add(tub);lathe(tub,[[0,0],[.31,0],[.48,.09],[.53,.43],[.56,.49],[.55,.52],[.47,.52],[.44,.46],[.36,.15],[0,.13]],ceramic,0,0,0,40);const rim=addMesh(new THREE.TorusGeometry(.52,.035,10,40),ceramic,0,.50,0,tub);rim.rotation.x=Math.PI/2;tube(tub,[[0,.49,.45],[0,.77,.45],[0,.78,.25],[0,.68,.20]],.023,antiqueBrass);}
   const wash=new THREE.Group();wash.position.set(4.25,levels.upper+1.245,1.0);house.add(wash);
   lathe(wash,[[0,0],[.16,0],[.23,.045],[.27,.11],[.28,.14],[.26,.15],[.23,.13],[.15,.035],[0,.025]],ceramic,0,0,0,32);
   tube(wash,[[0,.01,-.24],[0,.25,-.24],[0,.29,-.10],[0,.22,-.055]],.016,antiqueBrass);
@@ -1724,7 +1724,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
   obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);for(let i=0;i<5;i++)obstacle(0,7.95,-3.75+i*1.15,.98,.78);
   obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-4.65,4.35,2.85,.80);obstacle(2,-4.60,1.44,.95,.60);
-  obstacle(2,4.34,2.68,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,7.87,-4.65,1.81,.60);
+  obstacle(2,4.70,2.68,.94,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,7.87,-4.65,1.81,.60);
   obstacle(2,-8.08,-.10,.73,1.36);obstacle(2,-7.52,4.35,1.85,.74);obstacle(2,4.22,4.28,.48,.66);obstacle(2,-8.05,1.38,.34,.34);
   obstacle(0,-8.05,-.10,.70,1.32);
   obstacle(2,7.03,2.5,2.72,1.20);obstacle(2,7.85,3.65,.83,.74);obstacle(2,6.50,1.05,.76,.55);obstacle(2,6.05,3.92,.46,.46);
@@ -1961,6 +1961,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     // Secret shelf rotation is controlled by the same physical door system.
     dustPts.rotation.y += 0.0006;
     if(!walkMode&&dialog.hidden) controls.update();
+    scene.fog.near=walkMode?18:70;scene.fog.far=walkMode?75:170;
     renderer.render(scene, camera);
     updatePerformance(t);
   }
@@ -2656,7 +2657,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=020',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
