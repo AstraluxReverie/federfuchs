@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.33</title>
+  <title>Zum träumenden Federfuchs – v0.34</title>
   <style>
     :root{
       --bg:#10151b;
@@ -317,7 +317,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.33 · Ein Haus mit Seele</div>
+    <div id="sub">v0.34 · Wege durch das Haus</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -1056,7 +1056,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const entranceDoor=makeDoor(0,levels.shop,D/2,{axis:'z',side:'front'});
   const gardenDoor=makeDoor(0,levels.shop,-D/2,{axis:'z',side:'back'});
   partitionX(-2.7,levels.cellar,stoneMat,[-4.35,4.35]);
-  partitionX(3.4,levels.cellar,stoneMat,[-4.35,4.35]);
+  partitionX(3.4,levels.cellar,stoneMat,[-4.15,3.95]);
   // archive left
   bookShelf(-6.7, levels.cellar+0.2, -3.3, 2.1, 2.9,.42);
   bookShelf(-6.7, levels.cellar+0.2,  0.1, 2.1, 2.9,.42);
@@ -1161,8 +1161,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // hallway central
   rug(-1.43, levels.upper+.19, .0, 1.55, 5.2);
   // Independent entrances to both sides of the private landing.
-  partitionX(-3.0,levels.upper,plasterMat,[-4.35,4.35]);
-  partitionX(2.9,levels.upper,plasterMat,[-4.35,4.35]);
+  partitionX(-3.0,levels.upper,plasterMat,[-4.15,3.95]);
+  partitionX(2.9,levels.upper,plasterMat,[-4.15,2.35]);
   wall(5.825,H,.22,plasterMat,-5.9125,levels.upper+H/2,.8);
   wall(5.925,H,.22,plasterMat,5.8625,levels.upper+H/2,-1.5);
   // Continuous bathroom partition with a bookshelf fitted into the actual doorway.
@@ -1861,8 +1861,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const near=(f,v)=>Math.abs(v-f.x)<half;
     if(n.flight!==null){
       const f=flights[n.flight];xx=Math.max(f.x-half,Math.min(f.x+half,xx));
-      if(zz>zBottom){if(collision(xx,zz,f.low))return {x,z,height:elevations[f.low]};n.floor=f.low;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
-      if(zz<zTop){if(collision(xx,zz,f.high))return {x,z,height:elevations[f.high]};n.floor=f.high;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
+      if(zz>zBottom){if(collision(xx,zz,f.low))return {x,z,height:elevations[f.low]+(elevations[f.high]-elevations[f.low])*Math.max(0,Math.min(1,(zBottom-z)/(zBottom-zTop)))};n.floor=f.low;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
+      if(zz<zTop){if(collision(xx,zz,f.high))return {x,z,height:elevations[f.low]+(elevations[f.high]-elevations[f.low])*Math.max(0,Math.min(1,(zBottom-z)/(zBottom-zTop)))};n.floor=f.high;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
       const t=(zBottom-zz)/(zBottom-zTop);return {x:xx,z:zz,height:elevations[f.low]+(elevations[f.high]-elevations[f.low])*t};
     }
     for(let i=0;i<flights.length;i++){
@@ -2293,6 +2293,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
           const res=await fetch('./assets/'+entry.file);if(!res.ok)throw Error('Datei fehlt');
           const data=await res.arrayBuffer();validateGLB(data);
           const gltf=await new GLTFLoader().parseAsync(data,'');model=gltf.scene;model.updateMatrixWorld(true);
+          if(spec.normalizeHeight){const raw=new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());if(!Number.isFinite(raw.y)||raw.y<=0)throw Error('Ungültige Modellhöhe');model.scale.multiplyScalar(spec.normalizeHeight/raw.y);model.updateMatrixWorld(true);}
           const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
           if(!dimensionsFit(size.toArray(),spec.max))throw Error('Abmessungen passen nicht');
           if(spec.props&&Math.abs(size.y-spec.max[1])>.055)throw Error('Tischhöhe passt nicht zu den vorhandenen Gegenständen');
@@ -2349,6 +2350,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   const shelves=house.children.filter(o=>o.userData.editKind==='shelf');
   bindAsset('001',shelves.filter(o=>Math.abs(o.position.y-.2)<.3),'approximate');
+  const originalShelfSlot=shelves.find(o=>Math.abs(o.position.y-.2)<.3&&Math.abs(o.position.x+8.35)<.02&&Math.abs(o.position.z+3.5)<.02);
+  if(originalShelfSlot)inventorySlots.ff_shelf_original={target:originalShelfSlot,max:[1.90,2.50,.95],normalizeHeight:2.40};
   bindAsset('002',counter,'approximate',{max:[2.60,1.20,1.06],props:true});
   bindAsset('003',readerChair,'location-mismatch');
   bindAsset('011',entranceDoor.g,'functional-proxy');
@@ -3109,7 +3112,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=033',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=034',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
