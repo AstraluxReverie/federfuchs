@@ -1,5 +1,12 @@
 {
   "version": 1,
-  "description": "Original models for Federfuchs. Entries are activated only after the named GLB has been added and checked.",
-  "models": []
+  "description": "Approved original bookshelf",
+  "models": [
+    {
+      "slot": "ff_shelf_original",
+      "file": "original-regal.glb",
+      "approved": true,
+      "designStandard": "federfuchs-original-v1"
+    }
+  ]
 }
