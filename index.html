@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.19</title>
+  <title>Zum träumenden Federfuchs – v0.20</title>
   <style>
     :root{
       --bg:#10151b;
@@ -263,7 +263,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.19 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.20 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -298,7 +298,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.19 · Architektur & Erkundung</div>
+    <div id="sub">v0.20 · Handwerk & Atmosphäre</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -409,10 +409,11 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 <script>
 window.addEventListener('error',(event)=>{document.getElementById('loading').classList.add('hide');const e=document.getElementById('error');e.style.display='block';e.innerHTML='<h2>3D konnte nicht geladen werden</h2><p>Bitte lade die Seite neu oder öffne sie in Safari.</p><a href="https://github.com/AstraluxReverie/federfuchs/blob/5916f687815c526d2242c23feb84fc954f8cf2d0/index.html" style="color:#e9bd83">Quellcode der alten Version</a>';const p=document.createElement('p');p.textContent=event.message||'Unbekannter Laufzeitfehler';e.append(p);});
 </script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script>
 <script type="module">
   import * as THREE from 'three';
-  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { OrbitControls } from './vendor/OrbitControls.js';
+  import {wallExtent,slabExtent,cameraDistance,seededRandom,checkOpenings} from './world-utils.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -479,23 +480,16 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
   }, 1024, 1024, 3, 3);
 
-  const plankTex = canvasTexture((ctx,w,h)=>{
-    ctx.fillStyle='#745536'; ctx.fillRect(0,0,w,h);
-    for(let y=0;y<h;y+=84){
-      ctx.fillStyle = y%168===0 ? '#80603d' : '#6c5033';
-      ctx.fillRect(0,y,w,82);
-      ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(0,y+3,w,2);
-      ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.fillRect(0,y+78,w,2);
-      for(let x=24;x<w;x+=110){
-        ctx.fillStyle='rgba(30,18,10,.18)'; ctx.beginPath(); ctx.arc(x,y+40,4,0,Math.PI*2); ctx.fill();
-      }
-    }
-    for(let i=0;i<450;i++){
-      ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.04})`;
-      ctx.fillRect(Math.random()*w,Math.random()*h,Math.random()*20+8,1);
-    }
-  }, 1024, 1024, 3, 4);
-
+  const plankTex=canvasTexture((c,w,h)=>{
+    const rand=seededRandom(627);c.fillStyle='#59412c';c.fillRect(0,0,w,h);
+    const bh=h/11;
+    for(let row=0;row<11;row++){const y=row*bh;let x=-(row%3)*w/7;
+      while(x<w){const len=w*(.29+rand()*.31),v=97+Math.floor(rand()*41);const g=c.createLinearGradient(x,y,x+len,y+bh);g.addColorStop(0,'rgb('+(v+16)+','+(v-16)+','+(v-44)+')');g.addColorStop(1,'rgb('+v+','+(v-27)+','+(v-48)+')');c.fillStyle=g;c.fillRect(x+1,y+1,len-3,bh-3);
+        c.fillStyle='#dfb98122';c.fillRect(x+3,y+2,len-6,2);c.fillStyle='#29160f66';c.fillRect(x+1,y+bh-4,len-2,2);
+        for(let n=0;n<38;n++){const yy=y+4+rand()*(bh-8);c.strokeStyle=n%2?'#3b221b33':'#e7be7e22';c.lineWidth=.6+rand();c.beginPath();c.moveTo(x+4,yy);for(let dx=18;dx<len-4;dx+=18)c.lineTo(x+dx,yy+Math.sin(dx*.02+n)*(.7+rand()*2));c.stroke();}
+        for(const nx of [x+11,x+len-11])for(const ny of [y+bh*.25,y+bh*.75]){c.fillStyle='#30271f77';c.beginPath();c.arc(nx,ny,2.5,0,Math.PI*2);c.fill();}x+=len;
+      }}
+  },1024,1024,1,1);
   const stoneTex = canvasTexture((ctx,w,h)=>{
     ctx.fillStyle='#7e7b76'; ctx.fillRect(0,0,w,h);
     for(let y=0;y<h;y+=68){
@@ -531,18 +525,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
   }, 1024, 1024, 2.2, 2.2);
 
-  const rugTex = canvasTexture((ctx,w,h)=>{
-    ctx.fillStyle='#4f2730'; ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#6b3240'; ctx.fillRect(24,24,w-48,h-48);
-    ctx.strokeStyle='#d0a45a'; ctx.lineWidth=12; ctx.strokeRect(24,24,w-48,h-48);
-    ctx.lineWidth=4; ctx.strokeStyle='rgba(242,215,163,.55)';
-    for(let i=0;i<6;i++){ ctx.strokeRect(44+i*20,44+i*20,w-88-i*40,h-88-i*40); }
-    for(let i=0;i<40;i++){
-      ctx.fillStyle = i%2 ? 'rgba(202,155,87,.38)' : 'rgba(100,50,60,.3)';
-      ctx.fillRect(Math.random()*w,Math.random()*h,Math.random()*16+6,Math.random()*16+6);
-    }
-  }, 512, 512, 1, 1);
-
+  const rugTex=canvasTexture((c,w,h)=>{c.fillStyle='#49343a';c.fillRect(0,0,w,h);c.fillStyle='#743d42';c.fillRect(27,27,w-54,h-54);
+    for(const [inset,width,col] of [[15,8,'#d4af75'],[25,3,'#b18b59'],[38,8,'#263b47'],[50,2,'#dec18c'],[68,4,'#bf9c63']]){c.strokeStyle=col;c.lineWidth=width;c.strokeRect(inset,inset,w-2*inset,h-2*inset);}
+    function diamond(x,y,r,fill){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r*.68,y);c.lineTo(x,y+r);c.lineTo(x-r*.68,y);c.closePath();c.fillStyle=fill;c.fill();c.strokeStyle='#d8b779';c.lineWidth=2;c.stroke();}
+    for(let k=0;k<4;k++)for(let i=0;i<9;i++){const t=(i+.5)/9,x=k%2?40+(k===3?w-80:0):w*t,y=k%2?h*t:40+(k===2?h-80:0);diamond(x,y,12,'#667867');}
+    for(let j=0;j<5;j++)for(let i=0;i<5;i++)diamond(95+i*(w-190)/4,95+j*(h-190)/4,12+(i+j)%2*4,'#a87b60');
+    for(const [r,col] of [[126,'#2d4555'],[99,'#b18b65'],[76,'#773a3f'],[42,'#d6b787'],[19,'#455d58']])diamond(w/2,h/2,r,col);
+    const rand=seededRandom(42);for(let i=0;i<14000;i++){c.fillStyle=i%2?'#f5dfb414':'#14101a20';c.fillRect(rand()*w,rand()*h,1,2);}
+  },768,768,1,1);
   const bookTex = canvasTexture((ctx,w,h)=>{
     ctx.fillStyle='#4a3124'; ctx.fillRect(0,0,w,h);
     const palette=['#6f2838','#2d5d72','#87612f','#3b6a52','#5f4070','#8a4d33','#303c66','#6d6130'];
@@ -627,10 +617,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const wallBoxes=[],visualWalls=[];
   function wallAttachment(o,floor,facadeSide=null,kind='attachment'){o.userData.cutaway={floor,facadeSide,kind};return o;}
   function wall(w,h,d,mat,x,y,z,group=house,facadeSide=null){
-    const originalBottom=y-h/2,originalTop=y+h/2;
-    const levelList=[-4.8,0,5.1],ceilingList=[-.175,4.925,9.725];
-    const levelIndex=levelList.findIndex(v=>originalBottom>=v-.002&&originalTop<=v+4.5+.002);
-    if(levelIndex>=0&&Math.abs(originalTop-levelList[levelIndex]-4.5)<.002){h=ceilingList[levelIndex]-originalBottom;y=originalBottom+h/2;}
+    const extent=wallExtent(y,h),levelIndex=extent.floor;h=extent.h;y=extent.y;
     wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
     const floor=levelIndex>=0?levelIndex:(y<-.15?0:y<5.05?1:2);
     // Select sides by wall orientation as well as coordinates: a short rear segment near a corner is still rear-facing.
@@ -646,9 +633,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
 
   function floorSlab(w,d,x,y,z,mat=floorMat,group=house){
-    let x0=x-w/2,x1=x+w/2,z0=z-d/2,z1=z+d/2;
-    if(Math.abs(x0+9)<.002)x0=-9.175;if(Math.abs(x1-9)<.002)x1=9.175;
-    if(Math.abs(z0+5.25)<.002)z0=-5.425;if(Math.abs(z1-5.25)<.002)z1=5.425;
+    const {x0,x1,z0,z1}=slabExtent(w,d,x,z);
     const geo=new THREE.BoxGeometry(x1-x0,.35,z1-z0);
     const mesh=addMesh(geo,mat,(x0+x1)/2,y,(z0+z1)/2,group,false,true);
     const sides=[mat,mat,mat,mat,mat,mat],edge=y<-.1?foundationMat:facadeMat;
@@ -708,6 +693,17 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   function molding(g,w,h,d,x,y,z,mat=trimMat){return addMesh(new THREE.BoxGeometry(w,h,d),mat,x,y,z,g);}
   function markEditable(o,kind,label){o.userData.editKind=kind;o.userData.editLabel=label;return o;}
+  let spineAtlasMat=null;
+  function spineAtlas(){if(spineAtlasMat)return spineAtlasMat;
+    const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=1024;const c=canvas.getContext('2d'),rand=seededRandom(1863);
+    const palette=['#593c33','#324f53','#75604a','#4c405a','#68343e','#355447','#8b7253','#3b4659'],titles=['Verlorene Dinge','Regen lesen','Fuchs zwischen Zeilen','Eigensinnige Bücher','Mond im Teekessel','Buchkeller'];
+    for(let i=0;i<24;i++){const x=(i%8)*128,y=Math.floor(i/8)*256;c.fillStyle=palette[(i*3+Math.floor(i/6))%8];c.fillRect(x,y,128,256);const g=c.createLinearGradient(x,y,x+128,y);g.addColorStop(0,'#00000055');g.addColorStop(.25,'#ffffff19');g.addColorStop(1,'#00000050');c.fillStyle=g;c.fillRect(x,y,128,256);c.strokeStyle='#c6a36c';c.lineWidth=2;c.strokeRect(x+9,y+8,110,240);for(const yy of [22,38,218,234]){c.fillStyle='#c5a06a';c.fillRect(x+12,y+yy,104,3);}c.save();c.translate(x+66,y+130);c.rotate(-Math.PI/2);c.fillStyle='#e5c78f';c.textAlign='center';c.font='bold 17px Georgia';c.fillText(titles[i%6],0,-7,172);c.font='13px Georgia';c.fillText(['I','II','III','IV'][Math.floor(i/6)]+' · FEDERFUCHS',0,13,172);c.restore();for(let k=0;k<175;k++){c.fillStyle=k%2?'#ffffff12':'#0000001e';c.fillRect(x+rand()*128,y+rand()*256,1+rand()*3,1);}}
+    const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());spineAtlasMat=new THREE.MeshStandardMaterial({map:t,roughness:.86,side:THREE.DoubleSide});return spineAtlasMat;
+  }
+  function addSpineLabels(g,books,offset){const pos=[],uv=[];
+    for(let i=0;i<books.length;i++){const b=books[i],tile=((offset+i)%6)+6*((i+offset)%4),u0=(tile%8*128+2)/1024,u1=u0+124/1024,v1=1-(Math.floor(tile/8)*256+2)/1024,v0=v1-252/1024,x0=b.x-b.w*.485,x1=b.x+b.w*.485,y0=b.y-b.h*.49,y1=b.y+b.h*.49,z=b.z+b.d/2+.004;pos.push(x0,y0,z,x1,y0,z,x1,y1,z,x0,y0,z,x1,y1,z,x0,y1,z);uv.push(u0,v0,u1,v0,u1,v1,u0,v0,u1,v1,u0,v1);}
+    if(!pos.length)return;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.computeVertexNormals();const m=new THREE.Mesh(geo,spineAtlas());m.receiveShadow=true;g.add(m);
+  }
   function bookShelf(x,y,z,w=2.3,h=3.1,d=.45,group=house){
     const g=new THREE.Group();g.position.set(x,y,z);group.add(g);if(group===house)markEditable(g,'shelf','Bücherregal');
     const frame=new THREE.MeshStandardMaterial({color:0x51351f,map:woodTex,roughness:.78});
@@ -725,7 +721,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
     for(const [dy,ww,dd] of [[-.035,.19,.18],[-.10,.14,.13],[-.16,.075,.095]])molding(g,w+ww,.042,d+dd,0,h+dy,0);
     molding(g,w+.13,.055,d+.11,0,.135,0);
-    const books=[],bands=[],catalogOffset=shelfSerial++;
+    const books=[],bands=[],catalogOffset=shelfSerial++;const rnd=seededRandom(1511+catalogOffset*119);
     const step=(h-.25)/5;
     for(let j=0;j<5;j++){
       const bottom=.17+j*step;
@@ -733,7 +729,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       molding(g,w-.17,.023,.028,0,bottom+.01,d/2+.013,trimMat);
       let cursor=-w/2+.13;
       while(cursor<w/2-.23){
-        const bw=Math.min(.085+Math.random()*.13,w/2-.11-cursor),bh=step*(.60+Math.random()*.28),bd=d*(.65+Math.random()*.21);
+        const bw=Math.min(.075+rnd()*.15,w/2-.11-cursor),bh=step*(.49+rnd()*.39),bd=d*(.63+rnd()*.23);
         if(bw<.055)break;
         const bx=cursor+bw/2,by=bottom+.04+bh/2,bz=d/2-bd/2-.025;
         books.push({x:bx,y:by,z:bz,w:bw,h:bh,d:bd,c:colors[Math.random()*colors.length|0]});
@@ -742,7 +738,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       }
     }
     function batch(items,mat,colored){const m=new THREE.InstancedMesh(bookGeo,mat,items.length);for(let i=0;i<items.length;i++){const v=items[i];dummy.position.set(v.x,v.y,v.z);dummy.scale.set(v.w,v.h,v.d);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(colored)m.setColorAt(i,new THREE.Color(v.c));}g.add(m);m.receiveShadow=true;if(colored){m.userData.bookIds=items.map((_,i)=>(catalogOffset+i)%library.length);pickableBooks.push(m);}}
-    batch(books,bookLeather,true);batch(bands,goldDetail,false);
+    batch(books,bookLeather,true);addSpineLabels(g,books,catalogOffset);
     return g;
   }
 
@@ -894,7 +890,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   cutFloor(levels.upper,flights[1].x);
   const roofSlab=floorSlab(W,D,0,9.9,0,plasterMat);roofSlab.userData.roof=true; // ceiling / roof base
   const actualRoof=new THREE.Group();actualRoof.userData.roof=true;house.add(actualRoof);
-  const roofSlate=new THREE.MeshStandardMaterial({color:0x383b44,roughness:.92});
+  const roofSlateTex=canvasTexture((c,w,h)=>{const rand=seededRandom(928);c.fillStyle='#414348';c.fillRect(0,0,w,h);for(let j=0;j<12;j++)for(let i=-1;i<8;i++){const x=(i+(j%2)*.5)*w/8,y=j*h/12,v=55+Math.floor(rand()*35);c.fillStyle='rgb('+v+','+(v+1)+','+(v+6)+')';c.fillRect(x+1,y+1,w/8-2,h/12-2);c.fillStyle='#11151c55';c.fillRect(x,y+h/12-3,w/8,3);}for(let i=0;i<3000;i++){c.fillStyle=i%2?'#ffffff09':'#11111120';c.fillRect(rand()*w,rand()*h,2,1);}},512,512,5,3);
+  const roofSlate=new THREE.MeshStandardMaterial({color:0xb8b6b3,map:roofSlateTex,bumpMap:roofSlateTex,bumpScale:.025,roughness:.92});
   const roofRise=3.15,roofRun=D/2+.28,roofSlope=Math.atan2(roofRise,roofRun);
   for(const sign of [-1,1]){
     const roofPanel=addMesh(new THREE.BoxGeometry(W+.58,.18,Math.hypot(roofRun,roofRise)),roofSlate,0,10.02+roofRise/2,sign*roofRun/2,actualRoof);
@@ -904,8 +901,10 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const o=new THREE.Object3D();for(let j=0;j<rows;j++){const t=(j+.5)/rows;o.position.set(0,10.13+roofRise*(1-t),sign*roofRun*t);o.updateMatrix();courses.setMatrixAt(j,o.matrix);}actualRoof.add(courses);
   }
   const gable=new THREE.Shape();gable.moveTo(-D/2,0);gable.lineTo(0,roofRise);gable.lineTo(D/2,0);gable.closePath();
-  for(const side of [-1,1]){const m=addMesh(new THREE.ExtrudeGeometry(gable,{depth:.21,bevelEnabled:false}),plasterMat,side*(W/2-.10),10.02,0,actualRoof);m.rotation.y=Math.PI/2;}
-  addMesh(new THREE.BoxGeometry(.72,2.0,.72),stoneMat,7.85,12.34,3.65,actualRoof);
+  for(const side of [-1,1]){const geo=new THREE.ExtrudeGeometry(gable,{depth:.35,bevelEnabled:false});geo.translate(0,0,-.175);const m=addMesh(geo,facadeMat,side*W/2,10.02,0,actualRoof);m.rotation.y=Math.PI/2;}
+  addMesh(new THREE.BoxGeometry(.72,2.38,.72),stoneMat,7.85,12.15,3.65,actualRoof);
+  for(const x of [-7.8,-4,0,4,7.8])for(const sign of [-1,1]){const beam=addMesh(new THREE.BoxGeometry(.22,.22,Math.hypot(roofRun,roofRise)),woodMat,x,9.91+roofRise/2,sign*roofRun/2,actualRoof);beam.rotation.x=sign*roofSlope;}
+  addMesh(new THREE.BoxGeometry(W,.24,.24),woodMat,0,13.05,0,actualRoof);
   addMesh(new THREE.BoxGeometry(.93,.15,.93),stoneMat,7.85,13.38,3.65,actualRoof);
 
   // Build real window openings instead of placing glass in front of a solid wall.
@@ -916,6 +915,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       if(axis==='z')wall(b-a,top-bottom,thick,mat,(a+b)/2,(bottom+top)/2,at,house,at<0?'back':'front');
       else wall(thick,top-bottom,b-a,mat,at,(bottom+top)/2,(a+b)/2,house,at<0?'left':'right');
     }
+    if(checkOpenings(openings,lo,hi,base,base+H).length)throw Error('Ungültige Fassadenöffnung');
     let cursor=lo;
     for(const o of [...openings].sort((a,b)=>a.center-b.center)){
       const a=o.center-o.w/2,b=o.center+o.w/2;
@@ -997,7 +997,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   });
 
   // Posts
-  [-8.2,8.2].forEach(x=>{for(const [floor,y] of baseByFloor.entries()){const m=post(x,y,0,H);wallAttachment(m,floor,x<0?'left':'right');}});
+  [-8.2,8.2].forEach(x=>{for(const [floor,y] of baseByFloor.entries()){const height=wallExtent(y+H/2,H).h;const m=post(x,y+height/2,0,height);wallAttachment(m,floor,x<0?'left':'right');}});
 
   // ===== CELLAR =====
   // partitions
@@ -1016,7 +1016,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function makeDoor(x,y,z,options={}){
     const axis=options.axis||'x',secret=!!options.secret;
     const g=new THREE.Group();g.position.set(axis==='z'?x-.62:x,y+.175,axis==='z'?z:z-.62);house.add(g);
-    const leaf=axis==='z'?addMesh(new THREE.BoxGeometry(1.20,2.13,.095),woodMat,.61,1.065,0,g):addMesh(new THREE.BoxGeometry(.095,2.13,1.20),woodMat,0,1.065,.61,g);
+    const leaf=axis==='z'?addMesh(new THREE.BoxGeometry(1.20,2.16,.095),woodMat,.61,1.08,0,g):addMesh(new THREE.BoxGeometry(.095,2.16,1.20),woodMat,0,1.08,.61,g);
     if(secret){leaf.visible=false;const shelf=bookShelf(0,0,.61,1.20,2.13,.24,g);shelf.rotation.y=-Math.PI/2;}
     
     if(!secret){
@@ -1024,6 +1024,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       else{addMesh(new THREE.BoxGeometry(.12,.09,1.22),darkMat,0,.15,.61,g);for(const side of [-1,1])addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,side*.095,1.02,1.07,g);}
     }else addMesh(new THREE.SphereGeometry(.038,10,8),brassMat,-.16,1.08,1.07,g);
     const floor=baseByFloor.indexOf(y),side=options.side||null;wallAttachment(g,floor,side,'door');
+    wallAttachment(axis==='z'?addMesh(new THREE.BoxGeometry(1.42,.085,.30),woodMat,x,y+2.31,z):addMesh(new THREE.BoxGeometry(.30,.085,1.42),woodMat,x,y+2.31,z),floor,side,'door');
     for(const offset of [-.65,.65])wallAttachment(axis==='z'?addMesh(new THREE.BoxGeometry(.095,2.35,.30),woodMat,x+offset,y+1.175,z):addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+offset),floor,side,'door');
     const door={g,leaf,x,z,floor:y,open:false,axis,secret};doors.push(door);return door;
   }
@@ -1087,11 +1088,16 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   addMesh(new THREE.BoxGeometry(2.15,2.5,.08), new THREE.MeshStandardMaterial({color:0x7d2a3a, roughness:1}), 5.1, levels.shop+1.7, 3.92);
   addMesh(new THREE.BoxGeometry(.1,1.1,.1), darkMat, 5.1, levels.shop+1.05,2.55);
   addMesh(new THREE.BoxGeometry(.55,.05,.45), woodMat, 5.1, levels.shop+1.6,2.55);
-  chair(5.2, levels.shop+.175, 1.10, Math.PI);
-  chair(6.0, levels.shop+.175, 1.10, Math.PI*1.05);
-  chair(4.4, levels.shop+.175, 1.10, Math.PI*.95);
+  chair(5.2,levels.shop+.175,1.10,0);
+  chair(6.0,levels.shop+.175,1.10,-.10);
+  chair(4.4,levels.shop+.175,1.10,.10);
   table(6.95, levels.shop+.175, 2.00, .65,.5,.45);
 
+  const curtainMat=new THREE.MeshStandardMaterial({color:0x662b3d,roughness:.98,side:THREE.DoubleSide});
+  const curtainGeometry=new THREE.PlaneGeometry(2.16,2.50,42,8);const cp=curtainGeometry.attributes.position;
+  for(let i=0;i<cp.count;i++){const x=cp.getX(i),y=cp.getY(i);cp.setZ(i,.065*Math.sin(x*35)+.022*Math.sin(x*11+y*1.4));}curtainGeometry.computeVertexNormals();
+  addMesh(curtainGeometry,curtainMat,5.1,levels.shop+1.70,3.82);
+  addMesh(new THREE.BoxGeometry(2.45,.14,.12),woodMat,5.1,levels.shop+3.02,3.85);
   // Open stairs with railings and actual floor openings.
   for(const f of flights){
     const stairStart=house.children.length;
@@ -1131,16 +1137,16 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // Independent entrances to both sides of the private landing.
   partitionX(-3.0,levels.upper,plasterMat,[-2.5,2.3]);
   partitionX(2.9,levels.upper,plasterMat,[-2.5,2.3]);
-  wall(5.8,H,.22,plasterMat,-5.9,levels.upper+H/2,.8);
-  wall(5.8,H,.22,plasterMat,5.9,levels.upper+H/2,-1.5);
+  wall(5.825,H,.22,plasterMat,-5.9125,levels.upper+H/2,.8);
+  wall(5.925,H,.22,plasterMat,5.8625,levels.upper+H/2,-1.5);
   // Continuous bathroom partition with a bookshelf fitted into the actual doorway.
   wall(.20,H,4.00,plasterMat,5.45,levels.upper+H/2,3.08);
   wall(.20,H,1.15,plasterMat,5.45,levels.upper+H/2,-.815);
   wall(.20,H-2.35,1.32,plasterMat,5.45,levels.upper+2.35+(H-2.35)/2,.42);
   const secretDoor=makeDoor(5.45,levels.upper,.42,{secret:true});
   // Separate WC at the far end of the bathroom, with a real cross-wall door.
-  wall(.51,H,.19,plasterMat,3.275,levels.upper+H/2,3.50);
-  wall(.47,H,.19,plasterMat,5.115,levels.upper+H/2,3.50);
+  wall(.63,H,.19,plasterMat,3.215,levels.upper+H/2,3.50);
+  wall(.60,H,.19,plasterMat,5.15,levels.upper+H/2,3.50);
   wall(1.32,H-2.35,.19,plasterMat,4.19,levels.upper+2.35+(H-2.35)/2,3.50);
   makeDoor(4.19,levels.upper,3.50,{axis:'z'});
   // Kitchen and a separate compact living room with a connecting door.
@@ -1502,6 +1508,27 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     armJoints[1].rotation.z=t<veroGreetingUntil?-.95-.17*Math.sin(t*8):-.08;
     armJoints[0].rotation.z=.10;
   }
+  // Room-specific finishes and original miniature props.
+  const tileTex=canvasTexture((c,w,h)=>{const rand=seededRandom(17);c.fillStyle='#6f6e61';c.fillRect(0,0,w,h);for(let j=0;j<8;j++)for(let i=0;i<8;i++){const x=i*w/8,y=j*h/8,v=155+Math.floor(rand()*22);c.fillStyle=(i+j)%2?'#547074':'rgb('+v+','+(v-5)+','+(v-15)+')';c.fillRect(x+2,y+2,w/8-4,h/8-4);c.strokeStyle='#ffffff28';c.strokeRect(x+3,y+3,w/8-6,h/8-6);}},512,512,1,1);
+  const tileMat=new THREE.MeshStandardMaterial({map:tileTex,bumpMap:tileTex,bumpScale:.018,roughness:.70});
+  function tiledFloor(x,z,w,d){addMesh(new THREE.BoxGeometry(w,.014,d),tileMat,x,levels.upper+.181,z);}
+  tiledFloor(4.18,1.85,2.26,6.37);tiledFloor(-4.62,2.94,2.85,4.11);
+  const bath=house.children.find(o=>o.isMesh&&Math.abs(o.position.x-4.34)<.001&&Math.abs(o.position.z-2.68)<.001&&o.geometry.type==='CylinderGeometry');
+  if(bath){house.remove(bath);bath.geometry.dispose();const tub=new THREE.Group();tub.position.set(4.34,levels.upper+.175,2.68);house.add(tub);lathe(tub,[[0,0],[.31,0],[.48,.09],[.53,.43],[.56,.49],[.55,.52],[.47,.52],[.44,.46],[.36,.15],[0,.13]],ceramic,0,0,0,40);const rim=addMesh(new THREE.TorusGeometry(.52,.035,10,40),ceramic,0,.50,0,tub);rim.rotation.x=Math.PI/2;tube(tub,[[0,.49,.45],[0,.77,.45],[0,.78,.25],[0,.68,.20]],.023,antiqueBrass);}
+  const wash=new THREE.Group();wash.position.set(4.25,levels.upper+1.245,1.0);house.add(wash);
+  lathe(wash,[[0,0],[.16,0],[.23,.045],[.27,.11],[.28,.14],[.26,.15],[.23,.13],[.15,.035],[0,.025]],ceramic,0,0,0,32);
+  tube(wash,[[0,.01,-.24],[0,.25,-.24],[0,.29,-.10],[0,.22,-.055]],.016,antiqueBrass);
+  const bedside=artifact('bedside','Die Nachttischlampe','Eine kleine geschützte Leselampe mit einem Band auf dem Nachttisch.',-4.36,levels.upper+.77,-3.2);
+  lathe(bedside,[[0,0],[.11,0],[.12,.025],[.035,.05],[.026,.25],[.04,.27]],antiqueBrass,-.15,0,-.08);
+  lathe(bedside,[[.18,.25],[.17,.28],[.095,.50],[.07,.52]],shadeMat,-.15,0,-.08);folio(bedside,.23,.16,.04,.17,0,.10,burgundy);
+  const jars=artifact('kitchenJars','Vorratsgefäße','Drei verschieden große Gefäße für Tee, Gewürze und Gebäck.',-4.72,levels.upper+1.16,4.48);
+  for(const [x,r,h,m] of [[-.22,.095,.23,greenGlaze],[0,.08,.17,ivory],[.20,.075,.28,inkBlue]]){lathe(jars,[[0,0],[r*.85,0],[r,.035],[r,h*.8],[r*.72,h],[r*.62,h]],m,x,0,0);lathe(jars,[[0,h],[r*.81,h],[r*.81,h+.03],[r*.3,h+.045],[r*.14,h+.075],[0,h+.075]],woodMat,x);}
+  const indexCabinet=new THREE.Group();indexCabinet.position.set(-8.05,levels.cellar+.175,-.1);house.add(indexCabinet);addMesh(new THREE.BoxGeometry(.59,1.20,1.32),woodMat,0,.60,0,indexCabinet);
+  for(let j=0;j<5;j++)for(let k=0;k<3;k++){const z=(k-1)*.40,y=.17+j*.215;addMesh(new THREE.BoxGeometry(.045,.185,.36),trimMat,.32,y,z,indexCabinet);addMesh(new THREE.BoxGeometry(.055,.032,.12),antiqueBrass,.355,y,z,indexCabinet);}
+  markEditable(indexCabinet,'cabinet','Archivkartenschrank');
+  for(let i=0;i<5;i++){const h=.55+(i%3)*.12,z=-3.75+i*1.15,y=levels.cellar+.175+h/2;for(const dx of [-.43,.43])addMesh(new THREE.BoxGeometry(.07,h+.014,.82),trimMat,7.95+dx,y,z);for(const dz of [-.35,.35])addMesh(new THREE.BoxGeometry(1.02,.06,.07),woodMat,7.95,y+h/2,z+dz);labelPlane(house,.30,.13,'F-'+(12+i),7.95,y,z+.395);}
+  const crestTex=printTexture(384,384,(c,w,h)=>{c.fillStyle='#30251c';c.fillRect(0,0,w,h);c.strokeStyle='#c7a46e';c.lineWidth=7;c.beginPath();c.arc(192,192,172,0,Math.PI*2);c.stroke();c.fillStyle='#e4d6b6';c.beginPath();c.moveTo(75,85);c.lineTo(151,139);c.lineTo(192,117);c.lineTo(233,139);c.lineTo(309,85);c.lineTo(292,226);c.lineTo(192,299);c.lineTo(92,226);c.closePath();c.fill();c.fillStyle='#30251c';for(const x of [147,237]){c.beginPath();c.ellipse(x,204,16,7,0,0,Math.PI*2);c.fill();}c.beginPath();c.moveTo(178,254);c.lineTo(206,254);c.lineTo(192,268);c.closePath();c.fill();c.font='bold 20px Georgia';c.textAlign='center';c.fillStyle='#c7a46e';c.fillText('FEDERFUCHS',192,337);});
+  const crest=addMesh(new THREE.CircleGeometry(.38,48),new THREE.MeshStandardMaterial({map:crestTex,roughness:.83}),0,levels.shop+4.32,5.563);wallAttachment(crest,1,'front');
   // Physical exterior, separate from the cutaway house. Visible while walking indoors.
   const outside=new THREE.Group();root.add(outside);outside.visible=false;
   const pavingMat=new THREE.MeshStandardMaterial({map:stoneTex,color:0x656974,roughness:.64});
@@ -1525,7 +1552,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   function neighbour(x,z,w,d,h,rot=0){
     const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;outside.add(g);
-    addMesh(new THREE.BoxGeometry(w,h,d),exteriorStone,0,h/2,0,g,false,true);
+    const mass=addMesh(new THREE.BoxGeometry(w,h,d),facadeMat,0,h/2,0,g,false,true);architecturalUV(mass.geometry,facadeMat,0,h/2,0);
     const roofShape=new THREE.Shape();roofShape.moveTo(-w/2-.16,0);roofShape.lineTo(0,h*.23);roofShape.lineTo(w/2+.16,0);roofShape.closePath();
     const roofGeo=new THREE.ExtrudeGeometry(roofShape,{depth:d+.25,bevelEnabled:false});roofGeo.translate(0,0,-(d+.25)/2);
     addMesh(roofGeo,roofMat,0,h,0,g,false,true);
@@ -1537,6 +1564,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       addMesh(new THREE.BoxGeometry(.75,.045,.025),roofMat,wx,wy,wz+.06,g,false,false);
     }
   }
+  outBox(30,.22,7.9,0,-.18,9.45,pavingMat);neighbour(-7,15.7,8,4.6,8.5,Math.PI);neighbour(4,17,9,5,10.2,Math.PI-.035);
   neighbour(-6,-13,7,4,8.2,.03);neighbour(2,-15.2,7,5.4,10,-.07);neighbour(9,-14,5.2,4.8,7.5,.04);
   neighbour(-16,-2.9,7.2,4.4,8.7,Math.PI/2);neighbour(-17,4.8,6.6,5,7.1,Math.PI/2);
   neighbour(16,-3.6,7,4.2,8.8,-Math.PI/2);neighbour(17,4.7,6.4,5.2,7.5,-Math.PI/2);
@@ -1557,8 +1585,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     outdoorRainGeo.attributes.position.needsUpdate=true;
   }
   // overall lights
-  const hemi = new THREE.HemisphereLight(0x9bb0c2, 0x58432e, 1.10); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0x9bb0c2,0x58432e,.86); scene.add(hemi);
   const moon = new THREE.DirectionalLight(0x91b6d9, .86); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
+  const envTex=canvasTexture((c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#2c3f57');g.addColorStop(.45,'#9cabb3');g.addColorStop(.52,'#817562');g.addColorStop(1,'#302820');c.fillStyle=g;c.fillRect(0,0,w,h);for(const x of [75,340]){const glow=c.createRadialGradient(x,h*.37,2,x,h*.37,82);glow.addColorStop(0,'#e9e3ce');glow.addColorStop(1,'#d8d0b900');c.fillStyle=glow;c.fillRect(x-82,0,164,h);}},512,256,1,1);envTex.mapping=THREE.EquirectangularReflectionMapping;scene.environment=envTex;scene.environmentIntensity=.38;
   const fill = new THREE.DirectionalLight(0xffe6c0, .74); fill.position.set(8,14,8); scene.add(fill);
 
   // subtle ambient glows by levels
@@ -1599,9 +1628,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     tween = {fromPos: camera.position.clone(), fromTar: controls.target.clone(), toPos: pos.clone(), toTar: target.clone(), start: performance.now(), dur};
   }
   function fitPosition(pos,target,radius){
-    const vertical=THREE.MathUtils.degToRad(camera.fov)/2;
-    const horizontal=Math.atan(Math.tan(vertical)*Math.max(.28,camera.aspect));
-    const distance=radius/Math.sin(Math.min(vertical,horizontal))*1.045;
+    const distance=cameraDistance(camera.fov,camera.aspect,radius);
     const delta=pos.clone().sub(target);delta.setLength(Math.min(controls.maxDistance-1,Math.max(delta.length(),distance)));
     return target.clone().add(delta);
   }
@@ -1694,13 +1721,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-4.65,4.35,2.85,.80);obstacle(2,-4.60,1.44,.95,.60);
   obstacle(2,4.34,2.68,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,7.87,-4.65,1.81,.60);
   obstacle(2,-8.08,-.10,.73,1.36);obstacle(2,-7.52,4.35,1.85,.74);obstacle(2,4.22,4.28,.48,.66);obstacle(2,-8.05,1.38,.34,.34);
+  obstacle(0,-8.05,-.10,.70,1.32);
   obstacle(2,7.03,2.5,2.72,1.20);obstacle(2,7.85,3.65,.83,.74);obstacle(2,6.50,1.05,.76,.55);obstacle(2,6.05,3.92,.46,.46);
   const RADIUS=.19;
   function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
   function solid(x,z,floor){
     if(x<-8.63||x>8.63||z<-4.94||z>4.94)return true;
-    const eye=elevations[floor]+1.05;
-    if(wallBoxes.some(r=>eye>r.y0&&eye<r.y1&&hitRect(x,z,r)))return true;
+    const foot=elevations[floor]+.05,head=elevations[floor]+1.70;
+    if(wallBoxes.some(r=>head>r.y0+.01&&foot<r.y1-.01&&hitRect(x,z,r)))return true;
     if(furniture.some(r=>r.floor===floor&&hitRect(x,z,r)))return true;
     return doors.some(d=>{
       if(Math.abs(elevations[floor]-d.floor-.175)>.02)return false;
@@ -2058,6 +2086,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     try{({GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js'));}catch(e){modelStatus.textContent='Originalmodelle: Ladebibliothek nicht verfügbar';return;}
     const lines=[];
     for(const spec of modelSpecs){
+      if(spec.target.userData.originalModelLoaded){lines.push(spec.id+': Original bereits geladen');continue;}
       modelStatus.textContent=lines.join(' · ')+(lines.length?' · ':'')+spec.id+' lädt …';
       let model=null;
       // Try known asset CDN naming variants. A failed or late request never replaces the fallback.
@@ -2088,7 +2117,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
       // Remove only after successful replacement. Retain inspectable parent and userData.
       for(const child of fallback)spec.target.remove(child);
-      lines.push(spec.id+': Original');
+      spec.target.userData.originalModelLoaded=true;lines.push(spec.id+': Original');
     }
     modelStatus.textContent=lines.join(' · ');
   }
@@ -2101,7 +2130,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     for(const o of candidates){
       if(o===hiddenShelf.group||o===stove||o.parent===hiddenShelf.group)continue;
       const box=new THREE.Box3().setFromObject(o);
-      if(wallBoxes.some(w=>intersectsWall(box,w,.035)))conflicts.push(o.userData.inspectId||'Regal bei '+o.position.x.toFixed(1)+', '+o.position.z.toFixed(1));
+      if(wallBoxes.some(w=>intersectsWall(box,w,.035)))conflicts.push(o.userData.inspectId||o.userData.editLabel||'Objekt bei '+o.position.x.toFixed(1)+', '+o.position.z.toFixed(1));
     }
     const el=document.getElementById('layoutStatus');
     el.textContent=conflicts.length?'Wandprüfung: '+conflicts.length+' mögliche Überschneidungen · '+conflicts.join(', '):'Wandprüfung: '+candidates.size+' Objektgruppen geprüft, keine gemeldete Überschneidung.';
@@ -2578,7 +2607,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function graphicsSetting(){
     const q=qualityEl.value,coarse=matchMedia('(pointer:coarse)').matches;
     pixelCap=q==='low'?.8:q==='high'?Math.min(devicePixelRatio,1.75):Math.min(devicePixelRatio,coarse?1:1.5);
-    renderer.setPixelRatio(pixelCap);renderer.shadowMap.enabled=q!=='low';renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(pixelCap);renderer.shadowMap.enabled=q!=='low';scene.environment=q==='low'?null:envTex;renderer.setSize(innerWidth,innerHeight);
     try{localStorage.setItem('federfuchs-graphics',q);}catch(e){}
   }
   qualityEl.addEventListener('change',graphicsSetting);graphicsSetting();
@@ -2601,7 +2630,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       const processed=new Set();let n=0;
       const meshes=[];house.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry?.attributes.position?.count>900)meshes.push(o);});
       for(const m of meshes){
-        if(!processed.has(m.geometry)){mod.computeBoundsTree.call(m.geometry);processed.add(m.geometry);}
+        if(!processed.has(m.geometry)){if(!m.geometry.boundsTree)mod.computeBoundsTree.call(m.geometry);processed.add(m.geometry);}
         m.raycast=mod.acceleratedRaycast;n++;
         if(n%12===0)await new Promise(r=>setTimeout(r,0));
       }accelEl.textContent='BVH aktiv · '+n+' komplexe Meshes';
