@@ -38,3 +38,7 @@ Dieser Workflow ist eine technische Vorgabe, noch kein nachgewiesener automatisi
 - Lokaler GLB-Loader, Inventar-Slots, Möbelplatzhalter, Wandprüfung und Editor-Kollisionen sind vorhanden. Bestehende Funktionen erhalten.
 - Browser-Tests und visuelle Abnahme übernimmt ausschließlich der Nutzer. Der Assistent führt statische Prüfungen, Assetvalidierung und Implementierung durch und liefert direkte Versionslinks. Nicht auf Browser-Abnahme warten, um weitere technische Arbeit zu erledigen; keine ungetestete Funktion als visuell bestätigt bezeichnen.
 - Offen: tatsächlicher Drive-Binärtransfer, Treppenmodell A, freie Podeste und Durchgänge, robuste Modellintegration, responsive Beschriftungen, technische Release-Prüfung.
+
+## Version 0.36
+
+[Website](https://astraluxreverie.github.io/federfuchs/?v=036). Quellcode-Commit 3224c3675ad58377fa0248efe39189779e89e003: bordeauxrote Treppenläufer mit Messingstangen und Geländerornamenten auf beiden geraden Läufen; responsive einzeilige Schaltflächen, verbreiterter Werkzeugbereich; versionierte GLB-Abrufe und erneuerter Service-Worker-Cache. Bestehende Treppenöffnungen und Navigation unverändert. Browser-Abnahme durch Nutzer ausstehend. Noch offen: integrierte Treppenregale, Efeu, Laternen, tatsächlicher Drive-Transfer, umfassende Kollisionsprüfung. Veröffentlichung über GitHub Pages nicht unabhängig bestätigt.
