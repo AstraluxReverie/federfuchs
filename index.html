@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.4</title>
+  <title>Zum träumenden Federfuchs – v0.5</title>
   <style>
     :root{
       --bg:#10151b;
@@ -93,16 +93,17 @@
     #toolbar button{padding:8px 9px;font-size:11px}
     #walkHint{display:none!important}
     canvas{touch-action:none}
-  </style>
+  #interactDoor{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:14;background:#352a21e8;border:1px solid #b69a6a}#floorLabel{position:fixed;top:12px;right:12px;z-index:13;padding:7px 10px;border-radius:10px;background:#171a20cc;font-size:12px}#interactDoor[hidden],#floorLabel[hidden]{display:none!important}
+</style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.4 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.5 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.4 · Drehen, zoomen oder frei erkunden</div>
+    <div id="sub">3D-Studie v0.5 · Begehbare Treppen und Türen</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -317,7 +318,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     return m;
   }
 
+  const wallBoxes=[];
   function wall(w,h,d,mat,x,y,z,group=house){
+    wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
     return addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
   }
 
@@ -432,10 +435,19 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const W=18, D=10.5, H=4.5;
   const levels = { cellar:-4.8, shop:0, upper:5.1 };
 
-  // Floors
+  // Two parallel stair flights, each with its own opening and landing.
+  const flights=[{x:-1.43,low:0,high:1},{x:1.43,low:1,high:2}];
+  const elevations=[levels.cellar+.175,levels.shop+.175,levels.upper+.175];
+  const stairHalf=.88, zBottom=3.65,zTop=-3.65;
+  function cutFloor(y,x){
+    const left=x-stairHalf,right=x+stairHalf;
+    function slab(x0,x1,z0,z1){floorSlab(x1-x0,z1-z0,(x0+x1)/2,y,(z0+z1)/2);}
+    slab(-W/2,left,-D/2,D/2);slab(right,W/2,-D/2,D/2);
+    slab(left,right,-D/2,zTop);slab(left,right,zBottom,D/2);
+  }
   floorSlab(W,D,0,levels.cellar,0,stoneMat);
-  floorSlab(W,D,0,levels.shop,0,floorMat);
-  floorSlab(W,D,0,levels.upper,0,floorMat);
+  cutFloor(levels.shop,flights[0].x);
+  cutFloor(levels.upper,flights[1].x);
   floorSlab(W,D,0,9.9,0,plasterMat); // ceiling / roof base
 
   // Outer walls (front open)
@@ -456,12 +468,33 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   });
 
   // Posts
-  [-8.2,0,8.2].forEach(x=>{ post(x,levels.shop+H/2,0,H); post(x,levels.upper+H/2,0,H); post(x,levels.cellar+H/2,0,H); });
+  [-8.2,8.2].forEach(x=>{ post(x,levels.shop+H/2,0,H); post(x,levels.upper+H/2,0,H); post(x,levels.cellar+H/2,0,H); });
 
   // ===== CELLAR =====
   // partitions
-  wall(.22,H, D-1.2,stoneMat, -2.7, levels.cellar+H/2, .1, house);
-  wall(.22,H, D-1.2,stoneMat, 3.4, levels.cellar+H/2, .1, house);
+    // Doorways are actual holes in the partitions.
+  const doors=[];
+  function partitionX(x,y,mat,gaps){
+    const start=-5.06,end=4.95;let prev=start;
+    for(const z of gaps){
+      const a=z-.66,b=z+.66;
+      if(a>prev)wall(.22,H,a-prev,mat,x,y+H/2,(prev+a)/2);
+      wall(.22,H-2.35,b-a,mat,x,y+2.35+(H-2.35)/2,z);
+      makeDoor(x,y,z);prev=b;
+    }
+    if(prev<end)wall(.22,H,end-prev,mat,x,y+H/2,(prev+end)/2);
+  }
+  function makeDoor(x,y,z){
+    const g=new THREE.Group();g.position.set(x,y+.175,z-.62);house.add(g);
+    const leaf=addMesh(new THREE.BoxGeometry(.095,2.13,1.20),woodMat,0,1.065,.61,g);
+    addMesh(new THREE.BoxGeometry(.12,.09,1.22),darkMat,0,.15,.61,g);
+    addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,.095,1.02,1.07,g);
+    addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,-.095,1.02,1.07,g);
+    for(const dz of [-.65,.65])addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+dz);
+    doors.push({g,leaf,x,z,floor:y,open:false});
+  }
+  partitionX(-2.7,levels.cellar,stoneMat,[-2.45,2.05]);
+  partitionX(3.4,levels.cellar,stoneMat,[-2.45,2.05]);
   // archive left
   bookShelf(-6.7, levels.cellar+0.2, -3.3, 2.1, 2.9,.42);
   bookShelf(-6.7, levels.cellar+0.2,  0.1, 2.1, 2.9,.42);
@@ -470,12 +503,12 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.BoxGeometry(.55,.08,.55), paperMat,-4.8,levels.cellar+1,-1.3);
   lamp(-5.2, levels.cellar+3.5, -1.2, 0xffd8a6, 1.7, 8);
   // workshop center
-  table(.2, levels.cellar, -1.1, 1.8,.9,.85);
-  addMesh(new THREE.BoxGeometry(.8,.08,.5), paperMat,.2,levels.cellar+1,-1.1);
-  addMesh(new THREE.BoxGeometry(.38,.45,.38), ironMat,-.7,levels.cellar+0.25,-2.4);
-  addMesh(new THREE.BoxGeometry(1.1,1.4,.75), ironMat,1.15,levels.cellar+0.7,-2.1);
-  bookShelf(.2, levels.cellar+0.2,  2.9, 2.2, 2.9,.45);
-  rug(.2,levels.cellar+.03,1.2,2,1.4); lamp(.35, levels.cellar+3.55, .6, 0xffc98e, 1.8, 9);
+  table(4.75, levels.cellar, -1.1, 1.8,.9,.85);
+  addMesh(new THREE.BoxGeometry(.8,.08,.5), paperMat,4.75,levels.cellar+1,-1.1);
+  addMesh(new THREE.BoxGeometry(.38,.45,.38), ironMat,4.1,levels.cellar+0.25,-2.4);
+  addMesh(new THREE.BoxGeometry(1.1,1.4,.75), ironMat,5.5,levels.cellar+0.7,-2.1);
+  bookShelf(4.9, levels.cellar+0.2, -4.65, 2.2, 2.9,.45);
+  rug(4.9,levels.cellar+.19,1.2,2,1.4); lamp(.35, levels.cellar+3.55, .6, 0xffc98e, 1.8, 9);
   // storage right
   for(let i=0;i<7;i++) addMesh(new THREE.BoxGeometry(1+Math.random()*.45,.5+Math.random()*.45, .9+Math.random()*.35), woodMat, 6+Math.random()*1.3, levels.cellar+.25+Math.random()*.4, -3.5 + i*1.1);
   bookShelf(5.3, levels.cellar+0.2,  2.9, 2.4, 2.9,.42);
@@ -490,10 +523,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // right wall shelving
   for(let z=-3.5; z<=3.5; z+=2.4) bookShelf(8.35, levels.shop+.2, z, 2.25, 3.3, .48).rotation.y=-Math.PI/2;
   // rear wall shelving central
-  for(let x=-4.8; x<=4.8; x+=2.4) bookShelf(x, levels.shop+.2, -4.55, 1.8, 3.3, .38);
+  for(const x of [-6,-4,4,6]) bookShelf(x, levels.shop+.2, -4.75, 1.8, 3.3, .38);
 
   // central aisle rug
-  rug(0, levels.shop+.03, .6, 3.4, 5.5);
+  rug(-4.7, levels.shop+.19, -.1, 2.7, 3.1);
 
   // counter left front
   const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop, 2.65); house.add(counter);
@@ -522,9 +555,26 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   chair(4.4, levels.shop+.45, 1.15, Math.PI*.95);
   table(6.2, levels.shop, 1.95, .8,.5,.45);
 
-  // central staircase and balcony stair to upper
-  stairs(.4, levels.shop+.15, .15, 11, 2.5, 4.8, 4.8, -1);
-  addMesh(new THREE.BoxGeometry(3.1,.15,.7), woodMat, .4, levels.upper+.15, -2.4);
+  // Open stairs with railings and actual floor openings.
+  for(const f of flights){
+    const low=elevations[f.low],high=elevations[f.high],rise=high-low,N=25,run=(zBottom-zTop)/N;
+    for(let i=0;i<N;i++){
+      const y=low+rise*(i+1)/N,z=zBottom-(i+.5)*run;
+      addMesh(new THREE.BoxGeometry(stairHalf*2-.10,.12,run+.015),woodMat,f.x,y-.06,z);
+      addMesh(new THREE.BoxGeometry(stairHalf*2-.14,rise/N,.045),darkMat,f.x,y-rise/N/2,z+run/2-.025);
+    }
+    for(const side of [-1,1]){
+      const x=f.x+side*(stairHalf-.025);
+      for(let i=0;i<=10;i++){const t=i/10,z=zBottom-(zBottom-zTop)*t,y=low+rise*t;addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,x,y+.45,z);}
+      const rail=addMesh(new THREE.BoxGeometry(.075,Math.hypot(rise,zBottom-zTop),.075),woodMat,x,(low+high)/2+.92,(zBottom+zTop)/2);
+      rail.rotation.x=-Math.atan2(zBottom-zTop,rise);
+      for(let i=0;i<=10;i++){const z=zTop+(zBottom-zTop)*i/10;addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,x,high+.45,z);}
+      addMesh(new THREE.BoxGeometry(.075,.075,zBottom-zTop),woodMat,x,high+.92,0);
+    }
+    // The upper end is open for entry; close the other end of the upper opening.
+    addMesh(new THREE.BoxGeometry(stairHalf*2,.075,.075),woodMat,f.x,high+.92,zBottom);
+    for(const side of [-.5,.5])addMesh(new THREE.BoxGeometry(.055,.9,.055),darkMat,f.x+side,high+.45,zBottom);
+  }
 
   // ground windows and entrance suggestion
   simpleWindow(-1.8, levels.shop+2.3, -4.33, 1.8, 1.5);
@@ -538,17 +588,17 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   // ===== UPPER =====
   // hallway central
-  rug(.25, levels.upper+.03, -.2, 2.9, 5.4);
-  // room dividers
-  wall(.22,H, D-1.4,plasterMat, -3.0, levels.upper+H/2, .2, house);
-  wall(.22,H, D-1.4,plasterMat,  2.9, levels.upper+H/2, .2, house);
-  wall(5.6,H,.22,plasterMat, -5.2, levels.upper+H/2, .8, house);
-  wall(5.4,H,.22,plasterMat,  5.2, levels.upper+H/2,-1.5, house);
-  // doors as open frames
-  addMesh(new THREE.BoxGeometry(1.1,2.2,.1), ironMat, -5.2, levels.upper+1.1, .8);
-  addMesh(new THREE.BoxGeometry(1.1,2.2,.1), ironMat,  5.2, levels.upper+1.1,-1.5);
-  addMesh(new THREE.BoxGeometry(.1,2.2,1.1), ironMat, -3.0, levels.upper+1.1, 2.1);
-  addMesh(new THREE.BoxGeometry(.1,2.2,1.1), ironMat,  2.9, levels.upper+1.1, 2.1);
+  rug(-1.43, levels.upper+.19, .0, 1.55, 5.2);
+  // Independent entrances to both sides of the private landing.
+  partitionX(-3.0,levels.upper,plasterMat,[-2.5,2.3]);
+  partitionX(2.9,levels.upper,plasterMat,[-2.5,2.3]);
+  wall(5.8,H,.22,plasterMat,-5.9,levels.upper+H/2,.8);
+  wall(5.8,H,.22,plasterMat,5.9,levels.upper+H/2,-1.5);
+  // Separate bathroom and reading nook with an open internal doorway.
+  wall(.20,H,2.10,plasterMat,5.45,levels.upper+H/2,3.85);
+  wall(.20,H,1.15,plasterMat,5.45,levels.upper+H/2,-.83);
+  wall(.20,H-2.35,1.35,plasterMat,5.45,levels.upper+2.35+(H-2.35)/2,.42);
+  makeDoor(5.45,levels.upper,.42);
 
   // bedroom left rear
   addMesh(new THREE.BoxGeometry(2.5,.55,3.2), new THREE.MeshStandardMaterial({color:0x5f4935, roughness:1}), -6.2, levels.upper+.28, -2.4);
@@ -571,9 +621,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   // bathroom center right front
   addMesh(new THREE.CylinderGeometry(.58,.58,.5,26), new THREE.MeshStandardMaterial({color:0xe6e8eb, roughness:.2}), 4.55, levels.upper+.25, 2.75);
-  addMesh(new THREE.BoxGeometry(.9,1.0,.55), new THREE.MeshStandardMaterial({color:0xeceff2, roughness:.3}), 6.05, levels.upper+.5, 2.85);
-  addMesh(new THREE.BoxGeometry(.82,.06,.5), new THREE.MeshStandardMaterial({color:0xd1d7df, roughness:.3}), 6.05, levels.upper+1.03, 2.85);
-  addMesh(new THREE.CircleGeometry(.26,22), new THREE.MeshStandardMaterial({color:0xc9d7e8, metalness:1, roughness:.2}), 6.05, levels.upper+1.95, 3.05).rotation.y=Math.PI;
+  addMesh(new THREE.BoxGeometry(.9,1.0,.55), new THREE.MeshStandardMaterial({color:0xeceff2, roughness:.3}), 4.25, levels.upper+.5, 1.0);
+  addMesh(new THREE.BoxGeometry(.82,.06,.5), new THREE.MeshStandardMaterial({color:0xd1d7df, roughness:.3}), 4.25, levels.upper+1.03, 1.0);
+  addMesh(new THREE.CircleGeometry(.26,22), new THREE.MeshStandardMaterial({color:0xc9d7e8, metalness:1, roughness:.2}), 4.25, levels.upper+1.95, 1.2).rotation.y=Math.PI;
   lamp(5.35, levels.upper+3.45, 2.3, 0xffe4c4, 1.3, 6);
 
   // writing room right rear
@@ -649,15 +699,16 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     nook:{pos:new THREE.Vector3(11.8,10.2,8.8), target:new THREE.Vector3(6.2,7.7,2.55)},
   };
   const walkSpawns = {
-    shop:{pos:new THREE.Vector3(.2, levels.shop+1.65, 3.2), yaw:0},
-    upper:{pos:new THREE.Vector3(-.2, levels.upper+1.65, .9), yaw:0},
-    cellar:{pos:new THREE.Vector3(.1, levels.cellar+1.65, 2.6), yaw:0},
-    nook:{pos:new THREE.Vector3(6.2, levels.upper+1.65, 1.55), yaw:Math.PI*0.72},
+    shop:{pos:new THREE.Vector3(0, elevations[1]+1.65, 3.95), yaw:0},
+    upper:{pos:new THREE.Vector3(-1.43, elevations[2]+1.65, 3.9), yaw:0},
+    cellar:{pos:new THREE.Vector3(0, elevations[0]+1.65, 3.95), yaw:0},
+    nook:{pos:new THREE.Vector3(6.8, elevations[2]+1.65, 1.25), yaw:0},
   };
   let tween = null;
   let walkMode = false;
   let currentArea = 'overview';
-  const player = {pos:walkSpawns.shop.pos.clone(), yaw:Math.PI, pitch:-0.08, speed:5.2};
+  const player = {pos:walkSpawns.shop.pos.clone(), yaw:Math.PI, pitch:-0.08, speed:2.65};
+  const navigation={floor:1,flight:null};
   const keys = {KeyW:false,KeyA:false,KeyS:false,KeyD:false,ArrowUp:false,ArrowDown:false,ArrowLeft:false,ArrowRight:false};
   const moveStick = {x:0,y:0};
   const lookStick = {x:0,y:0};
@@ -673,7 +724,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(key==='overview' && walkMode){walkMode=false;document.body.classList.remove('walk');controls.enabled=true;toggleWalkBtn.classList.remove('active');toggleWalkBtn.textContent='Freie Bewegung';} currentArea = key; setActiveButton(key);
     if(walkMode && key !== 'overview'){
       const spawn = walkSpawns[key];
-      if(spawn){ player.pos.copy(spawn.pos); player.yaw = spawn.yaw; player.pitch = -0.06; syncWalkCamera(); }
+      if(spawn){ player.pos.copy(spawn.pos); navigation.floor=key==='cellar'?0:key==='shop'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06; syncWalkCamera(); }
       return;
     }
     const v = views[key] || views.overview;
@@ -695,7 +746,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(on){
       if(currentArea === 'overview') currentArea = 'shop';
       const spawn = walkSpawns[currentArea] || walkSpawns.shop;
-      player.pos.copy(spawn.pos); player.yaw = spawn.yaw; player.pitch = -0.06;
+      player.pos.copy(spawn.pos); navigation.floor=currentArea==='cellar'?0:currentArea==='shop'?1:2;navigation.flight=null; player.yaw = spawn.yaw; player.pitch = -0.06;
       syncWalkCamera();
     } else {
       goView(currentArea === 'overview' ? 'overview' : currentArea);
@@ -740,13 +791,62 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   setupStick('movePad', moveStick);
   setupStick('lookPad', lookStick);
 
-  function currentBounds(){
-    if(player.pos.y < -1) return {minX:-8.3,maxX:8.3,minZ:-4.4,maxZ:4.4,y:levels.cellar+1.65};
-    if(player.pos.y > 3.5) {
-      // Free exploration of the entire upper level.
-      return {minX:-8.3,maxX:8.3,minZ:-4.3,maxZ:4.1,y:levels.upper+1.65};
+  // Collision geometry is intentionally conservative for furniture and exact for partition walls.
+  const furniture=[];
+  function obstacle(floor,x,z,w,d){furniture.push({floor,x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});}
+  for(let z=-3.5;z<=3.5;z+=2.4){obstacle(1,-8.35,z,.48,2.25);obstacle(1,8.35,z,.48,2.25);}
+  for(const x of [-6,-4,4,6])obstacle(1,x,-4.75,1.8,.38);
+  obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,1.9);
+  for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
+  obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);
+  obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.65,-3.2,.9,.9);obstacle(2,-6,2.8,2.8,.8);obstacle(2,-4.95,1.55,1.15,.7);
+  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.6,1.9,.85);obstacle(2,7.1,-2.6,1.8,.42);
+  obstacle(2,6.25,2.5,2.7,1.15);obstacle(2,7.85,3.65,.83,.74);obstacle(2,4.7,3.7,.76,.55);
+  const RADIUS=.19;
+  function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
+  function solid(x,z,floor){
+    if(x<-8.63||x>8.63||z<-4.94||z>4.94)return true;
+    const eye=elevations[floor]+1.05;
+    if(wallBoxes.some(r=>eye>r.y0&&eye<r.y1&&hitRect(x,z,r)))return true;
+    if(furniture.some(r=>r.floor===floor&&hitRect(x,z,r)))return true;
+    return doors.some(d=>!d.open&&Math.abs(elevations[floor]-d.floor-.175)<.02&&Math.abs(x-d.x)<.19+RADIUS&&Math.abs(z-d.z)<.61+RADIUS);
+  }
+  function moveNav(n,x,z,dx,dz,collision=solid){
+    let xx=x+dx,zz=z+dz;
+    const margin=.03,half=stairHalf-RADIUS-margin;
+    const near=(f,v)=>Math.abs(v-f.x)<half;
+    if(n.flight!==null){
+      const f=flights[n.flight];xx=Math.max(f.x-half,Math.min(f.x+half,xx));
+      if(zz>zBottom){if(collision(xx,zz,f.low))return {x,z,height:elevations[f.low]};n.floor=f.low;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
+      if(zz<zTop){if(collision(xx,zz,f.high))return {x,z,height:elevations[f.high]};n.floor=f.high;n.flight=null;return {x:xx,z:zz,height:elevations[n.floor]};}
+      const t=(zBottom-zz)/(zBottom-zTop);return {x:xx,z:zz,height:elevations[f.low]+(elevations[f.high]-elevations[f.low])*t};
     }
-    return {minX:-8.2,maxX:8.2,minZ:-4.35,maxZ:4.45,y:levels.shop+1.65};
+    for(let i=0;i<flights.length;i++){
+      const f=flights[i],entryLow=n.floor===f.low&&z>=zBottom&&zz<zBottom,entryHigh=n.floor===f.high&&z<=zTop&&zz>zTop;
+      if(near(f,xx)&&(entryLow||entryHigh)){n.flight=i;const t=Math.max(0,Math.min(1,(zBottom-zz)/(zBottom-zTop)));return {x:xx,z:zz,height:elevations[f.low]+(elevations[f.high]-elevations[f.low])*t};}
+      if((n.floor===f.low||n.floor===f.high)&&Math.abs(xx-f.x)<stairHalf+RADIUS&&zz>zTop&&zz<zBottom)return {x,z,height:elevations[n.floor]};
+    }
+    if(collision(xx,zz,n.floor))return {x,z,height:elevations[n.floor]};
+    return {x:xx,z:zz,height:elevations[n.floor]};
+  }
+  function navigate(dx,dz){
+    // Axis-separated steps allow sliding alongside walls.
+    let result=moveNav(navigation,player.pos.x,player.pos.z,dx,0);
+    result=moveNav(navigation,result.x,result.z,0,dz);
+    player.pos.set(result.x,result.height+1.65,result.z);
+  }
+  const interaction=document.createElement('button');interaction.id='interactDoor';interaction.textContent='Tür öffnen';interaction.hidden=true;document.body.appendChild(interaction);
+  const locationLabel=document.createElement('div');locationLabel.id='floorLabel';locationLabel.hidden=true;document.body.appendChild(locationLabel);
+  function nearestDoor(){return doors.filter(d=>Math.abs(elevations[navigation.floor]-d.floor-.175)<.02&&Math.hypot(player.pos.x-d.x,player.pos.z-d.z)<1.65).sort((a,b)=>Math.hypot(player.pos.x-a.x,player.pos.z-a.z)-Math.hypot(player.pos.x-b.x,player.pos.z-b.z))[0];}
+  function useDoor(){const d=nearestDoor();if(d){if(d.open&&Math.abs(player.pos.x-d.x)<.4&&Math.abs(player.pos.z-d.z)<.85)return;d.open=!d.open;}}
+  interaction.addEventListener('click',useDoor);
+  addEventListener('keydown',e=>{if(walkMode&&e.code==='KeyE'&&!e.repeat)useDoor();});
+  function updateDoors(){
+    for(const d of doors)d.g.rotation.y+=((d.open?-Math.PI/2:0)-d.g.rotation.y)*.14;
+    const d=walkMode&&navigation.flight===null?nearestDoor():null;
+    interaction.hidden=!d; if(d)interaction.textContent=d.open?'Tür schließen · E':'Tür öffnen · E';
+    locationLabel.hidden=!walkMode;
+    if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':['Keller','Antiquariat','Wohnung'][navigation.floor];
   }
 
   // A touch of hidden movement on the secret shelf
@@ -796,13 +896,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       const move = new THREE.Vector3();
       move.addScaledVector(f, forward);
       move.addScaledVector(s, strafe);
-      if(move.lengthSq() > 0){ move.normalize().multiplyScalar(player.speed * dt); player.pos.add(move); }
-      const b = currentBounds();
-      player.pos.x = Math.max(b.minX, Math.min(b.maxX, player.pos.x));
-      player.pos.z = Math.max(b.minZ, Math.min(b.maxZ, player.pos.z));
-      player.pos.y += (b.y - player.pos.y) * 0.25;
+      if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); navigate(move.x,move.z); }
       syncWalkCamera();
     }
+    updateDoors();
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
     hiddenShelf.group.rotation.y = shelfAngle;
     dustPts.rotation.y += 0.0006;
