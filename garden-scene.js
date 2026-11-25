@@ -4,16 +4,20 @@ import {seededRandom} from './world-utils.js';
 export function buildGarden(T,materials){
  const group=new T.Group(),r=seededRandom(300),y=GARDEN.y;
  const mat=(color,roughness=.9)=>new T.MeshStandardMaterial({color,roughness});
- const grass=mat(0x566640),soil=mat(0x453021),leaf=mat(0x466d37),leafLight=mat(0x6c873b),berry=mat(0xa92a2c,.5),flower=mat(0xe9ddba),pot=mat(0x965d43),water= new T.MeshPhysicalMaterial({color:0x739b9b,roughness:.22,metalness:.12,clearcoat:.7,transparent:true,opacity:.85}),wood=materials.wood,stone=materials.stone,iron=materials.iron,paving=materials.paving;
+ const grass=mat(0x78805a),soil=mat(0x453021),leaf=mat(0x466d37),leafLight=mat(0x6c873b),berry=mat(0xa92a2c,.5),flower=mat(0xe9ddba),pot=mat(0x965d43),water= new T.MeshPhysicalMaterial({color:0x739b9b,roughness:.22,metalness:.12,clearcoat:.7,transparent:true,opacity:.85}),wood=materials.wood,stone=materials.stone,iron=materials.iron,paving=materials.paving;
  const mesh=(geo,m,x,yy,z,parent=group)=>{const o=new T.Mesh(geo,m);o.position.set(x,yy,z);o.castShadow=false;o.receiveShadow=true;parent.add(o);return o;};
  const box=(w,h,d,m,x,yy,z,parent=group)=>mesh(new T.BoxGeometry(w,h,d),m,x,yy,z,parent);
  const cyl=(rt,rb,h,m,x,yy,z,parent=group,n=16)=>mesh(new T.CylinderGeometry(rt,rb,h,n),m,x,yy,z,parent);
- // Continuous garden substrate and two distinct surfaces, terrace and central path.
+ // Local surface artwork, intentionally procedural.
+ const canvasMap=(draw,w=512,h=512)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;return t;};
+ const lawnMap=canvasMap((c,w,h)=>{const rr=seededRandom(882);c.fillStyle='#68794d';c.fillRect(0,0,w,h);for(let i=0;i<16000;i++){c.fillStyle=['#42553355','#9fa86d77','#7d905455','#b2a17433'][i%4];c.fillRect(rr()*w,rr()*h,1+rr()*3,2+rr()*8);}});
+ grass.map=lawnMap;grass.color.setHex(0xffffff);lawnMap.repeat.set(9,6);
+ const terraceTex=canvasMap((c,w,h)=>{const rr=seededRandom(166);c.fillStyle='#7c7467';c.fillRect(0,0,w,h);for(let j=0;j<6;j++)for(let i=-1;i<5;i++){const x=(i+(j%2)*.5)*128,z=j*h/6,v=145+Math.floor(rr()*35);c.fillStyle='rgb('+v+','+(v-9)+','+(v-22)+')';c.fillRect(x+2,z+2,124,h/6-4);for(let k=0;k<140;k++){c.fillStyle=k%2?'#fbebc515':'#50473b20';c.fillRect(x+4+rr()*120,z+4+rr()*(h/6-8),1+rr()*6,1+rr()*3);}}});
+ const terrace=mat(0xffffff,.81);terrace.map=terraceTex;terrace.bumpMap=terraceTex;terrace.bumpScale=.014;
+ function path(w,d,x,z){const o=box(w,.035,d,terrace,x,y+.012,z);const p=o.geometry.attributes.position,uv=o.geometry.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,(p.getX(i)+x)/2.4,(p.getZ(i)+z)/2.1);return o;}
+ // Continuous garden substrate and non-overlapping paving sections.
  box(17.6,.26,11.075,grass,0,y-.13,-10.9625);
- box(17.6,.045,3.0,paving,0,y+.01,-6.925);
- box(1.65,.045,8.0,paving,0,y+.01,-11.5);
- box(4.8,.045,4.3,paving,4.5,y+.01,-8.5);
- box(5.0,.045,1.05,paving,4.05,y+.01,-13.05);
+ path(17.6,3,0,-6.925);path(1.65,7.8,0,-12.325);path(4.8,2.225,4.5,-9.5375);path(5.0,1.05,4.05,-13.05);
  // Thick privacy wall with coping and a permanently closed garden gate.
  for(const side of [-1,1]){
   box(.30,2.0,11.075,stone,side*8.8,y+1,-10.9625);
@@ -50,10 +54,25 @@ export function buildGarden(T,materials){
  cyl(.10,.16,.57,stone,0,y+.49,-12.5);cyl(.24,.10,.12,stone,0,y+.79,-12.5);
  const rings=[];for(let i=0;i<3;i++){const m=new T.MeshBasicMaterial({color:0xc5d7cb,transparent:true,opacity:.26,depthWrite:false});const o=mesh(new T.TorusGeometry(1,.015,6,32),m,0,y+.288,-12.5);o.rotation.x=-Math.PI/2;rings.push(o);}
  const stream=mesh(new T.CylinderGeometry(.023,.035,.36,10),water,0,y+1.01,-12.5);
- // Small storage shed and dog shelter (closed storage building, not a new room).
- box(3.1,2.15,2.5,wood,6.75,y+1.075,-14.7);
+ const dropletPositions=new Float32Array(72*3),dropGeo=new T.BufferGeometry();dropGeo.setAttribute('position',new T.BufferAttribute(dropletPositions,3));const drops=new T.Points(dropGeo,new T.PointsMaterial({color:0xaed8dc,size:.026,transparent:true,opacity:.75,depthWrite:false}));drops.frustumCulled=false;group.add(drops);
+ // Walk-in timber shed with true doorway and interior storage.
+ for(const x of [5.27,8.23])box(.14,2.15,2.5,wood,x,y+1.075,-14.7);
+ box(3.1,2.15,.14,wood,6.75,y+1.075,-15.88);
+ for(const x of [5.645,7.855])box(.89,2.15,.14,wood,x,y+1.075,-13.45);
+ box(1.32,.19,.14,wood,6.75,y+2.055,-13.45);
+ box(2.82,.025,2.22,wood,6.75,y+.014,-14.7);
+ const shedHinge=new T.Group();shedHinge.position.set(6.13,y,-13.45);group.add(shedHinge);
+ const shedLeaf=box(1.24,1.94,.085,wood,.62,.97,0,shedHinge);
+ for(const z of [-.05,.05]){for(const yy of [.22,1.70])box(1.17,.085,.035,iron,.62,yy,z,shedHinge);mesh(new T.SphereGeometry(.045,10,8),iron,1.08,1.0,z*2,shedHinge);}
+ const shedDoor={g:shedHinge,leaf:shedLeaf,x:6.75,z:-13.45,floor:y-.175,open:false,axis:'z',secret:false};
+ for(const yy of [.55,1.18,1.80]){box(2.45,.075,.48,wood,6.75,y+yy,-15.47);for(const x of [5.65,7.85])box(.065,.65,.42,wood,x,y+yy-.32,-15.47);}
+ for(let i=0;i<4;i++){cyl(.17,.12,.23,pot,5.95+i*.44,y+.70,-15.47);cyl(.15,.15,.02,soil,5.95+i*.44,y+.82,-15.47);}
+ for(let i=0;i<3;i++)box(.40,.26,.32,wood,6.25+i*.48,y+1.35,-15.47);
+ box(.43,.65,.80,wood,7.95,y+.325,-14.55);for(const z of [-14.75,-14.37]){const tool=cyl(.025,.025,1.35,wood,8.02,y+.85,z,group,8);tool.rotation.z=.14;box(.18,.25,.04,iron,8.1,y+.24,z);}
+ const shedLamp=mesh(new T.SphereGeometry(.065,10,8),new T.MeshBasicMaterial({color:0xffd5a4}),6.75,y+1.93,-14.7);
+ const shedLight=new T.PointLight(0xffcf91,1.6,3.5,2);shedLight.position.copy(shedLamp.position);group.add(shedLight);
  const roof=new T.Shape();roof.moveTo(-1.68,0);roof.lineTo(0,.65);roof.lineTo(1.68,0);roof.closePath();const rg=new T.ExtrudeGeometry(roof,{depth:2.73,bevelEnabled:false});rg.translate(0,0,-1.365);mesh(rg,materials.roof,6.75,y+2.15,-14.7);
- box(.83,1.83,.08,wood,6.75,y+.93,-13.41);box(.055,1.72,.10,iron,6.43,y+.93,-13.35);mesh(new T.SphereGeometry(.04,8,6),iron,7.02,y+.97,-13.34);
+ for(const x of [6.06,7.44])box(.08,2.02,.19,wood,x,y+1.01,-13.45);box(1.46,.085,.19,wood,6.75,y+2.01,-13.45);
  box(1.2,.62,1.1,wood,-7.65,y+.31,-15.15);box(.60,.42,.03,mat(0x282321),-7.65,y+.23,-14.58);box(1.38,.09,1.28,materials.roof,-7.65,y+.66,-15.15);
  box(1.5,.12,.85,wood,7.3,y+.06,-11.7);box(1.40,.13,.75,mat(0x817657),7.3,y+.185,-11.7);
  // Dense but cheap greenery on the pergola and privacy walls.
@@ -62,6 +81,6 @@ export function buildGarden(T,materials){
  const dummy=new T.Object3D(),batch=(geo,m,arr,scale)=>{const o=new T.InstancedMesh(geo,m,arr.length);arr.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.a,0);dummy.scale.set(p.s*scale[0],p.s*scale[1],p.s*scale[2]);dummy.updateMatrix();o.setMatrixAt(i,dummy.matrix);});o.instanceMatrix.needsUpdate=true;o.receiveShadow=true;group.add(o);return o;};
  batch(new T.SphereGeometry(1,7,5),leaf,plants,[1.6,.33,.8]);batch(new T.SphereGeometry(1,8,6),berry,fruit,[.82,1.13,.82]);batch(new T.SphereGeometry(1,6,4),flower,blossoms,[1,.25,1]);batch(new T.SphereGeometry(1,6,5),leafLight,ivy,[1.25,.6,1]);
  const lights=[];for(const x of [2.55,6.45]){const bulb=mesh(new T.SphereGeometry(.075,10,8),new T.MeshBasicMaterial({color:0xffc788}),x,y+2.45,-8.35);const l=new T.PointLight(0xffc788,2.0,4,2);l.position.copy(bulb.position);group.add(l);lights.push(l);}
- function update(t,mood){for(let i=0;i<rings.length;i++){const a=(t*.35+i/3)%1;rings[i].scale.set(.12+a*.37,.12+a*.37,1);rings[i].material.opacity=.25*(1-a);}stream.scale.x=1+.08*Math.sin(t*9);for(const l of lights)l.intensity=mood==='day'?.3:2.0;}
- return {group,update,stats:{beds:GARDEN_BEDS.length,plants:plants.length,berries:fruit.length,blossoms:blossoms.length,ivy:ivy.length}};
+ function update(t,mood){for(let i=0;i<rings.length;i++){const a=(t*.35+i/3)%1;rings[i].scale.set(.12+a*.37,.12+a*.37,1);rings[i].material.opacity=.25*(1-a);}stream.scale.x=1+.08*Math.sin(t*9);for(let i=0;i<72;i++){const u=(t*.8+i/72)%1,a=i*2.39996,rad=.03+.43*u;dropletPositions[i*3]=Math.cos(a)*rad;dropletPositions[i*3+1]=y+.28+Math.sin(Math.PI*u)*.66;dropletPositions[i*3+2]=-12.5+Math.sin(a)*rad;}dropGeo.attributes.position.needsUpdate=true;shedLight.intensity=mood==='day'?.7:1.6;for(const l of lights)l.intensity=mood==='day'?.3:2.0;}
+ return {group,update,shedDoor,stats:{beds:GARDEN_BEDS.length,plants:plants.length,berries:fruit.length,blossoms:blossoms.length,ivy:ivy.length}};
 }
