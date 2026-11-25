@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.15</title>
+  <title>Zum träumenden Federfuchs – v0.16</title>
   <style>
     :root{
       --bg:#10151b;
@@ -173,7 +173,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.15 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.16 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -188,7 +188,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.15 · Einrichtungsmodus</div>
+    <div id="sub">3D-Studie v0.16 · Restaurierung & Alltag</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -464,10 +464,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const wallBoxes=[],visualWalls=[];
   function wallAttachment(o,floor,facadeSide=null,kind='attachment'){o.userData.cutaway={floor,facadeSide,kind};return o;}
   function wall(w,h,d,mat,x,y,z,group=house){
+    const originalBottom=y-h/2,originalTop=y+h/2;
+    const levelList=[-4.8,0,5.1],ceilingList=[-.175,4.925,9.725];
+    const levelIndex=levelList.findIndex(v=>originalBottom>=v-.002&&originalTop<=v+4.5+.002);
+    if(levelIndex>=0&&Math.abs(originalTop-levelList[levelIndex]-4.5)<.002){h=ceilingList[levelIndex]-originalBottom;y=originalBottom+h/2;}
     wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
     const m=addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
     const floor=y<-.15?0:y<5.05?1:2;
-    const side=Math.abs(x)>8.9?(x<0?'left':'right'):z<-5.15?'back':null;
+    const side=Math.abs(x)>8.9?(x<0?'left':'right'):z<-5.15?'back':z>5.15?'front':null;
     m.userData.cutaway={floor,facadeSide:side,kind:'wall'};
     visualWalls.push({m,y,h,base:y-h/2,scaleY:m.scale.y});return m;
   }
@@ -713,6 +717,20 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   cutFloor(levels.shop,flights[0].x);
   cutFloor(levels.upper,flights[1].x);
   const roofSlab=floorSlab(W,D,0,9.9,0,plasterMat);roofSlab.userData.roof=true; // ceiling / roof base
+  const actualRoof=new THREE.Group();actualRoof.userData.roof=true;house.add(actualRoof);
+  const roofSlate=new THREE.MeshStandardMaterial({color:0x383b44,roughness:.92});
+  const roofRise=3.15,roofRun=D/2+.28,roofSlope=Math.atan2(roofRise,roofRun);
+  for(const sign of [-1,1]){
+    const roofPanel=addMesh(new THREE.BoxGeometry(W+.58,.18,Math.hypot(roofRun,roofRise)),roofSlate,0,10.02+roofRise/2,sign*roofRun/2,actualRoof);
+    roofPanel.rotation.x=sign*roofSlope;
+    // Thin slate courses are instanced rather than hundreds of individual draw calls.
+    const rows=14,slateGeo=new THREE.BoxGeometry(W+.60,.027,.028),courses=new THREE.InstancedMesh(slateGeo,darkMat,rows);
+    const o=new THREE.Object3D();for(let j=0;j<rows;j++){const t=(j+.5)/rows;o.position.set(0,10.13+roofRise*(1-t),sign*roofRun*t);o.updateMatrix();courses.setMatrixAt(j,o.matrix);}actualRoof.add(courses);
+  }
+  const gable=new THREE.Shape();gable.moveTo(-D/2,0);gable.lineTo(0,roofRise);gable.lineTo(D/2,0);gable.closePath();
+  for(const side of [-1,1]){const m=addMesh(new THREE.ExtrudeGeometry(gable,{depth:.21,bevelEnabled:false}),plasterMat,side*(W/2-.10),10.02,0,actualRoof);m.rotation.y=Math.PI/2;}
+  addMesh(new THREE.BoxGeometry(.72,2.0,.72),stoneMat,7.85,12.34,3.65,actualRoof);
+  addMesh(new THREE.BoxGeometry(.93,.15,.93),stoneMat,7.85,13.38,3.65,actualRoof);
 
   // Build real window openings instead of placing glass in front of a solid wall.
   function perforatedWall(axis,at,lo,hi,base,mat,openings){
@@ -752,7 +770,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const openings=facadeWindows.filter(v=>v.axis===axis&&v.at===at&&v.floor===floor).map(v=>({center:v.center,y:v.y,w:v.w-.08,h:v.h-.08}));
     perforatedWall(axis,at,-half,half,baseByFloor[floor],mat,[...openings,...extra]);
   }
-  // Outer walls (front open)
+  // Exterior walls: the front can now be cut away, but exists in walk mode.
   facade('z',-D/2,1,plasterMat);
   facade('x',-W/2,1,plasterMat);
   facade('x',W/2,1,plasterMat);
@@ -772,6 +790,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   wall(W,H,.35,stoneMat,0,levels.cellar+H/2,-D/2,house);
   facade('x',-W/2,0,stoneMat);
   facade('x',W/2,0,stoneMat);
+  facade('z',D/2,0,stoneMat);
+  facade('z',D/2,1,plasterMat,[{center:0,w:1.55,y:levels.shop+1.35,h:2.35}]);
+  facade('z',D/2,2,plasterMat);
 
   for(const v of facadeWindows){
     if(v.axis==='z')wallAttachment(simpleWindow(v.center,v.y,v.at,v.w,v.h),v.floor,'back');
@@ -802,27 +823,32 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     }
     if(prev<end)wall(.22,H,end-prev,mat,x,y+H/2,(prev+end)/2);
   }
-  function makeDoor(x,y,z){
-    const g=new THREE.Group();g.position.set(x,y+.175,z-.62);house.add(g);
-    const leaf=addMesh(new THREE.BoxGeometry(.095,2.13,1.20),woodMat,0,1.065,.61,g);
-    addMesh(new THREE.BoxGeometry(.12,.09,1.22),darkMat,0,.15,.61,g);
-    addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,.095,1.02,1.07,g);
-    addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,-.095,1.02,1.07,g);
-    const floor=baseByFloor.indexOf(y);wallAttachment(g,floor,null,'door');
-    for(const dz of [-.65,.65])wallAttachment(addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+dz),floor,null,'door');
-    doors.push({g,leaf,x,z,floor:y,open:false});
+  function makeDoor(x,y,z,options={}){
+    const axis=options.axis||'x',secret=!!options.secret;
+    const g=new THREE.Group();g.position.set(axis==='z'?x-.62:x,y+.175,axis==='z'?z:z-.62);house.add(g);
+    const leaf=axis==='z'?addMesh(new THREE.BoxGeometry(1.20,2.13,.095),woodMat,.61,1.065,0,g):addMesh(new THREE.BoxGeometry(.095,2.13,1.20),woodMat,0,1.065,.61,g);
+    if(secret){leaf.visible=false;const shelf=bookShelf(0,0,.61,1.20,2.13,.24,g);shelf.rotation.y=-Math.PI/2;}
+    
+    if(!secret){
+      if(axis==='z'){addMesh(new THREE.BoxGeometry(1.16,.09,.12),darkMat,.61,.15,0,g);for(const side of [-1,1])addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,1.07,1.02,side*.095,g);}
+      else{addMesh(new THREE.BoxGeometry(.12,.09,1.22),darkMat,0,.15,.61,g);for(const side of [-1,1])addMesh(new THREE.SphereGeometry(.045,12,10),brassMat,side*.095,1.02,1.07,g);}
+    }else addMesh(new THREE.SphereGeometry(.038,10,8),brassMat,-.16,1.08,1.07,g);
+    const floor=baseByFloor.indexOf(y),side=options.side||null;wallAttachment(g,floor,side,'door');
+    for(const offset of [-.65,.65])wallAttachment(axis==='z'?addMesh(new THREE.BoxGeometry(.095,2.35,.30),woodMat,x+offset,y+1.175,z):addMesh(new THREE.BoxGeometry(.30,2.35,.095),woodMat,x,y+1.175,z+offset),floor,side,'door');
+    const door={g,leaf,x,z,floor:y,open:false,axis,secret};doors.push(door);return door;
   }
+  const entranceDoor=makeDoor(0,levels.shop,D/2,{axis:'z',side:'front'});
   partitionX(-2.7,levels.cellar,stoneMat,[-2.45,2.05]);
   partitionX(3.4,levels.cellar,stoneMat,[-2.45,2.05]);
   // archive left
   bookShelf(-6.7, levels.cellar+0.2, -3.3, 2.1, 2.9,.42);
   bookShelf(-6.7, levels.cellar+0.2,  0.1, 2.1, 2.9,.42);
   bookShelf(-6.7, levels.cellar+0.2,  3.3, 2.1, 2.9,.42);
-  table(-4.8, levels.cellar, -1.3, 1.4,.75,.84); chair(-5.15,levels.cellar,-.45,Math.PI*.2); chair(-4.45,levels.cellar,-.45,-Math.PI*.18);
+  table(-4.8, levels.cellar+.175, -1.3, 1.4,.75,.84); chair(-5.15,levels.cellar+.175,-.45,Math.PI*.2); chair(-4.45,levels.cellar+.175,-.45,-Math.PI*.18);
 
   lamp(-5.2, levels.cellar+3.5, -1.2, 0xffd8a6, 1.7, 8);
   // workshop center
-  table(4.75, levels.cellar, -1.1, 1.8,.9,.85);
+  table(4.75, levels.cellar+.175, -1.1, 1.8,.9,.85);
 
   addMesh(new THREE.BoxGeometry(.38,.45,.38), ironMat,4.1,levels.cellar+0.25,-2.4);
   addMesh(new THREE.BoxGeometry(1.1,1.4,.75), ironMat,5.5,levels.cellar+0.7,-2.1);
@@ -848,18 +874,16 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   rug(-4.7, levels.shop+.19, -.1, 2.7, 3.1);
 
   // counter left front
-  const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop, 2.65); house.add(counter);markEditable(counter,'counter','Verkaufstresen');
+  const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop+.175, 2.65); house.add(counter);markEditable(counter,'counter','Verkaufstresen');
   addMesh(new THREE.BoxGeometry(2.6,1.15,.95), woodMat,0,.58,0,counter);
   addMesh(new THREE.BoxGeometry(2.6,.18,1.02), darkMat,0,1.11,0,counter);
 
 
 
   addMesh(new THREE.CylinderGeometry(.16,.16,.02,24), new THREE.MeshStandardMaterial({color:0xcfd7e0,roughness:.2,metalness:1}), -1.05,1.23,.12,counter);
-  // louie bed-ish shape
-  addMesh(new THREE.CylinderGeometry(.62,.62,.14,24), new THREE.MeshStandardMaterial({color:0x6f4e37, roughness:1}), -6.55, levels.shop+.08, 3.75);
-  addMesh(new THREE.SphereGeometry(.28,18,14), new THREE.MeshStandardMaterial({color:0xb79267, roughness:1}), -6.58, levels.shop+.33, 3.75);
-  addMesh(new THREE.SphereGeometry(.12,16,12), new THREE.MeshStandardMaterial({color:0x584134, roughness:1}), -6.38, levels.shop+.4, 3.88);
-  addMesh(new THREE.SphereGeometry(.1,16,12), new THREE.MeshStandardMaterial({color:0x584134, roughness:1}), -6.8, levels.shop+.44, 3.88);
+  // Louie's sleeping basket (animal model added with inhabitants below).
+  addMesh(new THREE.CylinderGeometry(.62,.62,.14,32),new THREE.MeshStandardMaterial({color:0x6f4e37,roughness:1}),-6.55,levels.shop+.245,3.75);
+  addMesh(new THREE.CylinderGeometry(.55,.55,.07,32),fabricBlueMat,-6.55,levels.shop+.35,3.75);
 
   // stage right front
   addMesh(new THREE.BoxGeometry(2.35,.45,1.9), woodMat, 5.1, levels.shop+.23, 2.9);
@@ -914,35 +938,45 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   partitionX(2.9,levels.upper,plasterMat,[-2.5,2.3]);
   wall(5.8,H,.22,plasterMat,-5.9,levels.upper+H/2,.8);
   wall(5.8,H,.22,plasterMat,5.9,levels.upper+H/2,-1.5);
-  // Separate bathroom and reading nook with an open internal doorway.
-  wall(.20,H,2.10,plasterMat,5.45,levels.upper+H/2,3.85);
-  wall(.20,H,1.15,plasterMat,5.45,levels.upper+H/2,-.83);
-  wall(.20,H-2.35,1.35,plasterMat,5.45,levels.upper+2.35+(H-2.35)/2,.42);
-  makeDoor(5.45,levels.upper,.42);
+  // Continuous bathroom partition with a bookshelf fitted into the actual doorway.
+  wall(.20,H,4.00,plasterMat,5.45,levels.upper+H/2,3.08);
+  wall(.20,H,1.15,plasterMat,5.45,levels.upper+H/2,-.815);
+  wall(.20,H-2.35,1.32,plasterMat,5.45,levels.upper+2.35+(H-2.35)/2,.42);
+  const secretDoor=makeDoor(5.45,levels.upper,.42,{secret:true});
+  // Separate WC at the far end of the bathroom, with a real cross-wall door.
+  wall(.51,H,.19,plasterMat,3.275,levels.upper+H/2,3.50);
+  wall(.47,H,.19,plasterMat,5.115,levels.upper+H/2,3.50);
+  wall(1.32,H-2.35,.19,plasterMat,4.19,levels.upper+2.35+(H-2.35)/2,3.50);
+  makeDoor(4.19,levels.upper,3.50,{axis:'z'});
+  // Kitchen and a separate compact living room with a connecting door.
+  wall(.20,H,.58,plasterMat,-6.15,levels.upper+H/2,1.20);
+  wall(.20,H,2.47,plasterMat,-6.15,levels.upper+H/2,3.84);
+  wall(.20,H-2.35,1.32,plasterMat,-6.15,levels.upper+2.35+(H-2.35)/2,2.15);
+  makeDoor(-6.15,levels.upper,2.15);
 
   // bedroom left rear
-  addMesh(new THREE.BoxGeometry(2.5,.55,3.2), new THREE.MeshStandardMaterial({color:0x5f4935, roughness:1}), -6.2, levels.upper+.28, -2.4);
-  addMesh(new THREE.BoxGeometry(2.35,.28,3.0), fabricBlueMat, -6.2, levels.upper+.63, -2.4);
-  addMesh(new THREE.BoxGeometry(2.15,.14,2.8), cushionMat, -6.2, levels.upper+.79, -2.4);
-  addMesh(new THREE.BoxGeometry(.8,.18,.48), paperMat, -7.3, levels.upper+.78, -3.3);
+  addMesh(new THREE.BoxGeometry(2.5,.55,3.2), new THREE.MeshStandardMaterial({color:0x5f4935, roughness:1}), -6.2, levels.upper+.45, -2.4);
+  addMesh(new THREE.BoxGeometry(2.35,.28,3.0), fabricBlueMat, -6.2, levels.upper+.80, -2.4);
+  addMesh(new THREE.BoxGeometry(2.15,.14,2.8), cushionMat, -6.2, levels.upper+.96, -2.4);
+  addMesh(new THREE.BoxGeometry(.8,.18,.48), paperMat, -6.85, levels.upper+1.03, -3.48);
   addMesh(new THREE.BoxGeometry(.9,.58,.9), woodMat, -4.36, levels.upper+.465, -3.2);
   // Window positioned by facade registry.
   lamp(-5.0, levels.upper+3.55, -2.6, 0xffd8ad, 1.9, 8);
 
   // kitchen left front
-  addMesh(new THREE.BoxGeometry(2.8,.9,.75), new THREE.MeshStandardMaterial({color:0x8c877d, roughness:1}), -6.0, levels.upper+.45, 2.8);
-  addMesh(new THREE.BoxGeometry(2.85,.08,.8), woodMat, -6.0, levels.upper+.94, 2.8);
-  addMesh(new THREE.BoxGeometry(.8,.1,.58), ironMat,-6.95,levels.upper+.99,2.82);
-  addMesh(new THREE.BoxGeometry(.55,.02,.55), new THREE.MeshStandardMaterial({color:0x3f4b57, roughness:.9}), -5.1, levels.upper+.99, 2.82);
-  table(-4.95, levels.upper, 1.55, 1.15,.7,.8); chair(-5.4,levels.upper,2.05,-Math.PI*.2); chair(-4.55,levels.upper,2.0,Math.PI*.2);
+  addMesh(new THREE.BoxGeometry(2.8,.9,.75), new THREE.MeshStandardMaterial({color:0x8c877d, roughness:1}), -4.65, levels.upper+.625, 4.35);
+  addMesh(new THREE.BoxGeometry(2.85,.08,.8), woodMat, -4.65, levels.upper+1.115, 4.35);
+  addMesh(new THREE.BoxGeometry(.8,.1,.58), ironMat,-5.60,levels.upper+1.165,4.37);
+  addMesh(new THREE.BoxGeometry(.55,.02,.55), new THREE.MeshStandardMaterial({color:0x3f4b57, roughness:.9}), -3.78, levels.upper+1.165, 4.37);
+  table(-4.60, levels.upper+.175, 1.44, .95,.60,.80); chair(-4.58,levels.upper+.175,2.08,Math.PI);
 
   lamp(-5.4, levels.upper+3.55, 1.55, 0xffd2a1, 1.8, 8);
 
   // bathroom center right front
-  addMesh(new THREE.CylinderGeometry(.58,.58,.5,26), new THREE.MeshStandardMaterial({color:0xe6e8eb, roughness:.2}), 4.55, levels.upper+.25, 2.75);
-  addMesh(new THREE.BoxGeometry(.9,1.0,.55), new THREE.MeshStandardMaterial({color:0xeceff2, roughness:.3}), 4.25, levels.upper+.5, 1.0);
-  addMesh(new THREE.BoxGeometry(.82,.06,.5), new THREE.MeshStandardMaterial({color:0xd1d7df, roughness:.3}), 4.25, levels.upper+1.03, 1.0);
-  addMesh(new THREE.CircleGeometry(.26,22), new THREE.MeshStandardMaterial({color:0xc9d7e8, metalness:1, roughness:.2}), 4.25, levels.upper+1.95, 1.2).rotation.y=Math.PI;
+  addMesh(new THREE.CylinderGeometry(.58,.58,.5,26), new THREE.MeshStandardMaterial({color:0xe6e8eb, roughness:.2}), 4.34, levels.upper+.425, 2.68);
+  addMesh(new THREE.BoxGeometry(.9,1.0,.55), new THREE.MeshStandardMaterial({color:0xeceff2, roughness:.3}), 4.25, levels.upper+.675, 1.0);
+  addMesh(new THREE.BoxGeometry(.82,.06,.5), new THREE.MeshStandardMaterial({color:0xd1d7df, roughness:.3}), 4.25, levels.upper+1.205, 1.0);
+  addMesh(new THREE.CircleGeometry(.26,22), new THREE.MeshStandardMaterial({color:0xc9d7e8, metalness:1, roughness:.2}), 4.25, levels.upper+1.95, -.0).rotation.y=0;
   lamp(5.35, levels.upper+3.45, 2.3, 0xffe4c4, 1.3, 6);
 
   // writing room right rear
@@ -954,7 +988,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Window positioned by facade registry.
 
   // secret reading nook far right upper
-  const hiddenShelf = bookcaseDoor(8.15, levels.upper+.05, .65);
+  const hiddenShelf = {group:secretDoor.g};
   // Window positioned by facade registry.
   // Sofa geometry is built below as individual upholstered components.
   const clockStand=table(6.05,levels.upper+.175,3.92,.46,.46,.51);
@@ -999,12 +1033,12 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const sofaParts=house.children.slice(sofaStart);for(const child of sofaParts)child.position.x+=.78;
   const editableSofa=new THREE.Group();editableSofa.position.set(7.03,sy+.175,2.5);house.add(editableSofa);house.updateMatrixWorld(true);for(const child of sofaParts)editableSofa.attach(child);markEditable(editableSofa,'sofa','Blaues Chesterfield-Sofa');
   // decorative cat-like fox sign on shop rear? small logo suggestion
-  addMesh(new THREE.BoxGeometry(1.4,.9,.07), woodMat, 0.0, levels.shop+2.15, -4.05);
+  // The wall-mounted shop sign replaces the decorative floating placeholder.
 
   // roof lantern stained glass glow
   // Omit unsupported decorative roof glass; the roof is a continuous slab.
   const skylightGlow = new THREE.PointLight(0xf4d6a5, 2.4, 14, 2);
-  skylightGlow.position.set(0,10.2,-1.0); skylightGlow.castShadow = false; house.add(skylightGlow);
+  skylightGlow.position.set(0,10.2,-1.0); skylightGlow.castShadow = false; // no unsupported light through the solid roof
 
   // Extra details: timber ceiling beams, reading corner, stove, framed sign.
   for(const y of [levels.shop,levels.upper]){
@@ -1060,7 +1094,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   signCtx.strokeStyle='#b08d58';signCtx.lineWidth=12;signCtx.strokeRect(16,16,992,352);
   signCtx.fillStyle='#e7d6b4';signCtx.textAlign='center';signCtx.font='54px Georgia';signCtx.fillText('Zum träumenden',512,145);signCtx.font='bold 88px Georgia';signCtx.fillText('Federfuchs',512,254);
   const signTex=new THREE.CanvasTexture(signCanvas);signTex.colorSpace=THREE.SRGBColorSpace;
-  addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-4.28);
+  addMesh(new THREE.PlaneGeometry(3.05,1.12),new THREE.MeshStandardMaterial({map:signTex,roughness:.85}),0,levels.shop+3.72,-5.055);
   // Architectural details around window frames and walls; nothing added in the stair routes.
   // Window frames and sills now share the facade window registry.
   for(const y of [levels.shop,levels.upper]){
@@ -1109,30 +1143,30 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     return b;
   }
   // Shop: a real-shaped brass service bell, ledger, mechanical till and miniature armillary.
-  const bell=artifact('bell','Die Ladenglocke','Eine kleine Messingglocke mit abgewetztem Knopf. Sie ruft die Antiquare aus dem hinteren Teil des Ladens.',-3.54,1.215,2.80);
+  const bell=artifact('bell','Die Ladenglocke','Eine kleine Messingglocke mit abgewetztem Knopf. Sie ruft die Antiquare aus dem hinteren Teil des Ladens.',-3.54,1.390,2.80);
   lathe(bell,[[0,0],[.095,0],[.107,.014],[.095,.025],[.077,.038],[.069,.073],[.045,.103],[.018,.111],[0,.111]],antiqueBrass);
   lathe(bell,[[.018,.109],[.018,.14],[.031,.15],[.028,.166],[0,.169]],brassMat);
-  const ledger=artifact('ledger','Das Kassenbuch','Zwischen den handgezogenen Spalten stehen Eingänge, Verkäufe und Titel. Ein blaues Stoffband markiert die heutige Seite.',-4.28,1.205,2.65,-.16);
+  const ledger=artifact('ledger','Das Kassenbuch','Zwischen den handgezogenen Spalten stehen Eingänge, Verkäufe und Titel. Ein blaues Stoffband markiert die heutige Seite.',-4.28,1.380,2.65,-.16);
   folio(ledger,.35,.27,.046,0,0,0,burgundy);
   const ledgerTex=printTexture(512,512,(c,w,h)=>{c.fillStyle='#e7d8b8';c.fillRect(0,0,w,h);c.strokeStyle='#b29b75';c.lineWidth=2;for(let y=48;y<h-15;y+=34){c.beginPath();c.moveTo(15,y);c.lineTo(w-15,y);c.stroke();}for(const x of [60,256,408]){c.beginPath();c.moveTo(x,20);c.lineTo(x,h-20);c.stroke();}c.fillStyle='#5d4736';c.font='italic 24px Georgia';c.fillText('Eingänge · November',25,35);});
   addMesh(new THREE.PlaneGeometry(.33,.25),new THREE.MeshStandardMaterial({map:ledgerTex,roughness:1}),0,.053,0,ledger,false,true).rotation.x=-Math.PI/2;
   addMesh(new THREE.BoxGeometry(.018,.004,.29),inkBlue,.06,.059,.025,ledger);
-  const till=artifact('till','Die alte Registrierkasse','Eine mechanische Kasse mit kleinen Messingtasten und einer Schublade aus dunklem Holz.',-5.16,1.205,2.53,.10);
+  const till=artifact('till','Die alte Registrierkasse','Eine mechanische Kasse mit kleinen Messingtasten und einer Schublade aus dunklem Holz.',-5.16,1.380,2.53,.10);
   addMesh(new THREE.BoxGeometry(.48,.115,.36),woodMat,0,.057,0,till);
   addMesh(new THREE.BoxGeometry(.44,.21,.20),blackened,0,.22,-.07,till);
   const keyboard=addMesh(new THREE.BoxGeometry(.43,.055,.19),antiqueBrass,0,.145,.11,till);keyboard.rotation.x=-.30;
   for(let a=0;a<3;a++)for(let b=0;b<6;b++)addMesh(new THREE.CylinderGeometry(.021,.021,.016,10),ivory,-.165+b*.065,.177+a*.016,.17-a*.064,till);
   labelPlane(till,.31,.075,'0 0 0 · 0 0',0,.28,.035,'#242921','#e7ddba');
   addMesh(new THREE.BoxGeometry(.17,.025,.025),brassMat,0,.06,.192,till);
-  const armillary=artifact('armillary','Die kleine Armillarsphäre','Verschränkte Messingringe um eine dunkle Weltkugel. Ein alter Anschauungsgegenstand für die Himmelsmechanik.',-5.61,1.205,2.80,.25);
+  const armillary=artifact('armillary','Die kleine Armillarsphäre','Verschränkte Messingringe um eine dunkle Weltkugel. Ein alter Anschauungsgegenstand für die Himmelsmechanik.',-5.61,1.380,2.80,.25);
   lathe(armillary,[[0,0],[.12,0],[.12,.025],[.045,.045],[.035,.12],[.065,.145],[0,.15]],woodMat);
   const planet=addMesh(new THREE.SphereGeometry(.075,20,14),inkBlue,0,.285,0,armillary);
   for(const [a,b] of [[0,0],[Math.PI/2,0],[.55,1.15]]){const ring=addMesh(new THREE.TorusGeometry(.145,.006,8,40),antiqueBrass,0,.285,0,armillary);ring.rotation.set(a,b,.36);}
   // Archive and bookbinding workshop: distinct instruments, not repeated crates.
-  const stack=artifact('archivefolio','Archivmappe mit Bindfaden','Drei unterschiedlich große, leicht schiefe Archivbände. Die Mappe trägt ein handgeschriebenes Etikett.',-4.85,levels.cellar+.875,-1.30,.16);
+  const stack=artifact('archivefolio','Archivmappe mit Bindfaden','Drei unterschiedlich große, leicht schiefe Archivbände. Die Mappe trägt ein handgeschriebenes Etikett.',-4.85,levels.cellar+1.05,-1.30,.16);
   folio(stack,.47,.31,.063,0,0,0,greenGlaze,.08);folio(stack,.40,.28,.052,.024,.073,-.015,burgundy,-.12);
   const tie=addMesh(new THREE.BoxGeometry(.016,.004,.31),antiqueBrass,.05,.134,0,stack);
-  const press=artifact('press','Die Buchbinderpresse','Zwei schwere Platten halten frisch verleimte Buchblöcke zusammen. Die Spindel lässt sich über das eiserne Handrad festziehen.',4.53,levels.cellar+.885,-1.19);
+  const press=artifact('press','Die Buchbinderpresse','Zwei schwere Platten halten frisch verleimte Buchblöcke zusammen. Die Spindel lässt sich über das eiserne Handrad festziehen.',4.53,levels.cellar+1.06,-1.19);
   addMesh(new THREE.BoxGeometry(.50,.055,.35),woodMat,0,.027,0,press);
   addMesh(new THREE.BoxGeometry(.47,.065,.33),woodMat,0,.33,0,press);
   for(const x of [-.21,.21])addMesh(new THREE.CylinderGeometry(.023,.023,.36,12),ironMat,x,.19,0,press);
@@ -1140,7 +1174,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.CylinderGeometry(.031,.031,.20,14),ironMat,0,.44,0,press);
   const wheel=addMesh(new THREE.TorusGeometry(.10,.013,8,24),ironMat,0,.55,0,press);wheel.rotation.x=Math.PI/2;
   for(let i=0;i<3;i++){const m=addMesh(new THREE.BoxGeometry(.18,.015,.015),ironMat,0,.55,0,press);m.rotation.y=i*Math.PI/3;}
-  const repair=artifact('repair','Das Werkzeug der Buchbinderin','Falzbein, Garnrolle und Ahle liegen neben einem halbfertigen Einband.',5.27,levels.cellar+.887,-1.0,-.2);
+  const repair=artifact('repair','Das Werkzeug der Buchbinderin','Falzbein, Garnrolle und Ahle liegen neben einem halbfertigen Einband.',5.27,levels.cellar+1.06,-1.0,-.2);
   const bone=addMesh(new THREE.SphereGeometry(1,12,10),ivory,-.08,.018,.03,repair);bone.scale.set(.10,.012,.025);
   lathe(repair,[[.043,0],[.043,.013],[.031,.014],[.031,.083],[.043,.084],[.043,.096]],woodMat,.08,0,-.08);
   const thread=new THREE.MeshStandardMaterial({color:0xc3b296,roughness:1});
@@ -1162,7 +1196,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const feather=new THREE.Shape();feather.moveTo(.02,.21);feather.quadraticCurveTo(-.025,.37,.12,.47);feather.quadraticCurveTo(.16,.35,.02,.21);
   addMesh(new THREE.ShapeGeometry(feather,12),new THREE.MeshStandardMaterial({color:0xd7ccbb,roughness:1,side:THREE.DoubleSide}),0,0,0,quill);
   // Kitchen: ceramic teapot, hand-formed cups, utensils.
-  const tea=artifact('teapot','Die grüne Teekanne','Eine bauchige, grün glasierte Kanne mit einer leicht unregelmäßigen Tülle. Sie steht bereit für die nächste Lesestunde.',-5.82,levels.upper+.985,2.65,-.25);
+  const tea=artifact('teapot','Die grüne Teekanne','Eine bauchige, grün glasierte Kanne mit einer leicht unregelmäßigen Tülle. Sie steht bereit für die nächste Lesestunde.',-4.67,levels.upper+1.16,4.20,-.25);
   lathe(tea,[[0,0],[.08,0],[.12,.035],[.15,.10],[.13,.17],[.075,.21],[.065,.22]],greenGlaze);
   lathe(tea,[[0,.225],[.07,.225],[.072,.24],[.035,.26],[.017,.26],[.018,.28],[0,.285]],greenGlaze);
   tube(tea,[[.12,.075,0],[.19,.10,0],[.24,.19,0],[.30,.225,0]],.025,greenGlaze);
@@ -1184,6 +1218,86 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Stage: unique lectern with sloped top replaces the simple plank silhouette.
   const stageNote=artifact('stageNote','Das Pult der offenen Lesebühne','Hier liegen die Notizen für den nächsten Literaturabend. Auf der Karte steht: Unfertige Geschichten sind willkommen.',5.10,levels.shop+1.64,2.55);
   const stagePaper=labelPlane(stageNote,.36,.23,'Offene Lesebühne|Unfertiges willkommen',0,.01,0);stagePaper.rotation.x=-Math.PI/2;
+  // Completed domestic details: kitchen fixtures, wardrobe, separate living room and WC.
+  const domesticStart=house.children.length;
+  const wardrobe=new THREE.Group();wardrobe.position.set(-8.08,levels.upper+.175,-.10);house.add(wardrobe);
+  addMesh(new THREE.BoxGeometry(.64,2.12,1.25),woodMat,0,1.06,0,wardrobe);
+  for(const z of [-.30,.30]){addMesh(new THREE.BoxGeometry(.055,1.90,.56),trimMat,.35,1.05,z,wardrobe);addMesh(new THREE.SphereGeometry(.027,10,8),brassMat,.40,1.0,z*.19,wardrobe);}
+  addMesh(new THREE.BoxGeometry(.73,.10,1.36),woodMat,0,2.15,0,wardrobe);
+  markEditable(wardrobe,'wardrobe','Kleiderschrank');
+  const headboard=addMesh(new THREE.BoxGeometry(2.53,.94,.13),trimMat,-6.2,levels.upper+.93,-4.04);
+  for(const x of [-7.37,-5.03])addMesh(new THREE.SphereGeometry(.07,12,10),woodMat,x,levels.upper+1.43,-4.04);
+  addMesh(new THREE.BoxGeometry(.72,.17,.49),paperMat,-5.56,levels.upper+1.03,-3.48);
+  // Porcelain sink bowl with faucet and controls, cooker rings and cabinet fronts.
+  const ceramic=new THREE.MeshStandardMaterial({color:0xe9e5db,roughness:.21});
+  const sink=new THREE.Group();sink.position.set(-5.60,levels.upper+1.19,4.37);house.add(sink);
+  lathe(sink,[[0,0],[.14,0],[.21,.05],[.23,.12],[.24,.13],[.23,.145],[.21,.13],[.16,.045],[0,.035]],ceramic,0,0,0,28);
+  tube(sink,[[0,.03,-.23],[0,.30,-.23],[0,.36,-.13],[0,.29,-.035]],.016,antiqueBrass);
+  for(const x of [-.13,.13])addMesh(new THREE.CylinderGeometry(.028,.028,.045,12),antiqueBrass,x,.07,-.24,sink);
+  for(const dx of [-.14,.14])for(const dz of [-.14,.14]){const ring=addMesh(new THREE.TorusGeometry(.094,.013,8,24),ironMat,-3.78+dx,levels.upper+1.186,4.37+dz);ring.rotation.x=Math.PI/2;}
+  for(const x of [-5.55,-4.65,-3.75]){addMesh(new THREE.BoxGeometry(.79,.68,.045),trimMat,x,levels.upper+.63,3.962);addMesh(new THREE.BoxGeometry(.17,.024,.038),brassMat,x,levels.upper+.89,3.929);}
+  const wc=artifact('wc','Das separate WC','Ein kleines separates WC hinter der Badezimmertür.',4.22,levels.upper+.175,4.28);
+  lathe(wc,[[0,0],[.13,0],[.18,.055],[.17,.16],[.22,.25],[.23,.38],[.22,.40],[.19,.40],[.15,.31],[0,.29]],ceramic,0,0,0,32);
+  const seat=addMesh(new THREE.TorusGeometry(.20,.022,8,32),ivory,0,.40,0,wc);seat.rotation.x=Math.PI/2;seat.scale.y=1.18;
+  addMesh(new THREE.BoxGeometry(.38,.46,.20),ceramic,0,.51,.25,wc);
+  addMesh(new THREE.SphereGeometry(.022,10,8),brassMat,.14,.69,.13,wc);
+  const mirror=new THREE.Group();mirror.position.set(3.02,levels.upper+1.94,1.0);mirror.rotation.y=Math.PI/2;house.add(mirror);
+  addMesh(new THREE.CircleGeometry(.32,40),new THREE.MeshStandardMaterial({color:0xaabac7,metalness:.75,roughness:.17}),0,0,.04,mirror);
+  addMesh(new THREE.TorusGeometry(.325,.027,10,40),antiqueBrass,0,0,.055,mirror);
+  // Compact independent living room, styled differently from the blue reading nook.
+  const lounge=new THREE.Group();lounge.position.set(-7.52,levels.upper+.175,4.35);house.add(lounge);
+  addMesh(new THREE.BoxGeometry(1.85,.37,.74),burgundy,0,.22,0,lounge);
+  addMesh(new THREE.BoxGeometry(1.73,.66,.18),burgundy,0,.72,.29,lounge);
+  for(const x of [-.79,.79]){const roll=addMesh(new THREE.CylinderGeometry(.12,.12,.68,16),burgundy,x,.59,0,lounge);roll.rotation.x=Math.PI/2;}
+  for(const x of [-.43,.43])addMesh(new THREE.BoxGeometry(.70,.13,.55),cushionMat,x,.46,-.06,lounge);
+  markEditable(lounge,'sofa','Bordeauxrotes Wohnsofa');
+  table(-7.55,levels.upper+.175,3.10,1.0,.52,.43).userData.editLabel='Wohnzimmertisch';
+  rug(-7.55,levels.upper+.19,3.12,2.10,2.38);
+  lamp(-7.55,levels.upper+3.45,3.25,0xffc68c,2.3,6);
+  // Two framed original decorative botanical illustrations and a leafy potted plant.
+  function botanical(g,x,y,z,rot=0){
+    const a=new THREE.Group();a.position.set(x,y,z);a.rotation.y=rot;g.add(a);
+    addMesh(new THREE.BoxGeometry(.63,.83,.06),trimMat,0,0,0,a);
+    const tex=printTexture(256,320,(c,w,h)=>{c.fillStyle='#d6c7a5';c.fillRect(0,0,w,h);c.strokeStyle='#627459';c.lineWidth=4;c.beginPath();c.moveTo(128,280);c.quadraticCurveTo(140,170,120,42);c.stroke();for(let i=0;i<8;i++){const sign=i%2?1:-1,yy=55+i*27;c.fillStyle=i%3===0?'#68795b':'#8b9270';c.beginPath();c.moveTo(128,yy+25);c.quadraticCurveTo(128+sign*95,yy-30,128+sign*70,yy-35);c.quadraticCurveTo(128+sign*25,yy-10,128,yy+25);c.fill();}c.fillStyle='#665641';c.font='italic 16px Georgia';c.textAlign='center';c.fillText('Herbarium No. '+(rot===0?'IV':'VII'),128,302);});
+    addMesh(new THREE.PlaneGeometry(.53,.73),new THREE.MeshStandardMaterial({map:tex,roughness:.92}),0,0,.034,a,false,true);
+  }
+  botanical(house,-8.79,levels.upper+2.10,3.96,Math.PI/2);
+  botanical(house,-2.86,levels.upper+2.10,3.88,-Math.PI/2);
+  const fern=artifact('fern','Der Farn','Ein alter Farn im Tontopf – er bekommt Licht vom Seitenfenster.',-8.05,levels.upper+.175,1.38);
+  lathe(fern,[[0,0],[.115,0],[.15,.25],[.16,.28],[.14,.28],[.13,.05],[0,.03]],burgundy);
+  const leafMat=new THREE.MeshStandardMaterial({color:0x53794d,roughness:.83,side:THREE.DoubleSide});
+  for(let i=0;i<8;i++){const a=i*2.399,r=.14+(i%3)*.06;const stem=[[0,.24,0],[Math.cos(a)*r*.6,.46,Math.sin(a)*r*.6],[Math.cos(a)*r,.61,Math.sin(a)*r]];tube(fern,stem,.008,leafMat);for(let j=1;j<=4;j++){const t=j/5;const l=addMesh(new THREE.SphereGeometry(1,8,5),leafMat,Math.cos(a)*r*t,.26+.35*t,Math.sin(a)*r*t,fern);l.scale.set(.095*(1-t*.5),.018,.045);l.rotation.y=a;}}
+  // Living inhabitants: hand-modelled, stylized rather than scanned characters.
+  const dogMat=new THREE.MeshStandardMaterial({color:0xb3956d,roughness:1}),dogDark=new THREE.MeshStandardMaterial({color:0x44372e,roughness:.94}),dogWhite=new THREE.MeshStandardMaterial({color:0xe7dbbf,roughness:1});
+  function oval(g,mat,x,y,z,sx,sy,sz){const m=addMesh(new THREE.SphereGeometry(1,16,12),mat,x,y,z,g);m.scale.set(sx,sy,sz);return m;}
+  const louie=artifact('louie','Louie','Louie bewacht das Antiquariat und freut sich über Aufmerksamkeit.',-6.55,levels.shop+.35,3.75,.4);
+  oval(louie,dogMat,0,.18,0,.18,.19,.36);oval(louie,dogWhite,0,.19,-.26,.135,.145,.13);
+  const dogHead=new THREE.Group();dogHead.position.set(0,.31,-.30);louie.add(dogHead);
+  oval(dogHead,dogMat,0,0,0,.155,.15,.16);oval(dogHead,dogDark,0,-.045,-.125,.105,.08,.115);
+  oval(dogHead,blackened,0,-.02,-.216,.047,.034,.026);
+  for(const x of [-.12,.12]){const ear=oval(dogHead,dogDark,x,.002,.01,.065,.135,.06);ear.rotation.z=x<0?-.25:.25;oval(dogHead,blackened,x*.58,.039,-.124,.022,.025,.016);}
+  const dogTail=new THREE.Group();dogTail.position.set(0,.25,.30);louie.add(dogTail);tube(dogTail,[[0,0,0],[0,.10,.13],[0,.23,.17]],.027,dogMat);
+  const dogLegs=[];for(const x of [-.12,.12])for(const z of [-.23,.22]){const leg=new THREE.Group();leg.position.set(x,.15,z);louie.add(leg);oval(leg,dogMat,0,-.07,0,.055,.11,.05);oval(leg,dogWhite,0,-.14,-.025,.052,.043,.075);dogLegs.push(leg);}
+  const silver=new THREE.MeshStandardMaterial({color:0xd3d9df,metalness:.34,roughness:.35}),jointMat=new THREE.MeshStandardMaterial({color:0x414650,roughness:.62}),amber=new THREE.MeshBasicMaterial({color:0xe3a74d});
+  const vero=artifact('vero','Veronimus von Federfunkel','Der Antiquar und Dichtpate. Er arbeitet an seinem Manuskript und empfängt dich im Federfuchs.',6.58,levels.upper+.175,-3.24,Math.PI*.18);
+  const torso=oval(vero,silver,0,1.18,0,.22,.33,.135);oval(vero,jointMat,0,.79,0,.16,.13,.11);
+  const veroHead=new THREE.Group();veroHead.position.set(0,1.63,0);vero.add(veroHead);oval(veroHead,silver,0,0,0,.13,.185,.13);
+  for(const x of [-.049,.049]){oval(veroHead,jointMat,x,.022,-.112,.036,.022,.02);oval(veroHead,amber,x,.022,-.129,.019,.012,.006);}
+  oval(veroHead,silver,0,-.032,-.123,.018,.034,.021);
+  const armJoints=[],legJoints=[];
+  for(const side of [-1,1]){
+    const arm=new THREE.Group();arm.position.set(side*.25,1.39,0);vero.add(arm);oval(arm,jointMat,0,0,0,.067,.07,.067);oval(arm,silver,0,-.14,0,.065,.17,.06);oval(arm,jointMat,0,-.30,0,.05,.055,.05);oval(arm,silver,0,-.43,0,.052,.14,.052);oval(arm,silver,0,-.56,0,.045,.07,.04);armJoints.push(arm);
+    const leg=new THREE.Group();leg.position.set(side*.10,.78,0);vero.add(leg);oval(leg,silver,0,-.16,0,.081,.20,.077);oval(leg,jointMat,0,-.37,0,.061,.065,.06);oval(leg,silver,0,-.53,0,.06,.18,.058);oval(leg,silver,0,-.72,-.045,.069,.055,.13);legJoints.push(leg);
+  }
+  let dogExcitedUntil=0,veroGreetingUntil=0;
+  function animateResidents(t){
+    const excited=t<dogExcitedUntil;
+    dogTail.rotation.y=Math.sin(t*(excited?12:3))*(excited?.65:.16);dogHead.rotation.y=Math.sin(t*1.2)*.12;dogHead.rotation.x=Math.sin(t*1.7)*.04;
+    const breath=1+.018*Math.sin(t*2);louie.scale.y=breath;
+    veroHead.rotation.y=Math.sin(t*.65)*.18;
+    armJoints[1].rotation.z=t<veroGreetingUntil?-.95-.17*Math.sin(t*8):-.08;
+    armJoints[0].rotation.z=.10;
+  }
   // Physical exterior, separate from the cutaway house. Visible while walking indoors.
   const outside=new THREE.Group();root.add(outside);outside.visible=false;
   const pavingMat=new THREE.MeshStandardMaterial({map:stoneTex,color:0x656974,roughness:.64});
@@ -1360,8 +1474,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,2.15);obstacle(1,6.95,2,.65,.5);for(const x of [4.4,5.2,6])obstacle(1,x,1.1,.48,.48);
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
   obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);for(let i=0;i<5;i++)obstacle(0,7.95,-3.75+i*1.15,.98,.78);
-  obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-6,2.8,2.8,.8);obstacle(2,-4.95,1.55,1.15,.7);
-  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,7.87,-4.65,1.81,.60);
+  obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-4.65,4.35,2.85,.80);obstacle(2,-4.60,1.44,.95,.60);
+  obstacle(2,4.34,2.68,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,7.87,-4.65,1.81,.60);
+  obstacle(2,-8.08,-.10,.73,1.36);obstacle(2,-7.52,4.35,1.85,.74);obstacle(2,4.22,4.28,.48,.66);obstacle(2,-8.05,1.38,.34,.34);
   obstacle(2,7.03,2.5,2.72,1.20);obstacle(2,7.85,3.65,.83,.74);obstacle(2,6.50,1.05,.76,.55);obstacle(2,6.05,3.92,.46,.46);
   const RADIUS=.19;
   function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
@@ -1370,7 +1485,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const eye=elevations[floor]+1.05;
     if(wallBoxes.some(r=>eye>r.y0&&eye<r.y1&&hitRect(x,z,r)))return true;
     if(furniture.some(r=>r.floor===floor&&hitRect(x,z,r)))return true;
-    return doors.some(d=>!d.open&&Math.abs(elevations[floor]-d.floor-.175)<.02&&Math.abs(x-d.x)<.19+RADIUS&&Math.abs(z-d.z)<.61+RADIUS);
+    return doors.some(d=>!d.open&&Math.abs(elevations[floor]-d.floor-.175)<.02&&(d.axis==='z'?Math.abs(z-d.z)<.19+RADIUS&&Math.abs(x-d.x)<.61+RADIUS:Math.abs(x-d.x)<.19+RADIUS&&Math.abs(z-d.z)<.61+RADIUS));
   }
   function moveNav(n,x,z,dx,dz,collision=solid){
     let xx=x+dx,zz=z+dz;
@@ -1399,22 +1514,20 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const interaction=document.createElement('button');interaction.id='interactDoor';interaction.textContent='Tür öffnen';interaction.hidden=true;document.body.appendChild(interaction);
   const locationLabel=document.createElement('div');locationLabel.id='floorLabel';locationLabel.hidden=true;document.body.appendChild(locationLabel);
   function nearestDoor(){return doors.filter(d=>Math.abs(elevations[navigation.floor]-d.floor-.175)<.02&&Math.hypot(player.pos.x-d.x,player.pos.z-d.z)<1.65).sort((a,b)=>Math.hypot(player.pos.x-a.x,player.pos.z-a.z)-Math.hypot(player.pos.x-b.x,player.pos.z-b.z))[0];}
-  function useDoor(){const d=nearestDoor();if(d){if(d.open&&Math.abs(player.pos.x-d.x)<.4&&Math.abs(player.pos.z-d.z)<.85)return;d.open=!d.open;}}
+  function useDoor(){const d=nearestDoor();if(d){if(d.open&&Math.hypot(player.pos.x-d.x,player.pos.z-d.z)<.85)return;d.open=!d.open;}}
   interaction.addEventListener('click',useDoor);
   addEventListener('keydown',e=>{if(walkMode&&e.code==='KeyE'&&!e.repeat)useDoor();});
   function updateDoors(){
     for(const d of doors)d.g.rotation.y+=((d.open?-Math.PI/2:0)-d.g.rotation.y)*.14;
     const d=walkMode&&navigation.flight===null?nearestDoor():null;
-    interaction.hidden=!d; if(d)interaction.textContent=d.open?'Tür schließen · E':'Tür öffnen · E';
+    interaction.hidden=!d; if(d)interaction.textContent=d.secret?(d.open?'Regal schließen · E':'Geheimregal öffnen · E'):(d.open?'Tür schließen · E':'Tür öffnen · E');
     locationLabel.hidden=!walkMode;
     if(walkMode)locationLabel.textContent=navigation.flight!==null?'Treppenhaus':['Keller','Antiquariat','Wohnung'][navigation.floor];
   }
 
   // A touch of hidden movement on the secret shelf
   let shelfAngle = 0, shelfGoal = 0;
-  hiddenShelf.group.position.x = 7.9;
-  hiddenShelf.group.position.y = levels.upper+.02;
-  hiddenShelf.group.position.z = .95;
+  // The secret shelf remains mounted in its wall opening.
   const ray = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   // Reading panel: touch and keyboard friendly, preserves the current camera and navigation.
@@ -1452,10 +1565,18 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   };
   function inspect(id){
     if(id==='tableBook'){readBook(0);return;}
-    if(id==='shelf'){shelfGoal=shelfGoal?0:-1.05;return;}
+    if(id==='shelf'){secretDoor.open=!secretDoor.open;return;}
     const item=artifactInfo[id]||details[id];if(!item)return;
     showReader();readState=null;heading.textContent='Ein Gegenstand im Federfuchs';catalog.hidden=true;paper.hidden=false;foot.hidden=true;backBtn.hidden=false;
     const h=document.createElement('h2'),p=document.createElement('p');h.textContent=item.title;p.textContent=item.text;paper.replaceChildren(h,p);
+    const actions={
+      louie:['Louie streicheln',()=>{dogExcitedUntil=visualTime+9;p.textContent='Louie wedelt mit dem Schwanz. 🐾';closeReader();}],
+      vero:['Veronimus begrüßen',()=>{veroGreetingUntil=visualTime+7;p.textContent='„Willkommen im Federfuchs! Ich bin gerade an einem neuen Kapitel.“';}],
+      teapot:['Tee aufgießen',()=>{p.textContent='Der Tee zieht. Zwei Tassen stehen bereit.';}],
+      press:['Buchblock einspannen',()=>{wheel.rotation.z+=Math.PI/3;p.textContent='Die Presse hält den Buchblock fest.';}],
+      bell:['Glocke läuten',()=>{audioBurst(1250,8,.15,.18);p.textContent='Ding! Die Ladenglocke klingelt.';}]
+    };
+    if(actions[id]){const b=document.createElement('button');b.type='button';b.textContent=actions[id][0];b.style.color='#362b20';b.style.borderColor='#8f7955';b.addEventListener('click',actions[id][1]);paper.append(b);}
   }
   document.getElementById('libraryToggle').addEventListener('click',catalogView);
   document.getElementById('readingClose').addEventListener('click',closeReader);
@@ -1567,12 +1688,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     }
     applyHouseView();
     if(editMode)refreshEditorSelection();
+    animateResidents(visualTime);
     animateExterior(dt);
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
     updateDoors();
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
-    hiddenShelf.group.rotation.y = shelfAngle;
+    // Secret shelf rotation is controlled by the same physical door system.
     dustPts.rotation.y += 0.0006;
     if(!walkMode&&dialog.hidden) controls.update();
     renderer.render(scene, camera);
@@ -1631,7 +1753,16 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       materialLoader.load(url,t=>{if(finished||token!==generation){t.dispose();if(!finished){finished=true;clearTimeout(timer);resolve(null);}return;}finished=true;clearTimeout(timer);resolve(t);},undefined,()=>{if(!finished){finished=true;clearTimeout(timer);resolve(null);}});
     });
   }
+  const assetMetadata=new Map();
+  async function assetFiles(id){
+    if(!assetMetadata.has(id))assetMetadata.set(id,(async()=>{try{const r=await fetch('https://api.polyhaven.com/files/'+encodeURIComponent(id),{signal:AbortSignal.timeout(4500)});if(r.ok)return await r.json();}catch(e){}return null;})());
+    return assetMetadata.get(id);
+  }
   async function fetchMap(spec,suffix,res,token,isColor){
+    const meta=await assetFiles(spec.id);
+    const group=meta?.[suffix]?.[res]||meta?.[suffix==='diff'?'diffuse':suffix]?.[res];
+    if(group&&token===generation){for(const entry of Object.values(group)){if(typeof entry?.url!=='string'||!entry.url.startsWith('https://dl.polyhaven.org/'))continue;const loaded=await loadOne(entry.url,token);if(loaded){loaded.wrapS=loaded.wrapT=THREE.RepeatWrapping;loaded.repeat.set(...spec.repeat);loaded.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());loaded.colorSpace=isColor?THREE.SRGBColorSpace:THREE.NoColorSpace;loadedTextures.add(loaded);return loaded;}}}
+
     // Normal maps are often provided as PNG and JPEG; try both formats.
     const ext=suffix==='nor_gl'?['jpg','png']:['jpg','png'];
     for(const e of ext){
@@ -1672,7 +1803,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // and checked against the physical wall volumes. No API key; browser loads public CC0 CDN.
   const modelStatus=document.getElementById('modelStatus');
     // Add a small dedicated vase on the side table near the counter, within the furniture envelope.
-  const vase=artifact('ceramicVase','Die blauweiße Porzellanvase','Eine kleine, blau dekorierte antike Vase, deren Glasur feine Altersspuren trägt.',-3.60,1.205,2.41);
+  const vase=artifact('ceramicVase','Die blauweiße Porzellanvase','Eine kleine, blau dekorierte antike Vase, deren Glasur feine Altersspuren trägt.',-3.60,1.380,2.41);
   lathe(vase,[[0,0],[.045,0],[.07,.025],[.085,.11],[.066,.19],[.042,.23],[.055,.26]],ivory);
   for(const y of [.045,.10,.16,.23]){const ring=addMesh(new THREE.TorusGeometry(y===.10?.084:y===.16?.075:.053,.004,6,24),inkBlue,0,y,0,vase);ring.rotation.x=Math.PI/2;}
   // A reading chair with a reserved footprint, clear of the partition and the staircase.
@@ -1732,10 +1863,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Report rather than blindly translating objects with connected props.
   function auditLayout(){
     house.updateMatrixWorld(true);
-    const candidates=new Set([...pickableBooks.map(m=>m.parent),...inspectables,readerChair,readingTable,clockStand]);
+    const candidates=new Set([...pickableBooks.map(m=>m.parent),...inspectables,readerChair,readingTable,clockStand,...house.children.filter(o=>o.userData.editKind)]);
     const conflicts=[];
     for(const o of candidates){
-      if(o===hiddenShelf.group||o===stove)continue;
+      if(o===hiddenShelf.group||o===stove||o.parent===hiddenShelf.group)continue;
       const box=new THREE.Box3().setFromObject(o);
       if(wallBoxes.some(w=>intersectsWall(box,w,.035)))conflicts.push(o.userData.inspectId||'Regal bei '+o.position.x.toFixed(1)+', '+o.position.z.toFixed(1));
     }
@@ -1771,6 +1902,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(side==='left')return cameraX<-1?'half':'full';
     if(side==='right')return cameraX>1?'half':'full';
     if(side==='back')return cameraZ<-1?'half':'full';
+    if(side==='front')return cameraZ>1?'off':'full';
     return 'half';
   }
   const visualFloorEntries=[];
@@ -1809,6 +1941,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       if(stair&&selection!==-1&&scope==='single'&&tall)o.visible=false;
     }
     roofSlab.visible=walkMode||(houseView.roof&&(selection===-1||selection===2));
+    actualRoof.visible=!walkMode&&houseView.roof&&(selection===-1||selection===2);
     // The UI remains present in walk mode, with visual controls disabled.
     for(const b of wallModes){b.setAttribute('aria-pressed',String(b.dataset.wallmode===houseView.mode));b.disabled=walkMode;}
     floorCycle.textContent=selection===-1?'Alle':names[selection];
