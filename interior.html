@@ -3128,7 +3128,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=037',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=038',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
