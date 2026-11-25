@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.23</title>
+  <title>Zum träumenden Federfuchs – v0.24</title>
   <style>
     :root{
       --bg:#10151b;
@@ -261,11 +261,11 @@ body.walk #mobileControls{padding:0 max(16px,env(safe-area-inset-left));bottom:m
 button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #quickDock #quickWalls{width:39px;font-size:10px!important;font-weight:650;letter-spacing:.01em}
 @media(max-width:420px){#quickDock #quickWalls{width:32px;font-size:9px!important}}
-</style>
+#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}</style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.23 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.24 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -292,7 +292,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </nav>
 <div id="quickDock" aria-label="Schnellsteuerung">
   <div class="dockGroup"><button id="quickFloorDown" aria-label="Etage tiefer"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><button id="quickFloor" aria-label="Etage wechseln">Alle</button><button id="quickFloorUp" aria-label="Etage höher"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></div>
-  <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht wechseln">◩</button><button id="quickRoof" aria-label="Dach ein oder aus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15l9-10 9 10M6 13v7h12v-7"/></svg></button><button id="quickTop" aria-label="Draufsicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 11h16M11 4v16"/></svg></button></div>
+  <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht auswählen">◩</button><button id="quickRoof" aria-label="Dach ein oder aus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15l9-10 9 10M6 13v7h12v-7"/></svg></button><button id="quickTop" aria-label="Draufsicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 11h16M11 4v16"/></svg></button></div>
   <div class="dockGroup"><button data-cam="left" aria-label="Kamera nach links drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6"/></svg></button><button data-cam="right" aria-label="Kamera nach rechts drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg></button><button data-cam="in" aria-label="Heranzoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button data-cam="out" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button></div>
 </div>
 <button id="quickStand" type="button" hidden>Aufstehen</button><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
@@ -300,7 +300,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.23 · Handwerk & Atmosphäre</div>
+    <div id="sub">v0.24 · Handwerk & Atmosphäre</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -341,7 +341,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
         <button type="button" id="floorUp" aria-label="Etage höher">▲</button>
       </div></div>
       <div class="hvLine"><button type="button" id="floorScope">Nur diese Etage</button><button type="button" id="roofToggle" aria-pressed="false">Dach: aus</button><button type="button" id="topView">Draufsicht</button></div>
-      <div id="hvStatus" role="status">Automatischer Gebäudeschnitt</div>
+      <div id="hvStatus" role="status">Wände hoch</div><p class="drawerHint">Halbhohe Wände erscheinen ausschließlich nach Auswahl von „Halb“. Auto blendet kameranahe Außenwände ganz aus.</p>
     </div>
     <div id="editPanel" hidden>
       <div class="editTitle"><strong>Einrichten</strong><button id="editExit" type="button">Fertig</button></div>
@@ -367,7 +367,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
       <button id="bizEvent" class="wideTool">Lesung veranstalten</button><button id="bizNextDay" class="wideTool">Neuer Tag</button>
       <p id="bizMessage" role="status" class="drawerHint"></p>
     </div>
-    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p class="drawerHint" id="detailProgress" role="status">Lokale Grundszene bereit</p><progress id="detailBar" max="1" value="0" style="width:100%;height:7px;accent-color:#91b6a0"></progress><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><p id="localAssetStatus" class="drawerHint">Eigene GLB-Modelle: Assetliste wird geprüft</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><label class="drawerLabel" for="lightMood">Lichtstimmung</label><select id="lightMood"><option value="evening">Regenabend</option><option value="day">Bewölkter Tag</option><option value="night">Lesenacht</option></select><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
+    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p class="drawerHint" id="detailProgress" role="status">Lokale Grundszene bereit</p><progress id="detailBar" max="1" value="0" style="width:100%;height:7px;accent-color:#91b6a0"></progress><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><details id="inventoryDetails"><summary>Produktionskatalog · 160 Assets</summary><p id="inventoryStatus" class="drawerHint">Katalog wird beim Öffnen geladen.</p><input id="inventorySearch" type="search" placeholder="ID, Name, Raum …" aria-label="Objekte suchen"><select id="inventoryFloor" aria-label="Geschoss filtern"><option value="">Alle Geschosse</option><option value="EG">Erdgeschoss</option><option value="OG">Obergeschoss</option><option value="UG">Untergeschoss</option><option value="ALLE">Architekturmodule</option></select><div id="inventoryList"></div></details><p id="localAssetStatus" class="drawerHint">Eigene GLB-Modelle: Assetliste wird geprüft</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><label class="drawerLabel" for="lightMood">Lichtstimmung</label><select id="lightMood"><option value="evening">Regenabend</option><option value="day">Bewölkter Tag</option><option value="night">Lesenacht</option></select><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
       <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p><p id="layoutStatus" role="status">Wandprüfung …</p>
@@ -2214,6 +2214,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       if(!entries.length){label.textContent='Eigene GLB-Modelle: noch keine registriert';return;}
       const {GLTFLoader}=await import('./vendor/loaders/GLTFLoader.js');
       const slots={
+        ...inventorySlots,
         reading_sofa:{target:editableSofa,max:[2.72,1.35,1.20]},
         reading_chair:{target:readerChair,max:[.90,1.16,.90]},
         counter:{target:counter,max:[2.60,1.20,1.06],props:true},
@@ -2245,7 +2246,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
           results.push(entry.slot+': aktiv');
         }catch(e){if(model){model.removeFromParent();disposeModel(model);}results.push(entry.slot+': '+e.message);}
       }
-      label.textContent=results.join(' · ');
+      label.textContent=results.join(' · ');renderInventory();
     }catch(e){label.textContent='Eigene Modelle: '+e.message;}
     finally{localLoadBusy=false;}
   }
@@ -2277,8 +2278,80 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   for(const o of [bell,ledger,till,armillary,vase])counter.attach(o);
   readerChair.userData.editLabel='Historischer Lesesessel';
   house.updateMatrixWorld(true);
+  // Production catalogue: planned assets and currently available placeholders are independent.
+  const inventoryBindings=new Map(), inventorySlots={};
+  function bindAsset(id,objects,kind='approximate',replace=null){
+    const list=(Array.isArray(objects)?objects:[objects]).filter(Boolean);
+    if(!list.length)return;
+    inventoryBindings.set(id,{objects:list,kind,replace:!!replace});
+    list.forEach((o,i)=>{o.userData.catalogId=id;o.userData.catalogInstance=id+'-'+String(i+1).padStart(3,'0');});
+    if(replace&&list.length===1&&list[0].isGroup)inventorySlots['ff_'+id]={target:list[0],...replace};
+  }
+  const shelves=house.children.filter(o=>o.userData.editKind==='shelf');
+  bindAsset('001',shelves.filter(o=>Math.abs(o.position.y-.2)<.3),'approximate');
+  bindAsset('002',counter,'approximate',{max:[2.60,1.20,1.06],props:true});
+  bindAsset('003',readerChair,'location-mismatch');
+  bindAsset('011',entranceDoor.g,'functional-proxy');
+  bindAsset('012',[frontSign,frontSignFace],'approximate');
+  bindAsset('021',till,'approximate',{max:[.60,.55,.48]});
+  bindAsset('023',bell,'approximate',{max:[.20,.20,.20]});
+  bindAsset('024',ledger,'approximate',{max:[.50,.11,.36]});
+  bindAsset('026',pickableBooks.filter(o=>Math.abs(o.parent.position.y-.2)<.3),'instanced-proxy');
+  bindAsset('050',louie,'functional-proxy');
+  bindAsset('051',lounge,'approximate');
+  bindAsset('066',bedside,'approximate');
+  bindAsset('067',wardrobe,'approximate',{max:[.73,2.20,1.36]});
+  bindAsset('074',sink,'combined-proxy');
+  bindAsset('082',jars,'combined-proxy');
+  bindAsset('085',tableAt(-4.60,1.44,levels.upper),'approximate');
+  bindAsset('091',house.children.find(o=>o.isGroup&&Math.abs(o.position.x-4.70)<.001&&Math.abs(o.position.z-2.68)<.001),'combined-proxy');
+  bindAsset('093',wash,'approximate');
+  bindAsset('094',mirror,'approximate');
+  bindAsset('099',wc,'approximate');
+  bindAsset('101',writingDesk,'approximate',{max:[1.90,.82,.85],props:true});
+  bindAsset('103',typewriter,'approximate',{max:[.55,.38,.48]});
+  bindAsset('106',quill,'approximate',{max:[.34,.44,.28]});
+  bindAsset('111',secretDoor.g,'functional-proxy');
+  bindAsset('113',roundFrame,'functional-proxy');
+  bindAsset('115',stove,'functional-proxy');
+  bindAsset('116',readingTable,'approximate',{max:[.76,.5625,.55],props:true});
+  bindAsset('121',shelves.filter(o=>o.position.y<-4),'approximate');
+  bindAsset('122',indexCabinet,'approximate',{max:[.70,1.20,1.32]});
+  bindAsset('127',archiveDesk,'approximate',{max:[1.40,.84,.75],props:true});
+  bindAsset('131',workDesk,'approximate',{max:[1.80,.85,.90],props:true});
+  bindAsset('132',press,'location-mismatch');
+  bindAsset('135',repair,'location-mismatch');
+  bindAsset('147',catacombDoor.g,'functional-proxy');
+  bindAsset('151',house.children.filter(o=>[1,2].includes(o.userData.floorPlate)),'architecture-proxy');
+  bindAsset('152',house.children.filter(o=>o.userData.floorPlate===0),'architecture-proxy');
+  bindAsset('155',visualWalls.filter(v=>v.m.userData.cutaway.floor===0).map(v=>v.m),'architecture-proxy');
+  bindAsset('157',house.children.filter(o=>o.userData.stairFlight?.low===1),'architecture-proxy');
+  bindAsset('158',house.children.filter(o=>o.userData.stairFlight?.low===0),'architecture-proxy');
+  // The catalogue is read-only in exploration mode; no placeholders are added at guessed coordinates.
+  let productionCatalog=null;
+  const inventoryStatus=document.getElementById('inventoryStatus'),inventoryList=document.getElementById('inventoryList'),inventorySearch=document.getElementById('inventorySearch'),inventoryFloor=document.getElementById('inventoryFloor');
+  function renderInventory(){
+    if(!productionCatalog)return;
+    const term=inventorySearch.value.trim().toLowerCase(),floor=inventoryFloor.value;
+    const rows=productionCatalog.entries.filter(e=>(!floor||e.floor===floor)&&(!term||[e.id,e.name,e.room,e.location].join(' ').toLowerCase().includes(term)));
+    inventoryList.replaceChildren();
+    const states={approximate:'Vorläufige Szenengeometrie','location-mismatch':'Standort noch anzupassen','functional-proxy':'Funktionaler Platzhalter','combined-proxy':'Noch nicht getrennt','instanced-proxy':'Instanz-Platzhalter','architecture-proxy':'Architektur-Platzhalter'};
+    for(const e of rows){const row=document.createElement('div'),name=document.createElement('b'),info=document.createElement('small'),status=document.createElement('small');
+      name.textContent=e.id+' · '+e.name;info.textContent=e.floor+' · '+e.room+' · '+e.location;
+      const binding=inventoryBindings.get(e.id),loaded=binding?.objects.some(o=>o.userData.localAsset);
+      status.textContent=loaded?'Eigenes GLB aktiv':binding?(states[binding.kind]||'Platzhalter'):'Geplant · noch nicht zugeordnet';
+      row.append(name,info,status);inventoryList.append(row);
+    }
+    inventoryStatus.textContent=productionCatalog.entries.length+' Asset-Typen · '+inventoryBindings.size+' Szenenzuordnungen · '+rows.length+' angezeigt. 4 vorläufige Modelle gemeldet (IDs noch offen).';
+  }
+  async function loadProductionCatalog(){
+    try{const response=await fetch('./assets/catalog.json',{cache:'no-cache'});if(!response.ok)throw Error('Katalog nicht erreichbar');const catalog=await response.json();if(catalog.version!==1||catalog.entries.length!==160||new Set(catalog.entries.map(e=>e.id)).size!==160)throw Error('Katalog ungültig');productionCatalog=catalog;renderInventory();}
+    catch(e){inventoryStatus.textContent='Objektkatalog: '+e.message;}
+  }
+  inventorySearch.addEventListener('input',renderInventory);inventoryFloor.addEventListener('change',renderInventory);
+  document.getElementById('inventoryDetails').addEventListener('toggle',()=>{if(!productionCatalog)loadProductionCatalog();else renderInventory();});
   // Sims-inspired visual house controls. Collision geometry is intentionally untouched.
-  const houseView={mode:'auto',floor:-1,scope:'single',roof:false};
+  const houseView={mode:'full',floor:-1,scope:'single',roof:false};
   const hvPanel=document.getElementById('houseViewPanel'),hvToggle=document.getElementById('houseViewToggle'),hvStatus=document.getElementById('hvStatus');
   const floorCycle=document.getElementById('floorCycle'),floorDown=document.getElementById('floorDown'),floorUp=document.getElementById('floorUp'),roofToggle=document.getElementById('roofToggle'),floorScope=document.getElementById('floorScope'),topView=document.getElementById('topView');
   const wallModes=[...document.querySelectorAll('[data-wallmode]')];
@@ -2302,14 +2375,18 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const key=[houseView.mode,houseView.floor,houseView.scope,houseView.roof,walkMode,sideX,sideZ].join('|');
     if(!force&&key===lastHouseKey)return;lastHouseKey=key;
     const selection=walkMode?-1:houseView.floor,scope=houseView.scope;
+    // Full and auto never inherit a previous half-height transform.
+    const activeWallMode=walkMode?'full':WALL_MODES.includes(houseView.mode)?houseView.mode:'full';
     const allowed=f=>floorAllowed(f,selection,scope);
-    const modeFor=c=>effectiveWallMode(houseView.mode,c.facadeSide,c.floor,selection,sideX*2,sideZ*2,walkMode);
+    const modeFor=c=>effectiveWallMode(activeWallMode,c.facadeSide,c.floor,selection,sideX*2,sideZ*2,walkMode);
     for(const {m,y,h,base,scaleY} of visualWalls){
       const c=m.userData.cutaway,mode=modeFor(c);
       const cut=baseByFloor[c.floor]+1.12;
       const height=mode==='half'?Math.max(0,Math.min(h,cut-base)):h;
       m.visible=allowed(c.floor)&&mode!=='off'&&height>.005;
-      m.scale.y=mode==='full'?scaleY:scaleY*(height/h);m.position.y=mode==='full'?y:base+height/2;m.updateMatrix();
+      m.scale.y=scaleY;m.position.y=y;
+      if(activeWallMode==='half'&&mode==='half'&&height<h){m.scale.y=scaleY*(height/h);m.position.y=base+height/2;}
+      m.updateMatrix();
     }
     for(const o of attachments){
       const c=o.userData.cutaway,mode=modeFor(c);
@@ -2343,7 +2420,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   function selectFloor(f){houseView.floor=f;applyHouseView(true);focusFloor();}
   hvToggle.addEventListener('click',()=>{hvPanel.hidden=!hvPanel.hidden;hvToggle.setAttribute('aria-expanded',String(!hvPanel.hidden));});
-  for(const b of wallModes)b.addEventListener('click',()=>{houseView.mode=b.dataset.wallmode;applyHouseView(true);});
+  for(const b of wallModes)b.addEventListener('click',()=>{if(walkMode)return;const requested=b.dataset.wallmode;houseView.mode=WALL_MODES.includes(requested)?requested:'full';applyHouseView(true);});
   floorCycle.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:houseView.floor===0?-1:houseView.floor-1));
   floorDown.addEventListener('click',()=>selectFloor(houseView.floor===-1?2:Math.max(0,houseView.floor-1)));
   floorUp.addEventListener('click',()=>selectFloor(houseView.floor===2?-1:houseView.floor+1));
@@ -2567,7 +2644,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const panelButtons=[...document.querySelectorAll('#railTools button[data-panel]')];
   const toolbarButtons=[...document.querySelectorAll('#toolbar button')];
   const quickFloor=document.getElementById('quickFloor'),quickWalls=document.getElementById('quickWalls'),quickRoof=document.getElementById('quickRoof'),quickStand=document.getElementById('quickStand');
-  const wallCycle=WALL_MODES,floorShort=['UG','EG','OG'];
+  const floorShort=['UG','EG','OG'];
   const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung',shop:'Geschäftsbuch'};
   const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['performancePanel','materialPanel'],help:['helpPanel'],shop:['businessPanel']};
   function setDrawer(kind){
@@ -2608,7 +2685,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('quickFloorDown').addEventListener('click',()=>{if(editMode)changeEditorFloor(houseView.floor-1);else floorDown.click();});
   document.getElementById('quickFloorUp').addEventListener('click',()=>{if(editMode)changeEditorFloor(houseView.floor+1);else if(houseView.floor===-1)selectFloor(0);else floorUp.click();});
   quickFloor.addEventListener('click',()=>{if(editMode)changeEditorFloor((houseView.floor+1)%3);else floorCycle.click();});
-  quickWalls.addEventListener('click',()=>{houseView.mode=wallCycle[(wallCycle.indexOf(houseView.mode)+1)%4];applyHouseView(true);});
+  quickWalls.addEventListener('click',()=>{if(walkMode)return;setDrawer(drawer==='view'?null:'view');});
   quickRoof.addEventListener('click',()=>roofToggle.click());
   document.getElementById('quickTop').addEventListener('click',()=>topView.click());
   let quickKey='';
@@ -2616,7 +2693,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const k=[houseView.floor,houseView.mode,houseView.roof,walkMode,editMode,!!seatedState,drawer,navigation.floor,navigation.flight].join('|');if(k===quickKey)return;quickKey=k;
     quickFloor.textContent=houseView.floor===-1?'Alle':floorShort[houseView.floor];
     document.getElementById('sceneMode').textContent=walkMode?'Erkundung':'Gebäudeansicht';document.getElementById('sceneFloor').textContent=walkMode?(navigation.flight!==null?'Treppenhaus':names[navigation.floor]):houseView.floor<0?'Alle Etagen':names[houseView.floor];document.getElementById('sceneWalkExit').hidden=!walkMode;
-    quickWalls.textContent=({auto:'Auto',full:'Hoch',half:'Halb',off:'Aus'})[houseView.mode];quickWalls.title='Wände: '+quickWalls.textContent;quickWalls.setAttribute('aria-label',quickWalls.title+' · wechseln');
+    quickWalls.textContent=({auto:'Auto',full:'Hoch',half:'Halb',off:'Aus'})[houseView.mode];quickWalls.title='Wände: '+quickWalls.textContent;quickWalls.setAttribute('aria-label',quickWalls.title+' · Auswahl öffnen');
     quickRoof.setAttribute('aria-pressed',String(houseView.roof));quickStand.hidden=!seatedState;
     document.getElementById('quickFloorDown').disabled=houseView.floor===0;document.getElementById('quickFloorUp').disabled=editMode&&houseView.floor===2;
     for(const b of panelButtons)b.setAttribute('aria-pressed',String(b.dataset.panel===drawer||(b.dataset.panel==='walk'&&walkMode)||(b.dataset.panel==='edit'&&editMode)));
@@ -2767,7 +2844,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=023',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=024',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
