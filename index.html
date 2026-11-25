@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.5</title>
+  <title>Zum träumenden Federfuchs – v0.6</title>
   <style>
     :root{
       --bg:#10151b;
@@ -94,16 +94,23 @@
     #walkHint{display:none!important}
     canvas{touch-action:none}
   #interactDoor{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:14;background:#352a21e8;border:1px solid #b69a6a}#floorLabel{position:fixed;top:12px;right:12px;z-index:13;padding:7px 10px;border-radius:10px;background:#171a20cc;font-size:12px}#interactDoor[hidden],#floorLabel[hidden]{display:none!important}
+
+    #quietExit{display:none;position:fixed;top:12px;left:12px;z-index:16;background:#20242bc9}
+    body.quiet #quietExit{display:block}
+    body.quiet #hud,body.quiet #overlay,body.quiet #floorLabel,body.quiet #mobileControls,body.quiet #interactDoor{display:none!important}
+    #soundToggle[aria-pressed=true],#weatherToggle[aria-pressed=true]{border-color:#b89b6d;color:#efdbb5}
+    #toolbar button{min-height:30px}
+    @media(max-height:470px){#hud .card{max-width:350px}#toolbar button{padding:6px 8px;min-height:26px}#hud h1{font-size:15px}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.5 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
-<div id="error"></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.6 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="error"></div><button id="quietExit" type="button">Menü anzeigen</button>
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.5 · Begehbare Treppen und Türen</div>
+    <div id="sub">3D-Studie v0.6 · Ein Abend in Buchhaim</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -111,6 +118,9 @@
       <button data-view="cellar">Keller</button>
       <button data-view="nook">Lesehöhle</button>
       <button id="toggleWalk" type="button">Freie Bewegung</button>
+      <button id="weatherToggle" type="button" aria-pressed="true">Regen: an</button>
+      <button id="soundToggle" type="button" aria-pressed="false">Ton: aus</button>
+      <button id="quietToggle" type="button" aria-pressed="false">Ruhemodus</button>
     </div>
     <div id="note">
       Fokus dieser Version: <strong>Stimmung und Gestaltung plus echte Erkundung</strong>. Du kannst zwischen Überblick und freier Bewegung wechseln.
@@ -389,6 +399,32 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   function rug(x,y,z,w=2,d=1.4,group=house){ return addMesh(new THREE.BoxGeometry(w,.03,d), rugMat, x,y,z, group, false, true); }
 
+  // Animated rain panes: procedural local textures, no external image assets.
+  const weather={rain:true};
+  const pane=document.createElement('canvas');pane.width=256;pane.height=256;
+  const paneCtx=pane.getContext('2d');
+  const rainTex=new THREE.CanvasTexture(pane);rainTex.colorSpace=THREE.SRGBColorSpace;
+  const rainMat=new THREE.MeshBasicMaterial({map:rainTex,side:THREE.DoubleSide});
+  const drops=Array.from({length:88},()=>({x:Math.random()*256,y:Math.random()*256,v:48+Math.random()*100,l:5+Math.random()*22,a:.10+Math.random()*.34}));
+  const distantLights=Array.from({length:13},()=>({x:Math.random()*256,y:135+Math.random()*100,r:2+Math.random()*10,a:.08+Math.random()*.12}));
+  function paintRain(t,dt){
+    const c=paneCtx;
+    const sky=c.createLinearGradient(0,0,0,256);sky.addColorStop(0,'#14283f');sky.addColorStop(.6,'#2f4356');sky.addColorStop(1,'#17232b');
+    c.fillStyle=sky;c.fillRect(0,0,256,256);
+    c.fillStyle='#14212c';c.beginPath();c.moveTo(0,256);c.lineTo(0,170);c.lineTo(35,142);c.lineTo(67,173);c.lineTo(99,135);c.lineTo(145,171);c.lineTo(180,129);c.lineTo(215,165);c.lineTo(256,147);c.lineTo(256,256);c.fill();
+    for(const p of distantLights){const a=c.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*2.4);a.addColorStop(0,'rgba(224,174,103,'+p.a+')');a.addColorStop(1,'rgba(224,174,103,0)');c.fillStyle=a;c.fillRect(p.x-p.r*2.4,p.y-p.r*2.4,p.r*4.8,p.r*4.8);}
+    if(weather.rain){
+      c.lineWidth=1;
+      for(const d of drops){
+        d.y+=d.v*dt;d.x-=dt*d.v*.13;if(d.y>280){d.y=-25;d.x=Math.random()*256;}if(d.x<0)d.x+=256;
+        const a=c.createLinearGradient(d.x,d.y,d.x-3,d.y+d.l);a.addColorStop(0,'rgba(165,210,235,0)');a.addColorStop(.8,'rgba(180,218,242,'+d.a+')');a.addColorStop(1,'rgba(210,235,247,'+d.a*.35+')');
+        c.strokeStyle=a;c.beginPath();c.moveTo(d.x,d.y);c.lineTo(d.x-3,d.y+d.l);c.stroke();
+      }
+    }
+    const edge=c.createLinearGradient(0,0,256,0);edge.addColorStop(0,'rgba(150,190,212,.17)');edge.addColorStop(.12,'rgba(150,190,212,0)');edge.addColorStop(.86,'rgba(150,190,212,0)');edge.addColorStop(1,'rgba(150,190,212,.12)');c.fillStyle=edge;c.fillRect(0,0,256,256);
+    rainTex.needsUpdate=true;
+  }
+  paintRain(0,0);
   function simpleWindow(x,y,z,w=1.6,h=1.6,group=house){
     const g=new THREE.Group(); g.position.set(x,y,z); group.add(g);
     addMesh(new THREE.BoxGeometry(w,.08,.08), woodMat,0,h/2,0,g,false,true);
@@ -397,14 +433,14 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     addMesh(new THREE.BoxGeometry(.08,h,.08), woodMat,w/2,0,0,g,false,true);
     addMesh(new THREE.BoxGeometry(.05,h,.02), woodMat,0,0,.01,g,false,true);
     addMesh(new THREE.BoxGeometry(w,.05,.02), woodMat,0,0,.01,g,false,true);
-    addMesh(new THREE.PlaneGeometry(w-.1,h-.1), glassMat,0,0,0,g,false,true);
+    addMesh(new THREE.PlaneGeometry(w-.1,h-.1), rainMat,0,0,0,g,false,true);
     return g;
   }
 
   function roundWindow(x,y,z,r=1.05,group=house){
     const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);
     addMesh(new THREE.TorusGeometry(r-.06,.075,12,48),woodMat,0,0,0,g,false,true);
-    addMesh(new THREE.CircleGeometry(r-.12,40), glassMat,0,0,.04,g,false,true);
+    addMesh(new THREE.CircleGeometry(r-.12,40), rainMat,0,0,-.02,g,false,true);
     addMesh(new THREE.BoxGeometry(.07,r*1.7,.05), woodMat,0,0,.06,g,false,true);
     addMesh(new THREE.BoxGeometry(r*1.7,.07,.05), woodMat,0,0,.06,g,false,true);
     return g;
@@ -638,7 +674,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   // secret reading nook far right upper
   const hiddenShelf = bookcaseDoor(8.15, levels.upper+.05, .65);
-  roundWindow(7.0, levels.upper+2.05, 4.55, 1.0);
+  roundWindow(7.0, levels.upper+2.05, 4.55, 1.0).rotation.y=Math.PI;
   addMesh(new THREE.BoxGeometry(2.7,.55,1.15), new THREE.MeshStandardMaterial({color:0x556d87, roughness:1}), 6.25, levels.upper+.3, 2.5);
   addMesh(new THREE.BoxGeometry(2.4,.18,1.0), cushionMat, 6.25, levels.upper+.66, 2.5);
   addMesh(new THREE.BoxGeometry(.65,.18,.45), new THREE.MeshStandardMaterial({color:0x7890aa, roughness:1}), 7.0, levels.upper+.83, 2.55);
@@ -647,6 +683,23 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   rug(6.15, levels.upper+.03, 2.45, 3.2, 2.4);
   lamp(6.25, levels.upper+3.25, 2.65, 0xffd5a4, 1.65, 6);
 
+  // Upholstered reading sofa, folded blue throw, two cushions and an open book.
+  const velvet=new THREE.MeshStandardMaterial({color:0x354e65,roughness:.96});
+  const cloth=new THREE.MeshStandardMaterial({color:0x8399b5,roughness:1,side:THREE.DoubleSide});
+  function softBox(w,h,d,x,y,z,mat){
+    const shape=new THREE.Shape(),rad=Math.min(w,h)*.17;
+    shape.moveTo(-w/2+rad,-h/2);shape.lineTo(w/2-rad,-h/2);shape.quadraticCurveTo(w/2,-h/2,w/2,-h/2+rad);shape.lineTo(w/2,h/2-rad);shape.quadraticCurveTo(w/2,h/2,w/2-rad,h/2);shape.lineTo(-w/2+rad,h/2);shape.quadraticCurveTo(-w/2,h/2,-w/2,h/2-rad);shape.lineTo(-w/2,-h/2+rad);shape.quadraticCurveTo(-w/2,-h/2,-w/2+rad,-h/2);
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:d-.04,bevelEnabled:true,bevelThickness:.02,bevelSize:.02,bevelSegments:2,steps:1,curveSegments:5});geo.translate(0,0,-(d-.04)/2);
+    return addMesh(geo,mat,x,y,z);
+  }
+  softBox(2.64,.66,.22,6.25,levels.upper+1.02,2.99,velvet);
+  for(const x of [5.04,7.46])softBox(.24,.47,1.05,x,levels.upper+.84,2.5,velvet);
+  for(const x of [5.7,6.8])softBox(.48,.40,.16,x,levels.upper+1.03,2.78,cushionMat).rotation.z=x<6?-.17:.16;
+  const blanketGeo=new THREE.PlaneGeometry(.72,1.05,18,24);
+  const bp=blanketGeo.attributes.position;
+  for(let i=0;i<bp.count;i++){const x=bp.getX(i),y=bp.getY(i);const u=(y+.525)/1.05;bp.setXYZ(i,x,Math.min(.47,u*1.05),.025*Math.sin(x*41)+.018*Math.sin(u*18)+(u>.45?-(u-.45)*.70:0));}
+  blanketGeo.computeVertexNormals();
+  const blanket=addMesh(blanketGeo,cloth,7.12,levels.upper+.77,2.93);blanket.rotation.x=-Math.PI/2;
   // decorative cat-like fox sign on shop rear? small logo suggestion
   addMesh(new THREE.BoxGeometry(1.4,.9,.07), woodMat, 0.0, levels.shop+2.15, -4.05);
 
@@ -662,7 +715,26 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   }
   const stove=new THREE.Group();stove.position.set(7.85,levels.upper+.18,3.65);house.add(stove);
   addMesh(new THREE.BoxGeometry(.65,.87,.58),ironMat,0,.55,0,stove);
-  addMesh(new THREE.BoxGeometry(.47,.42,.025),new THREE.MeshStandardMaterial({color:0x2a1510,emissive:0xc34e0a,emissiveIntensity:.8}),0,.55,.302,stove);
+    // Glazed stove door with a small animated ember/fire texture.
+  addMesh(new THREE.BoxGeometry(.51,.46,.035),darkMat,0,.55,.307,stove);
+  const fireCanvas=document.createElement('canvas');fireCanvas.width=160;fireCanvas.height=144;
+  const fireCtx=fireCanvas.getContext('2d');const fireTex=new THREE.CanvasTexture(fireCanvas);fireTex.colorSpace=THREE.SRGBColorSpace;
+  addMesh(new THREE.PlaneGeometry(.42,.36),new THREE.MeshBasicMaterial({map:fireTex,side:THREE.DoubleSide}),0,.55,.33,stove,false,false);
+  for(const x of [-.235,.235])addMesh(new THREE.BoxGeometry(.033,.44,.038),ironMat,x,.55,.35,stove);
+  addMesh(new THREE.BoxGeometry(.035,.37,.025),ironMat,0,.55,.35,stove);
+  addMesh(new THREE.BoxGeometry(.09,.035,.07),brassMat,.275,.53,.355,stove);
+  function paintFire(t){
+    const c=fireCtx;c.fillStyle='#100c0b';c.fillRect(0,0,160,144);
+    const bed=c.createRadialGradient(80,126,1,80,126,64);bed.addColorStop(0,'#f4a148');bed.addColorStop(.32,'#a73816');bed.addColorStop(1,'#140b09');c.fillStyle=bed;c.fillRect(4,76,152,68);
+    for(let i=0;i<7;i++){
+      const x=28+i*17,base=128,phase=t*(2+i*.13)+i*1.72,ht=40+22*Math.sin(phase)+15*Math.sin(t*3+i),sway=9*Math.sin(phase*.8);
+      const g=c.createLinearGradient(0,base,0,base-ht);g.addColorStop(0,'#fff1a1');g.addColorStop(.38,'#ffbe48');g.addColorStop(.72,'#e9581b');g.addColorStop(1,'rgba(179,47,12,0)');
+      c.fillStyle=g;c.beginPath();c.moveTo(x-12,base);c.bezierCurveTo(x-15,base-ht*.38,x+sway-10,base-ht*.68,x+sway,base-ht);c.bezierCurveTo(x+sway+12,base-ht*.57,x+17,base-ht*.3,x+12,base);c.closePath();c.fill();
+    }
+    for(let i=0;i<25;i++){const a=(Math.sin(i*11+t*3)+1)*.5;c.fillStyle='rgba(255,149,53,'+(.2+a*.7)+')';c.fillRect(12+(i*37)%137,123+(i*13)%14,2+(i%4),2);}
+    fireTex.needsUpdate=true;
+  }
+  paintFire(0);
   addMesh(new THREE.CylinderGeometry(.09,.09,2.9,16),ironMat,0,2.35,0,stove);
   addMesh(new THREE.BoxGeometry(.83,.075,.74),stoneMat,0,.02,0,stove);
   const glow=new THREE.PointLight(0xff9a40,2.4,4);glow.position.set(0,.6,.45);stove.add(glow);
@@ -671,6 +743,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const mugMat=new THREE.MeshStandardMaterial({color:0xd3c4ae,roughness:.4});
     addMesh(new THREE.CylinderGeometry(.095,.075,.13,20),mugMat,x,levels.upper+.65,3.7);
     addMesh(new THREE.TorusGeometry(.052,.017,8,16),mugMat,x+.095,levels.upper+.66,3.7);
+  }
+  // Open book placed on the sofa-side table, not a floating prop.
+  const openBook=new THREE.Group();openBook.position.set(4.71,levels.upper+.60,3.54);openBook.rotation.y=.15;house.add(openBook);
+  addMesh(new THREE.BoxGeometry(.31,.035,.21),darkMat,0,0,0,openBook);
+  for(const side of [-1,1]){
+    const page=addMesh(new THREE.BoxGeometry(.145,.026,.194),paperMat,side*.074,.026,0,openBook);page.rotation.z=side*-.08;
+    for(let j=0;j<6;j++)addMesh(new THREE.BoxGeometry(.098,.002,.003),darkMat,side*.075,.042,-.062+j*.023,openBook,false,false);
   }
   const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=384;
   const signCtx=signCanvas.getContext('2d');signCtx.fillStyle='#312219';signCtx.fillRect(0,0,1024,384);
@@ -873,11 +952,57 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const dustMat = new THREE.PointsMaterial({color:0xf7e8cd,size:.04,transparent:true,opacity:.18,sizeAttenuation:true});
   const dustPts = new THREE.Points(dustGeo, dustMat); scene.add(dustPts);
 
+  // Optional local Web Audio: filtered noise for rain, short crackles and wooden footsteps.
+  // Audio begins only after an explicit user tap (iOS/Safari autoplay policy).
+  const soundBtn=document.getElementById('soundToggle'),weatherBtn=document.getElementById('weatherToggle'),quietBtn=document.getElementById('quietToggle');
+  let audio=null,soundOn=false,soundBusy=false,nextCrackle=0,walkDistance=0;
+  function buildAudio(){
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw Error('Audio nicht verfügbar');
+    const ctx=new AC(),master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+    const noise=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),data=noise.getChannelData(0);
+    for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+    const rain=ctx.createBufferSource();rain.buffer=noise;rain.loop=true;
+    const low=ctx.createBiquadFilter();low.type='lowpass';low.frequency.value=2400;
+    const high=ctx.createBiquadFilter();high.type='highpass';high.frequency.value=330;
+    const rg=ctx.createGain();rg.gain.value=0;rain.connect(high).connect(low).connect(rg).connect(master);rain.start();
+    return {ctx,master,noise,rg};
+  }
+  function setSoundUi(on){soundOn=on;soundBtn.textContent=on?'Ton: an':'Ton: aus';soundBtn.setAttribute('aria-pressed',String(on));}
+  soundBtn.addEventListener('click',async()=>{
+    if(soundBusy)return;soundBusy=true;
+    try{
+      if(!audio)audio=buildAudio();
+      if(soundOn){audio.master.gain.setTargetAtTime(0,audio.ctx.currentTime,.08);setSoundUi(false);}
+      else {await audio.ctx.resume();if(audio.ctx.state!=='running')throw Error('Audio blockiert');audio.master.gain.setTargetAtTime(.34,audio.ctx.currentTime,.12);setSoundUi(true);}
+    }catch(e){setSoundUi(false);soundBtn.textContent='Ton nicht verfügbar';}
+    finally{soundBusy=false;}
+  });
+  weatherBtn.addEventListener('click',()=>{weather.rain=!weather.rain;weatherBtn.textContent=weather.rain?'Regen: an':'Regen: aus';weatherBtn.setAttribute('aria-pressed',String(weather.rain));paintRain(0,0);});
+  function quiet(on){document.body.classList.toggle('quiet',on);quietBtn.setAttribute('aria-pressed',String(on));for(const k in keys)keys[k]=false;moveStick.x=moveStick.y=lookStick.x=lookStick.y=0;}
+  quietBtn.addEventListener('click',()=>quiet(true));document.getElementById('quietExit').addEventListener('click',()=>quiet(false));addEventListener('keydown',e=>{if(e.code==='Escape')quiet(false);});
+  function audioBurst(freq,q,duration,level){
+    if(!audio||!soundOn||audio.ctx.state!=='running'||level<.002)return;
+    const {ctx,master,noise}=audio,t=ctx.currentTime;
+    const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();src.buffer=noise;f.type='bandpass';f.frequency.value=freq;f.Q.value=q;g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(level,t+.008);g.gain.exponentialRampToValueAtTime(.001,t+duration);src.connect(f).connect(g).connect(master);src.start(t,Math.random()*.8);src.stop(t+duration+.015);
+  }
+  function ambience(dt,t,distMoved){
+    if(!audio||!soundOn||audio.ctx.state!=='running')return;
+    const pos=walkMode?player.pos:controls.target;
+    const cellar=walkMode?navigation.floor===0:pos.y<0;
+    audio.rg.gain.setTargetAtTime(weather.rain?(cellar?.018:.105):0,audio.ctx.currentTime,.2);
+    const fireDist=pos.distanceTo(stove.position);const fireLevel=.19/(1+fireDist*.65);
+    if(t>nextCrackle){nextCrackle=t+.12+Math.random()*.95;audioBurst(900+Math.random()*1400,.8,.035+Math.random()*.06,fireLevel);}
+    if(walkMode&&distMoved>0){walkDistance+=distMoved;if(walkDistance>.62){walkDistance=0;audioBurst(cellar?155:240,.9,.13,.12);if(!cellar&&Math.random()<.38)audioBurst(450+Math.random()*250,3,.19,.047);}}
+  }
+  let visualTime=0,lastPaint=0;
   const clock = new THREE.Clock();
   function animate(){
     requestAnimationFrame(animate);
     const t = performance.now();
     const dt = Math.min(.033, clock.getDelta());
+    visualTime+=dt;let distMoved=0;
+    if(visualTime-lastPaint>=.075){paintRain(visualTime,visualTime-lastPaint);paintFire(visualTime);lastPaint=visualTime;}
+    glow.intensity=2.1+.32*Math.sin(visualTime*7.1)+.2*Math.sin(visualTime*13.2);
     if(tween && !walkMode){
       const p = Math.min(1, (t-tween.start)/tween.dur);
       const e = 1-Math.pow(1-p,3);
@@ -896,9 +1021,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       const move = new THREE.Vector3();
       move.addScaledVector(f, forward);
       move.addScaledVector(s, strafe);
-      if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); navigate(move.x,move.z); }
+      if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); const px=player.pos.x,pz=player.pos.z;navigate(move.x,move.z);distMoved=Math.hypot(player.pos.x-px,player.pos.z-pz); }
       syncWalkCamera();
     }
+    ambience(dt,visualTime,distMoved);
     updateDoors();
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
     hiddenShelf.group.rotation.y = shelfAngle;
