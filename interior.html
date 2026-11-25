@@ -2090,7 +2090,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(editMode)refreshEditorSelection();
     animateResidents(visualTime);
     // Business simulation paused.
-    animateExterior(dt);
+    if(outside.visible)animateExterior(dt);
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
     updateDoors();
@@ -3130,6 +3130,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   if('serviceWorker' in navigator&&location.protocol==='https:'){
     navigator.serviceWorker.register('./sw.js?v=038',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
+  if(new URLSearchParams(location.search).get('entry')==='door'){currentArea='shop';houseView.floor=1;houseView.mode='full';houseView.scope='single';houseView.roof=false;setWalkMode(true);applyHouseView(true);}
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
   setTimeout(()=>{if(qualityEl.value!=='low')loadDetails();else{installLocalOriginals().then(()=>{rebuildEditorCollisions();auditLayout();});enableRayAcceleration();modelStatus.textContent='Detailmaterialien auf Wunsch unter Optionen laden';}},1700);
