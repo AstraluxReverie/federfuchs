@@ -365,7 +365,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
       <button id="bizEvent" class="wideTool">Lesung veranstalten</button><button id="bizNextDay" class="wideTool">Neuer Tag</button>
       <p id="bizMessage" role="status" class="drawerHint"></p>
     </div>
-    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
+    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p class="drawerHint" id="detailProgress" role="status">Lokale Grundszene bereit</p><progress id="detailBar" max="1" value="0" style="width:100%;height:7px;accent-color:#91b6a0"></progress><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
       <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p><p id="layoutStatus" role="status">Wandprüfung …</p>
@@ -814,6 +814,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     rainTex.needsUpdate=true;
   }
   paintRain(0,0);
+  const casements=[];
   function simpleWindow(x,y,z,w=1.6,h=1.6,group=house){
     const g=new THREE.Group();g.position.set(x,y,z);group.add(g);
     // Local +Z faces the room. The frame is set into a 35 cm wall.
@@ -829,14 +830,18 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
     // Inner and outer sills project beyond the wall and cast real shadows.
     addMesh(new THREE.BoxGeometry(w+.22,.075,.46),stoneMat,0,-h/2-.04,.012,g);
-    addMesh(new THREE.BoxGeometry(.046,h-.12,.083),windowWood,0,0,.035,g);
-    addMesh(new THREE.BoxGeometry(w-.12,.046,.083),windowWood,0,0,.035,g);
-    const pw=(w-.19)/2,ph=(h-.19)/2;
-    for(const sx of [-1,1])for(const sy of [-1,1]){
-      const px=sx*(pw/2+.022),py=sy*(ph/2+.022);
-      const glass=addMesh(new THREE.BoxGeometry(pw,ph,.012),windowGlass,px,py,0,g,false,false);glass.renderOrder=2;
-      const rain=addMesh(new THREE.PlaneGeometry(pw,ph),rainMat,px,py,-.012,g,false,false);rain.renderOrder=3;
+    const sw=(w-.18)/2,sh=h-.16;
+    for(const sign of [-1,1]){
+      const sash=new THREE.Group();sash.position.x=sign*(w/2-.085);g.add(sash);
+      const cx=-sign*sw/2;
+      for(const sx of [-1,1])addMesh(new THREE.BoxGeometry(.055,sh,.065),windowWood,cx+sx*(sw/2-.025),0,.025,sash);
+      for(const yy of [-sh/2+.027,0,sh/2-.027])addMesh(new THREE.BoxGeometry(sw,.055,.065),windowWood,cx,yy,.025,sash);
+      for(const sy of [-1,1]){const glass=addMesh(new THREE.BoxGeometry(sw-.105,sh/2-.065,.012),windowGlass,cx,sy*sh/4,0,sash,false,false);glass.renderOrder=2;
+        const rain=addMesh(new THREE.PlaneGeometry(sw-.105,sh/2-.065),rainMat,cx,sy*sh/4,-.012,sash,false,false);rain.renderOrder=3;}
+      addMesh(new THREE.BoxGeometry(.035,.11,.046),brassMat,cx-sign*(sw/2-.07),-.08,.081,sash);
+      casements.push({sash,sign,group:g,open:false,angle:0});
     }
+    g.userData.inspectId='window';inspectables.push(g);
     return g;
   }
   function roundWindow(x,y,z,r=1.05,group=house){
@@ -1857,7 +1862,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     if(front&&front.distance<hit.distance-.075)return;
     if(hit===bookHit){const id=hit.object.userData.bookIds[hit.instanceId];if(Number.isInteger(id))readBook(id);return;}
     if(walkMode){for(let o=hit.object;o;o=o.parent){const e=editItems.find(v=>v.o===o&&(v.kind==='chair'||v.kind==='sofa'));if(e){offerSeat(e);return;}}}
-    for(let o=hit.object;o;o=o.parent){if(o.userData.inspectId){inspect(o.userData.inspectId);break;}}
+    for(let o=hit.object;o;o=o.parent){if(o.userData.inspectId){if(o.userData.inspectId==='window'){const matches=casements.filter(c=>c.group===o);const open=!matches.some(c=>c.open);for(const c of matches)c.open=open;flashHint(open?'Fenster geöffnet':'Fenster geschlossen');}else inspect(o.userData.inspectId);break;}}
   });
 
   // Atmosphere particles
@@ -1951,6 +1956,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
     updateDoors();
+    for(const c of casements){const target=c.open?c.sign*.85:0;c.angle+=(target-c.angle)*Math.min(1,dt*7);c.sash.rotation.y=c.angle;}
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
     // Secret shelf rotation is controlled by the same physical door system.
     dustPts.rotation.y += 0.0006;
@@ -2052,7 +2058,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     originalMaterials();materialsActive=true;const token=generation,res=qualitySelect.value;
     let index=0;
     // Only two materials in flight at once; original scene stays interactive.
-    async function worker(){while(token===generation&&index<materialSpecs.length){const spec=materialSpecs[index++];await loadMaterial(spec,res,token);}}
+    async function worker(){while(token===generation&&index<materialSpecs.length){const spec=materialSpecs[index++];try{await loadMaterial(spec,res,token);}finally{detailDone();}}}
     await Promise.all([worker(),worker()]);
     if(token===generation){const failed=[...matStates.values()].filter(v=>v.mode==='fallback').length;if(failed)matStatus.textContent+=' · '+failed+' Ersatz';}
   }
@@ -2083,9 +2089,10 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function disposeModel(root){root.traverse(o=>{if(o.isMesh){o.geometry?.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){if(!m)continue;for(const v of Object.values(m))if(v?.isTexture)v.dispose();m.dispose();}}});}
   async function installModels(){
     let GLTFLoader;
-    try{({GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js'));}catch(e){modelStatus.textContent='Originalmodelle: Ladebibliothek nicht verfügbar';return;}
+    try{({GLTFLoader}=await import('./vendor/loaders/GLTFLoader.js'));}catch(e){modelStatus.textContent='Originalmodelle: Ladebibliothek nicht verfügbar';return;}
     const lines=[];
     for(const spec of modelSpecs){
+      try{
       if(spec.target.userData.originalModelLoaded){lines.push(spec.id+': Original bereits geladen');continue;}
       modelStatus.textContent=lines.join(' · ')+(lines.length?' · ':'')+spec.id+' lädt …';
       let model=null;
@@ -2118,6 +2125,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       // Remove only after successful replacement. Retain inspectable parent and userData.
       for(const child of fallback)spec.target.remove(child);
       spec.target.userData.originalModelLoaded=true;lines.push(spec.id+': Original');
+      }finally{detailDone();}
     }
     modelStatus.textContent=lines.join(' · ');
   }
@@ -2128,7 +2136,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const candidates=new Set([...pickableBooks.map(m=>m.parent),...inspectables,readerChair,readingTable,clockStand,...house.children.filter(o=>o.userData.editKind)]);
     const conflicts=[];
     for(const o of candidates){
-      if(o===hiddenShelf.group||o===stove||o.parent===hiddenShelf.group)continue;
+      if(o===hiddenShelf.group||o===stove||o.parent===hiddenShelf.group||o.userData.inspectId==='window')continue;
       const box=new THREE.Box3().setFromObject(o);
       if(wallBoxes.some(w=>intersectsWall(box,w,.035)))conflicts.push(o.userData.inspectId||o.userData.editLabel||'Objekt bei '+o.position.x.toFixed(1)+', '+o.position.z.toFixed(1));
     }
@@ -2636,11 +2644,14 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       }accelEl.textContent='BVH aktiv · '+n+' komplexe Meshes';
     }catch(e){accelEl.textContent='BVH nicht verfügbar · Standard-Raycast aktiv';}
   }
+  let detailActive=false,detailTotal=0,detailCompleted=0;
+  function showDetailProgress(){const bar=document.getElementById('detailBar'),label=document.getElementById('detailProgress');bar.max=Math.max(1,detailTotal);bar.value=detailCompleted;label.textContent=detailActive?'Detailressourcen geprüft: '+detailCompleted+' / '+detailTotal:detailTotal?'Detailprüfung beendet: '+detailCompleted+' / '+detailTotal:'Lokale Grundszene bereit';}
+  function detailDone(){if(detailActive){detailCompleted=Math.min(detailTotal,detailCompleted+1);showDetailProgress();}}
   async function loadDetails(){
-    if(detailBusy)return;detailBusy=true;document.getElementById('assetLoad').disabled=true;
+    if(detailBusy)return;detailBusy=true;detailActive=true;detailTotal=materialSpecs.length+modelSpecs.length;detailCompleted=0;showDetailProgress();document.getElementById('assetLoad').disabled=true;
     try{await Promise.allSettled([restorePhotographic(),installModels()]);rebuildEditorCollisions();auditLayout();await enableRayAcceleration();}
     catch(e){modelStatus.textContent='Detail-Ladefehler · Ersatz aktiv';}
-    finally{detailBusy=false;document.getElementById('assetLoad').disabled=false;}
+    finally{detailBusy=false;detailActive=false;showDetailProgress();document.getElementById('assetLoad').disabled=false;}
   }
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
@@ -2649,7 +2660,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
-  setTimeout(()=>{enableRayAcceleration();if(qualityEl.value!=='low')loadDetails();else modelStatus.textContent='Detailmodelle auf Wunsch unter Optionen laden';},1700);
+  setTimeout(()=>{if(qualityEl.value!=='low')loadDetails();else{enableRayAcceleration();modelStatus.textContent='Detailmodelle auf Wunsch unter Optionen laden';}},1700);
 
 </script>
 </body>
