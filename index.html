@@ -2008,6 +2008,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       const e = 1-Math.pow(1-p,3);
       camera.position.lerpVectors(tween.fromPos, tween.toPos, e);
       controls.target.lerpVectors(tween.fromTar, tween.toTar, e);
+      camera.lookAt(controls.target);
       if(p>=1) tween = null;
     }
     if(walkMode&&dialog.hidden&&!seatedState){
