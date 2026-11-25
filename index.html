@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.28</title>
+  <title>Zum träumenden Federfuchs – v0.29</title>
   <style>
     :root{
       --bg:#10151b;
@@ -261,11 +261,11 @@ body.walk #mobileControls{padding:0 max(16px,env(safe-area-inset-left));bottom:m
 button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #quickDock #quickWalls{width:39px;font-size:10px!important;font-weight:650;letter-spacing:.01em}
 @media(max-width:420px){#quickDock #quickWalls{width:32px;font-size:9px!important}}
-#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}#journeyPanel select{width:100%;min-height:36px;background:#263a3b;color:#e3eade;border:1px solid #8fa69a;border-radius:7px;padding:6px;font-size:12px}#tourHud{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;width:min(360px,calc(100vw - 20px));text-align:center;color:#f3ead8;background:#142021d9;padding:10px;border:1px solid #d6c79e44;border-radius:12px}#tourHud[hidden]{display:none!important}#tourCaption{font-family:Georgia,serif;font-size:17px;margin-bottom:8px}.tourControls{display:flex;gap:6px;justify-content:center}.tourControls button{min-height:40px;padding:5px 12px;background:#2f4444;border:1px solid #a7b9a36b;color:#e8edde}body.touring #toolRail,body.touring #quickDock,body.touring #hud,body.touring #sceneStatus,body.touring #sceneHome,body.touring #sceneWalkExit,body.touring #quickStand,body.touring #quietExit,body.touring #mobileControls{display:none!important}#tourVeil{position:fixed;inset:0;background:#12191d;opacity:0;pointer-events:none;z-index:24}#inventoryList button{font-size:10px;min-height:30px;margin-top:3px;color:#dbebdf;background:#2a403e;border:1px solid #90ab9666;border-radius:5px}</style>
+#inventoryDetails{margin:8px 0;padding:8px 6px;border:1px solid #a3b9a044;border-radius:8px;font-size:11px}#inventoryDetails summary{cursor:pointer;font-weight:650;color:#e0e7d9}#inventorySearch,#inventoryFloor{width:100%;margin:4px 0;min-height:32px;padding:5px;background:#23383c;color:#e2eae1;border:1px solid #809b8c;border-radius:5px}#inventoryList{max-height:230px;overflow:auto;overscroll-behavior:contain}#inventoryList>div{display:flex;flex-direction:column;gap:3px;padding:7px 2px;border-bottom:1px solid #a2baab33}#inventoryList small{color:#b7c8bf;font-size:10px;line-height:1.4}#journeyPanel select{width:100%;min-height:36px;background:#263a3b;color:#e3eade;border:1px solid #8fa69a;border-radius:7px;padding:6px;font-size:12px}#tourHud{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;width:min(360px,calc(100vw - 20px));text-align:center;color:#f3ead8;background:#142021d9;padding:10px;border:1px solid #d6c79e44;border-radius:12px}#tourHud[hidden]{display:none!important}#tourCaption{font-family:Georgia,serif;font-size:17px;margin-bottom:8px}.tourControls{display:flex;gap:6px;justify-content:center}.tourControls button{min-height:40px;padding:5px 12px;background:#2f4444;border:1px solid #a7b9a36b;color:#e8edde}body.touring #toolRail,body.touring #quickDock,body.touring #hud,body.touring #sceneStatus,body.touring #sceneHome,body.touring #sceneWalkExit,body.touring #quickStand,body.touring #quietExit,body.touring #mobileControls{display:none!important}#tourVeil{position:fixed;inset:0;background:#12191d;opacity:0;pointer-events:none;z-index:24}#inventoryList button{font-size:10px;min-height:30px;margin-top:3px;color:#dbebdf;background:#2a403e;border:1px solid #90ab9666;border-radius:5px}#photoHud{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(390px,calc(100vw - 20px));z-index:30;padding:9px;background:#172628e8;border:1px solid #bfcec155;border-radius:12px;color:#e9eee5}#photoHud[hidden],#photoPreview[hidden]{display:none!important}.photoBar{display:flex;align-items:center;justify-content:space-between;gap:6px}.photoBar button,#photoClear{min-height:40px;padding:5px 10px}.photoBar label{font-size:10px}.photoBar select{background:#263a3b;color:#eef0df;padding:5px;border:1px solid #a2b8a1;border-radius:5px}#photoStatus{font-size:11px;margin:5px 0}#photoPreview img{max-width:100%;max-height:33vh;display:block;margin:auto;object-fit:contain}#photoDownload{display:inline-block;padding:10px;color:#e6d1a3}body.photographing #toolRail,body.photographing #quickDock,body.photographing #hud,body.photographing #sceneStatus,body.photographing #sceneHome,body.photographing #sceneWalkExit,body.photographing #mobileControls,body.photographing #quickStand{display:none!important}</style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.28 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.29 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -296,12 +296,12 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="dockGroup"><button id="quickWalls" aria-label="Wandansicht auswählen">◩</button><button id="quickRoof" aria-label="Dach ein oder aus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15l9-10 9 10M6 13v7h12v-7"/></svg></button><button id="quickTop" aria-label="Draufsicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 11h16M11 4v16"/></svg></button></div>
   <div class="dockGroup"><button data-cam="left" aria-label="Kamera nach links drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6"/></svg></button><button data-cam="right" aria-label="Kamera nach rechts drehen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg></button><button data-cam="in" aria-label="Heranzoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button data-cam="out" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button></div>
 </div>
-<button id="quickStand" type="button" hidden>Aufstehen</button><div id="tourVeil" aria-hidden="true"></div><div id="tourHud" hidden><div id="tourCaption"></div><div class="tourControls"><button id="tourPrev" aria-label="Vorheriger Raum">‹</button><button id="tourPause">Pause</button><button id="tourNext" aria-label="Nächster Raum">›</button><button id="tourStop">Beenden</button></div></div><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
+<button id="quickStand" type="button" hidden>Aufstehen</button><div id="photoHud" hidden><div class="photoBar"><button id="photoExit">Schließen</button><label>Objektiv <select id="photoLens"><option value="55">Weitwinkel</option><option value="45">Normal</option><option value="32">Porträt</option></select></label><button id="photoCapture">Foto</button></div><p id="photoStatus"></p><div id="photoPreview" hidden><img id="photoImage" alt="Aufnahme des Federfuchses"><a id="photoDownload" download="federfuchs.png">PNG speichern</a><button id="photoClear">Neue Aufnahme</button></div></div><div id="tourVeil" aria-hidden="true"></div><div id="tourHud" hidden><div id="tourCaption"></div><div class="tourControls"><button id="tourPrev" aria-label="Vorheriger Raum">‹</button><button id="tourPause">Pause</button><button id="tourNext" aria-label="Nächster Raum">›</button><button id="tourStop">Beenden</button></div></div><div id="sceneStatus"><b id="sceneMode">Gebäudeansicht</b><span id="sceneFloor">Alle Etagen</span></div><button id="sceneHome" type="button" aria-label="Gesamtansicht" title="Gesamtansicht"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg></button><button id="sceneWalkExit" type="button" hidden>← Übersicht</button>
 <div id="hud" class="compactHud" hidden>
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.28 · Lichtstaub & Raumklang</div>
+    <div id="sub">v0.29 · Buchhaims Gassen & Fotografie</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -324,7 +324,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
       <div class="toolPair"><button data-cam="left">↶ 45°</button><button data-cam="right">↷ 45°</button></div>
       <div class="toolPair"><button data-cam="in">＋ Zoom</button><button data-cam="out">− Zoom</button></div>
       <div class="camCross"><button data-cam="north">↑</button><button data-cam="west">←</button><button data-cam="home">⌂</button><button data-cam="east">→</button><button data-cam="south">↓</button></div>
-      <button id="cameraReset" class="wideTool">Ansicht zentrieren</button><button id="cameraFit" class="wideTool">Gesamtes Gebäude einpassen</button><label class="drawerLabel" for="cameraSpeed">Empfindlichkeit</label><input id="cameraSpeed" type="range" min=".4" max="1.6" step=".1" value=".8">
+      <button id="cameraReset" class="wideTool">Ansicht zentrieren</button><button id="cameraFit" class="wideTool">Gesamtes Gebäude einpassen</button><button id="photoStart" class="wideTool">Fotomodus</button><label class="drawerLabel" for="cameraSpeed">Empfindlichkeit</label><input id="cameraSpeed" type="range" min=".4" max="1.6" step=".1" value=".8">
       <p class="drawerHint">Ein Finger dreht oder schiebt. Zwei Finger zoomen und verschieben.</p>
     </div>
     <div id="walkPanel" class="drawerSection" hidden><p class="drawerHint">Gehe mit dem linken Stick. Ziehe mit einem Finger über den Raum, um dich umzusehen. Der rechte Stick funktioniert weiterhin.</p><label class="drawerLabel" for="walkSpeed">Lauftempo</label><input id="walkSpeed" type="range" min="1.2" max="4" step=".2" value="2.6"><button id="walkRecenter" class="wideTool">Zum Startpunkt</button></div>
@@ -429,6 +429,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import {ANCHOR_PLAN,anchorFor} from './asset-anchors.js';
   import {moodFor,reflectionArtwork,roughnessArtwork,contactArtwork} from './lighting-art.js';
   import {flameArtwork,shaftArtwork,ROOM_FINISH,acousticImpulse,reverbFor} from './atmosphere-art.js';
+  import {streetDetails,BOOK_WORLD,photoDimensions} from './world-details.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -1642,6 +1643,24 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   // Street furniture and doorway lighting, kept outside the walking volume.
   for(const side of [-1,1]){const x=side*3.0;outBox(.08,.42,.12,x,2.35,5.62,ironMat);outBox(.23,.31,.24,x,2.20,5.79,exteriorLight);outBox(.31,.07,.32,x,2.40,5.79,roofMat);const l=new THREE.PointLight(0xffbf73,3.3,4,2);l.position.set(x,2.19,5.9);outside.add(l);}
+  // Shared geometry for repeated street details.
+  const streetPlan=streetDetails(),streetDummy=new THREE.Object3D(),streetBatches=[];
+  function streetBatch(geo,mat,rows,place){const mesh=new THREE.InstancedMesh(geo,mat,rows.length);rows.forEach((p,i)=>{place(p,streetDummy);streetDummy.updateMatrix();mesh.setMatrixAt(i,streetDummy.matrix);});mesh.instanceMatrix.needsUpdate=true;mesh.receiveShadow=true;outside.add(mesh);streetBatches.push(mesh);return mesh;}
+  const posts=streetPlan.filter(p=>p.kind==='bollard'),edges=streetPlan.filter(p=>p.kind==='paving_edge');
+  streetBatch(new THREE.CylinderGeometry(.095,.135,1,10),ironMat,posts,(p,o)=>{o.position.set(p.x,p.h/2,p.z);o.scale.set(1,p.h,1);});
+  streetBatch(new THREE.SphereGeometry(.105,10,8),ironMat,posts,(p,o)=>{o.position.set(p.x,p.h,p.z);o.scale.set(1,.75,1);});
+  streetBatch(new THREE.BoxGeometry(.62,.10,.26),dressedStone,edges,(p,o)=>{o.position.set(p.x,.01,p.z);o.scale.set(1,1,1);});
+  const streetGreen=new THREE.MeshStandardMaterial({color:0x536745,roughness:.95}),terracotta=new THREE.MeshStandardMaterial({color:0x80513d,roughness:.88});
+  const neighbors=outside.children.filter(o=>o.isGroup);
+  for(const g of neighbors){const mass=g.children.find(o=>o.geometry?.type==='BoxGeometry');if(!mass)continue;const {width:w,depth:d,height:h}=mass.geometry.parameters;
+    for(const x of [-w*.28,w*.28]){
+      addMesh(new THREE.BoxGeometry(1.10,.20,.30),terracotta,x,3.13,d/2+.18,g,false,true);
+      for(let j=0;j<4;j++){const leaf=addMesh(new THREE.SphereGeometry(.14,7,5),streetGreen,x-.36+j*.24,3.29,d/2+.18,g,false,true);leaf.scale.set(1.2,1.3,.85);}
+    }
+    addMesh(new THREE.BoxGeometry(w+.23,.13,.26),dressedStone,0,h-.12,d/2+.09,g,false,true);
+    addMesh(new THREE.BoxGeometry(.49,1.3,.62),facadeMat,w*.25,h+h*.12,0,g,false,true);
+    addMesh(new THREE.BoxGeometry(.64,.13,.74),dressedStone,w*.25,h+h*.12+.66,0,g,false,true);
+  }
   // Real raindrops beyond the glass; light, low-cost line geometry.
   const outdoorRainCount=180,orr=new Float32Array(outdoorRainCount*6);
   for(let i=0;i<outdoorRainCount;i++){const k=i*6,side=i%2===0?-1:1;orr[k]=side*(9.4+Math.random()*5.2);orr[k+1]=Math.random()*14;orr[k+2]=-7+Math.random()*13;orr[k+3]=orr[k]-.025;orr[k+4]=orr[k+1]-.18;orr[k+5]=orr[k+2];}
@@ -1879,7 +1898,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     const b=library[readState.id],p=readState.page;heading.textContent=b.title;catalog.hidden=true;paper.hidden=false;foot.hidden=false;backBtn.hidden=false;
     const meta=document.createElement('div'),title=document.createElement('h2'),author=document.createElement('div'),body=document.createElement('p');
     meta.className='bookMeta';meta.textContent=b.kind;title.textContent=b.title;author.className='bookMeta';author.textContent=b.author;body.textContent=b.pages[p];
-    paper.replaceChildren(meta,title,author,body);pageNum.textContent='Seite '+(p+1)+' / '+b.pages.length;prevBtn.disabled=p===0;nextBtn.disabled=p===b.pages.length-1;
+    paper.replaceChildren(meta,title,author,body);
+    if(readState.id===BOOK_WORLD.bookId){const note=document.createElement('p');note.className='bookMeta';note.textContent='Buchwelt in Planung: '+BOOK_WORLD.title+' · noch nicht begehbar.';paper.append(note);}
+    pageNum.textContent='Seite '+(p+1)+' / '+b.pages.length;prevBtn.disabled=p===0;nextBtn.disabled=p===b.pages.length-1;
     bookmarks[readState.id]=p;try{localStorage.setItem('federfuchs-bookmarks-v1',JSON.stringify(bookmarks));localStorage.setItem('federfuchs-last-book',String(readState.id));}catch(e){}
     document.getElementById('readingPanel').scrollTop=0;
   }
@@ -1917,7 +1938,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   renderer.domElement.addEventListener('pointerdown',e=>{if(e.isPrimary)down={x:e.clientX,y:e.clientY,id:e.pointerId};else down=null;});
   renderer.domElement.addEventListener('pointercancel',()=>down=null);
   renderer.domElement.addEventListener('pointerup',e=>{
-    if(tourState){down=null;return;}
+    if(tourState||photoMode){down=null;return;}
     if(!down||e.pointerId!==down.id||Math.hypot(e.clientX-down.x,e.clientY-down.y)>9||!dialog.hidden){down=null;return;}
     down=null;
     const rect=renderer.domElement.getBoundingClientRect();
@@ -2376,6 +2397,17 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   function floorOf(y){return y<-.25?0:y<4.95?1:2;}
   function floorAllowed(f,selection,scope){return selection===-1||(scope==='single'?f===selection:f<=selection);}
   function effectiveWallMode(mode,side,floor,selection,cameraX,cameraZ,walk){return wallMode(mode,side,cameraX,cameraZ,walk);}
+  // Ceiling coffers attached to true slab undersides.
+  const ceilingDecor=[];
+  for(const f of [1,2]){
+    const cy=[-.175,4.925,9.725][f];
+    const rows=f===1?[[-6,-2.5],[-6,2.5],[6,-2.5],[6,2.5]]:[[-6,-2.5],[-7.5,2.65],[-4.6,2.65],[5.85,-3],[7.1,2.3]];
+    for(const [x,z] of rows){const g=new THREE.Group();g.position.set(x,cy-.025,z);house.add(g);wallAttachment(g,f,null,'ceiling');
+      const w=f===1?2.4:1.7,d=f===1?2.7:1.75;
+      for(const side of [-1,1]){addMesh(new THREE.BoxGeometry(w,.095,.10),trimMat,0,-.045,side*d/2,g,false,true);addMesh(new THREE.BoxGeometry(.10,.095,d),trimMat,side*w/2,-.045,0,g,false,true);}
+      const med=addMesh(new THREE.TorusGeometry(.24,.033,8,24),antiqueBrass,0,-.075,0,g,false,true);med.rotation.x=Math.PI/2;ceilingDecor.push(g);
+    }
+  }
   const visualFloorEntries=[];
   house.updateMatrixWorld(true);
   for(const o of house.children){
@@ -3022,6 +3054,19 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     for(const l of windowPools)l.intensity+=(Number(l.userData.goal||0)-l.intensity)*Math.min(1,dt*3);
     updateShaftDust(visualTime);
   }
+  let photoMode=false,photoFov=45,photoUrl=null,photoBusy=false,photoGeneration=0;
+  const photoHud=document.getElementById('photoHud'),photoStatus=document.getElementById('photoStatus'),photoLens=document.getElementById('photoLens'),photoPreview=document.getElementById('photoPreview'),photoImage=document.getElementById('photoImage'),photoDownload=document.getElementById('photoDownload');
+  function clearPhoto(){if(photoUrl){URL.revokeObjectURL(photoUrl);photoUrl=null;}photoPreview.hidden=true;photoImage.removeAttribute('src');photoDownload.removeAttribute('href');}
+  function enterPhoto(){if(tourState||photoMode)return;if(walkMode)setWalkMode(false);setDrawer(null);photoFov=camera.fov;photoMode=true;photoLens.value=String(photoFov);photoHud.hidden=false;document.body.classList.add('photographing');photoStatus.textContent='Drehen, schieben und zoomen. Das Foto zeigt nur die 3D-Szene.';}
+  function exitPhoto(){if(!photoMode)return;photoMode=false;photoGeneration++;photoBusy=false;camera.fov=photoFov;camera.updateProjectionMatrix();photoHud.hidden=true;document.body.classList.remove('photographing');clearPhoto();}
+  function capturePhoto(){if(!photoMode||photoBusy)return;photoBusy=true;const generation=++photoGeneration;photoStatus.textContent='Aufnahme wird erzeugt';
+    try{renderer.render(scene,camera);const source=renderer.domElement,[w,h]=photoDimensions(source.width,source.height);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const c=canvas.getContext('2d');c.fillStyle='#172128';c.fillRect(0,0,w,h);c.drawImage(source,0,0,w,h);
+      canvas.toBlob(blob=>{if(generation!==photoGeneration)return;photoBusy=false;if(!photoMode)return;if(!blob){photoStatus.textContent='PNG konnte nicht erzeugt werden';return;}clearPhoto();photoUrl=URL.createObjectURL(blob);photoImage.src=photoUrl;photoDownload.href=photoUrl;photoPreview.hidden=false;photoStatus.textContent=w+' × '+h+' Pixel · PNG';},'image/png');
+    }catch(e){photoBusy=false;photoStatus.textContent='Aufnahme nicht verfügbar: '+e.message;}
+  }
+  document.getElementById('photoStart').addEventListener('click',enterPhoto);document.getElementById('photoExit').addEventListener('click',exitPhoto);document.getElementById('photoCapture').addEventListener('click',capturePhoto);document.getElementById('photoClear').addEventListener('click',clearPhoto);
+  photoLens.addEventListener('change',()=>{if(photoMode){camera.fov=Number(photoLens.value);camera.updateProjectionMatrix();}});
+  addEventListener('keydown',e=>{if(e.code==='Escape'&&photoMode)exitPhoto();});
   let detailActive=false,detailTotal=0,detailCompleted=0;
   function showDetailProgress(){const bar=document.getElementById('detailBar'),label=document.getElementById('detailProgress');bar.max=Math.max(1,detailTotal);bar.value=detailCompleted;label.textContent=detailActive?'Detailressourcen geprüft: '+detailCompleted+' / '+detailTotal:detailTotal?'Detailprüfung beendet: '+detailCompleted+' / '+detailTotal:'Lokale Grundszene bereit';}
   function detailDone(){if(detailActive){detailCompleted=Math.min(detailTotal,detailCompleted+1);showDetailProgress();}}
@@ -3034,7 +3079,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=028',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=029',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
