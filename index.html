@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.17</title>
+  <title>Zum träumenden Federfuchs – v0.18</title>
   <style>
     :root{
       --bg:#10151b;
@@ -228,11 +228,18 @@ body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
 #movePad:after{content:'LAUFEN'}#lookPad:after{content:'BLICK'}
 @media(max-width:420px){#toolRail{width:40px}#toolRail button{width:40px;height:39px;font-size:18px}#hud.compactHud{left:51px;width:min(218px,calc(100vw - 59px))}#quickDock{gap:2px}.dockGroup{gap:1px;padding:2px}#quickDock button{width:27px;height:31px}#quickDock #quickFloor{width:38px}}
 @media(max-height:520px){#toolRail{max-height:calc(100dvh - 12px);overflow:auto;scrollbar-width:none}#toolRail button{flex-shrink:0;height:32px}#toolRail button small{display:none}#hud.compactHud .card{max-height:calc(100dvh - 55px)}}
+
+#businessPanel select,#performancePanel select{width:100%;background:#24363b;color:#e4efe8;border:1px solid #8db7a3;border-radius:7px;padding:8px;font-size:12px}
+.bizHeader{display:flex;justify-content:space-between;font-size:10px;color:#c5d9cf;margin:3px 0 7px}
+.bizStats{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.bizStats>div{padding:7px;background:#263b3f;border-radius:8px;display:flex;flex-direction:column}
+.bizStats small{font-size:9px;color:#b8d0c7}.bizStats b{font-size:15px;font-variant-numeric:tabular-nums}
+#businessPanel button:disabled{opacity:.38}#bizMessage{min-height:22px}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.17 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.18 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -252,6 +259,7 @@ body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
     <button data-panel="edit" aria-label="Einrichten" title="Einrichten">✥<small>Bauen</small></button>
     <button data-panel="walk" aria-label="Gehmodus" title="Gehmodus">♙<small>Gehen</small></button>
     <button data-panel="library" aria-label="Bücher" title="Bücher">▤<small>Bücher</small></button>
+    <button data-panel="shop" aria-label="Geschäftsbuch" title="Geschäftsbuch">▧<small>Laden</small></button>
     <button data-panel="settings" aria-label="Einstellungen" title="Einstellungen">⚙<small>Optionen</small></button>
     <button data-panel="help" aria-label="Steuerungshilfe" title="Steuerungshilfe">?<small>Hilfe</small></button>
   </div>
@@ -266,7 +274,7 @@ body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.17 · Haus & Kamera</div>
+    <div id="sub">v0.18 · Fassade & Antiquariatsbetrieb</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -322,6 +330,18 @@ body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
       <div class="editLine"><button id="editSave" type="button">Speichern</button><button id="editLoad" type="button">Laden</button><button id="editReset" type="button">Original</button></div>
       <div id="editStatus" role="status">Wähle ein Möbel aus. Rote Markierung = Platzierung nicht möglich.</div>
     </div>
+    <div id="businessPanel" class="drawerSection" hidden>
+      <div class="bizHeader"><span id="bizDay">Tag 1</span><span id="bizOpen">Geschlossen</span></div>
+      <div class="bizStats"><div><small>Kasse</small><b id="bizCash">–</b></div><div><small>Bestand</small><b id="bizStock">–</b></div><div><small>Besucher</small><b id="bizVisitors">–</b></div><div><small>Verkauft</small><b id="bizSales">–</b></div></div>
+      <button id="bizToggle" class="wideTool">Antiquariat öffnen</button><p class="drawerHint" id="bizCustomer">Noch keine Kundschaft.</p>
+      <button id="bizInvite" class="wideTool">Kunden empfangen</button>
+      <button id="bizSell" class="wideTool">Buch verkaufen</button>
+      <label class="drawerLabel" for="bizBook">Bücherbestand</label><select id="bizBook"></select><p id="bizBookInfo" class="drawerHint"></p>
+      <div class="toolPair"><button id="bizBuy">Ankaufen</button><button id="bizRepair">Restaurieren</button></div>
+      <button id="bizEvent" class="wideTool">Lesung veranstalten</button><button id="bizNextDay" class="wideTool">Neuer Tag</button>
+      <p id="bizMessage" role="status" class="drawerHint"></p>
+    </div>
+    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
       <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p><p id="layoutStatus" role="status">Wandprüfung …</p>
@@ -363,7 +383,7 @@ body.walk #floorLabel{top:max(10px,env(safe-area-inset-top));right:9px}
 </div>
 
 <script>
-window.addEventListener('error',()=>{document.getElementById('loading').classList.add('hide');const e=document.getElementById('error');e.style.display='block';e.innerHTML='<h2>3D konnte nicht geladen werden</h2><p>Bitte lade die Seite neu oder öffne sie in Safari.</p><a href="https://github.com/AstraluxReverie/federfuchs/blob/5916f687815c526d2242c23feb84fc954f8cf2d0/index.html" style="color:#e9bd83">Quellcode der alten Version</a>';});
+window.addEventListener('error',(event)=>{document.getElementById('loading').classList.add('hide');const e=document.getElementById('error');e.style.display='block';e.innerHTML='<h2>3D konnte nicht geladen werden</h2><p>Bitte lade die Seite neu oder öffne sie in Safari.</p><a href="https://github.com/AstraluxReverie/federfuchs/blob/5916f687815c526d2242c23feb84fc954f8cf2d0/index.html" style="color:#e9bd83">Quellcode der alten Version</a>';const p=document.createElement('p');p.textContent=event.message||'Unbekannter Laufzeitfehler';e.append(p);});
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script>
 <script type="module">
@@ -378,7 +398,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   scene.fog = new THREE.Fog(0x10151b, 30, 110);
 
   const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, matchMedia('(pointer:coarse)').matches?1:1.5));
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.35;
   renderer.setSize(innerWidth, innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -516,6 +536,25 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const woodMat = new THREE.MeshStandardMaterial({map:woodTex, roughness:.82, metalness:.04});
   const floorMat = new THREE.MeshStandardMaterial({map:plankTex, roughness:.86, metalness:.03});
   const stoneMat = new THREE.MeshStandardMaterial({map:stoneTex, roughness:.95, metalness:0});
+  // A visible, local fallback: staggered sandstone masonry with mortar, chips and weathering.
+  // Both the outer color and bump maps are continuous in world coordinates.
+  const facadeTex=canvasTexture((c,w,h)=>{
+    c.fillStyle='#6b655a';c.fillRect(0,0,w,h);
+    for(let row=0;row<7;row++){
+      const y=row*h/7,offset=row%2?w/10:0;
+      for(let col=-1;col<6;col++){
+        const x=col*w/5-offset,bw=w/5,bh=h/7;
+        const v=135+Math.floor(Math.random()*32),g=c.createLinearGradient(x,y,x+bw,y+bh);
+        g.addColorStop(0,'rgb('+(v+19)+','+(v+11)+','+(v-1)+')');g.addColorStop(.65,'rgb('+v+','+(v-8)+','+(v-22)+')');g.addColorStop(1,'rgb('+(v-18)+','+(v-24)+','+(v-34)+')');
+        c.fillStyle=g;c.fillRect(x+3,y+3,bw-6,bh-6);
+        c.strokeStyle='rgba(39,31,23,.42)';c.lineWidth=2;c.strokeRect(x+4,y+4,bw-8,bh-8);
+        for(let i=0;i<65;i++){const xx=x+7+Math.random()*(bw-14),yy=y+7+Math.random()*(bh-14);c.fillStyle=i%2?'#eee0c21e':'#29251c22';c.fillRect(xx,yy,1+Math.random()*8,1+Math.random()*3);}
+      }
+    }
+    for(let i=0;i<2400;i++){c.fillStyle=i%2?'#281d1015':'#fff3da12';c.fillRect(Math.random()*w,Math.random()*h,2+Math.random()*4,1+Math.random()*3);}
+  },1024,1024,1,1);
+  const facadeMat=new THREE.MeshStandardMaterial({map:facadeTex,bumpMap:facadeTex,bumpScale:.035,roughness:.94});
+  const foundationMat=new THREE.MeshStandardMaterial({map:stoneTex,bumpMap:stoneTex,bumpScale:.055,color:0x9a9282,roughness:.96});
   const plasterMat = new THREE.MeshStandardMaterial({map:plasterTex, roughness:.94, metalness:0});
   const brassMat = new THREE.MeshStandardMaterial({color:0xae8d54, roughness:.35, metalness:.8});
   const ironMat = new THREE.MeshStandardMaterial({color:0x2b2e34, roughness:.75, metalness:.18});
@@ -531,10 +570,10 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // Existing procedural textures use the same UV scale as their photographic replacements.
   for(const tex of [plankTex,stoneTex,plasterTex])tex.repeat.set(1,1);
   function architecturalUV(geo,mat,x,y,z){
-    if(mat!==floorMat&&mat!==stoneMat&&mat!==plasterMat)return;
+    if(mat!==floorMat&&mat!==stoneMat&&mat!==plasterMat&&mat!==facadeMat&&mat!==foundationMat)return;
     const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv;
     if(!p||!n||!uv)return;
-    const scale=mat===floorMat?1/2.4:1/2;
+    const scale=mat===floorMat?1/2.4:mat===facadeMat?1/2.8:1/2;
     for(let i=0;i<p.count;i++){
       const px=p.getX(i)+x,py=p.getY(i)+y,pz=p.getZ(i)+z;
       const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i));
@@ -565,15 +604,28 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const levelIndex=levelList.findIndex(v=>originalBottom>=v-.002&&originalTop<=v+4.5+.002);
     if(levelIndex>=0&&Math.abs(originalTop-levelList[levelIndex]-4.5)<.002){h=ceilingList[levelIndex]-originalBottom;y=originalBottom+h/2;}
     wallBoxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});
-    const m=addMesh(new THREE.BoxGeometry(w,h,d), mat, x,y,z, group, false, true);
     const floor=levelIndex>=0?levelIndex:(y<-.15?0:y<5.05?1:2);
-    const side=Math.abs(x)>8.9?(x<0?'left':'right'):z<-5.15?'back':z>5.15?'front':null;
+    // Select sides by wall orientation as well as coordinates: a short rear segment near a corner is still rear-facing.
+    const side=d<.45&&w>.40&&Math.abs(z)>5.15?(z<0?'back':'front'):w<.45&&d>.40&&Math.abs(x)>8.9?(x<0?'left':'right'):null;
+    const geo=new THREE.BoxGeometry(w,h,d);
+    const m=addMesh(geo,mat,x,y,z,group,false,true);
+    if(side){const outer=floor===0?foundationMat:facadeMat;const face={right:0,left:1,front:4,back:5}[side];const mats=Array(6).fill(mat);mats[face]=outer;
+      // Also cover the cutaway top and wall ends, without changing interior-facing plaster.
+      mats[2]=outer;if(side==='front'||side==='back'){mats[0]=outer;mats[1]=outer;}else{mats[4]=outer;mats[5]=outer;}m.material=mats;architecturalUV(geo,outer,x,y,z);
+    }
     m.userData.cutaway={floor,facadeSide:side,kind:'wall'};
     visualWalls.push({m,y,h,base:y-h/2,scaleY:m.scale.y});return m;
   }
 
   function floorSlab(w,d,x,y,z,mat=floorMat,group=house){
-    return addMesh(new THREE.BoxGeometry(w,.35,d), mat, x,y,z, group, false, true);
+    let x0=x-w/2,x1=x+w/2,z0=z-d/2,z1=z+d/2;
+    if(Math.abs(x0+9)<.002)x0=-9.175;if(Math.abs(x1-9)<.002)x1=9.175;
+    if(Math.abs(z0+5.25)<.002)z0=-5.425;if(Math.abs(z1-5.25)<.002)z1=5.425;
+    const geo=new THREE.BoxGeometry(x1-x0,.35,z1-z0);
+    const mesh=addMesh(geo,mat,(x0+x1)/2,y,(z0+z1)/2,group,false,true);
+    const sides=[mat,mat,mat,mat,mat,mat],edge=y<-.1?foundationMat:facadeMat;
+    if(x1>=9.17)sides[0]=edge;if(x0<=-9.17)sides[1]=edge;if(z1>=5.42)sides[4]=edge;if(z0<=-5.42)sides[5]=edge;mesh.material=sides;
+    mesh.userData.floorPlate=y<-1?0:y<2?1:y<8?2:3;return mesh;
   }
 
   function post(x,y,z,h=3.5,group=house){ return addMesh(new THREE.BoxGeometry(.35,h,.35), woodMat, x,y,z, group); }
@@ -881,7 +933,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     for(let i=1;i<=16;i++){const a=i*Math.PI/32;shape.lineTo(sideZ*roundR*Math.cos(a),sideY*roundR*Math.sin(a));}
     shape.closePath();
     const geo=new THREE.ExtrudeGeometry(shape,{depth:.35,bevelEnabled:false});geo.translate(0,0,-.175);
-    const infill=addMesh(geo,plasterMat,W/2,roundCy,roundCz,house,false,true);infill.rotation.y=-Math.PI/2;wallAttachment(infill,2,'right');
+    const infill=addMesh(geo,[plasterMat,facadeMat],W/2,roundCy,roundCz,house,false,true);infill.rotation.y=-Math.PI/2;wallAttachment(infill,2,'right');
   }
   wall(W,H,.35,stoneMat,0,levels.cellar+H/2,-D/2,house);
   facade('x',-W/2,0,stoneMat);
@@ -895,6 +947,15 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     else {const win=simpleWindow(v.at,v.y,v.center,v.w,v.h);win.rotation.y=v.at<0?Math.PI/2:-Math.PI/2;wallAttachment(win,v.floor,v.at<0?'left':'right');}
   }
   const roundFrame=roundWindow(W/2,roundCy,roundCz,1.0);roundFrame.rotation.y=-Math.PI/2;wallAttachment(roundFrame,2,'right');
+  // Physical continuous cornices aligned to the slab edges, not floating decorations.
+  for(const [floor,y] of baseByFloor.entries()){
+    for(const sign of [-1,1]){
+      const bandX=addMesh(new THREE.BoxGeometry(.10,.36,D+.35),floor===0?foundationMat:facadeMat,sign*(W/2+.18),y,0);
+      wallAttachment(bandX,floor,sign<0?'left':'right','baseTrim');
+      const bandZ=addMesh(new THREE.BoxGeometry(W+.46,.36,.10),floor===0?foundationMat:facadeMat,0,y,sign*(D/2+.18));
+      wallAttachment(bandZ,floor,sign<0?'back':'front','baseTrim');
+    }
+  }
   // inner back trim
   [levels.cellar,levels.shop,levels.upper].forEach(y=>{
     const floor=baseByFloor.indexOf(y);
@@ -1720,7 +1781,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(!hit){if(walkMode){const candidate=ray.intersectObjects(editItems.filter(e=>e.kind==='chair'||e.kind==='sofa').map(e=>e.o),true).find(visibleHit);if(candidate&&candidate.distance<2.4){for(let o=candidate.object;o;o=o.parent){const e=editItems.find(v=>v.o===o&&(v.kind==='chair'||v.kind==='sofa'));if(e){offerSeat(e);break;}}}}return;}
     if(walkMode&&hit.distance>3.0){flashHint('Geh etwas näher heran.');return;}
     // Prevent selecting through opaque geometry. Gold spine decorations may sit just ahead of a book.
-    const front=ray.intersectObject(house,true).find(h=>visibleHit(h)&&h.object.isMesh&&h.object.material?.transparent!==true);
+    const front=ray.intersectObject(house,true).find(h=>visibleHit(h)&&h.object.isMesh&&(Array.isArray(h.object.material)?h.object.material[h.face?.materialIndex||0]:h.object.material)?.transparent!==true);
     if(front&&front.distance<hit.distance-.075)return;
     if(hit===bookHit){const id=hit.object.userData.bookIds[hit.instanceId];if(Number.isInteger(id))readBook(id);return;}
     if(walkMode){for(let o=hit.object;o;o=o.parent){const e=editItems.find(v=>v.o===o&&(v.kind==='chair'||v.kind==='sofa'));if(e){offerSeat(e);return;}}}
@@ -1781,6 +1842,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const clock = new THREE.Clock();
   function animate(){
     requestAnimationFrame(animate);
+    if(document.hidden){clock.getDelta();return;}
     const t = performance.now();
     const dt = Math.min(.033, clock.getDelta());
     visualTime+=dt;let distMoved=0;
@@ -1812,6 +1874,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     updateCompactUI();
     if(editMode)refreshEditorSelection();
     animateResidents(visualTime);
+    updateShopVisitor(dt);
     animateExterior(dt);
     ambience(dt,visualTime,distMoved);
     if(performance.now()>hintUntil)noteHint.hidden=true;
@@ -1821,6 +1884,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     dustPts.rotation.y += 0.0006;
     if(!walkMode&&dialog.hidden) controls.update();
     renderer.render(scene, camera);
+    updatePerformance(t);
   }
 
   addEventListener('resize', ()=>{
@@ -1834,6 +1898,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // follow its published texture CDN convention; no API credentials or paid services.
   // Every image is independently decoded before application. Fallback remains visible.
   const materialSpecs=[
+    {id:'medieval_wall_02',label:'Außenfassade · Naturstein',targets:[facadeMat],normal:.65,repeat:[1,1]},
     {id:'wood_floor_worn',label:'Historische Dielen',targets:[floorMat],normal:.58,repeat:[1,1]},
     {id:'dark_wood',label:'Regale und Holzarbeiten',targets:[woodMat],normal:.32,repeat:[1,1]},
     {id:'medieval_blocks_06',label:'Kellermauerwerk',targets:[stoneMat],normal:.78,repeat:[1,1]},
@@ -1847,7 +1912,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   materialSpecs[1].targets.push(...frames);
   // Keep dark architectural trim tinted, and do not accidentally apply a photo to colored cloth.
   const savedMaterials=new Map();
-  for(const spec of materialSpecs)for(const m of spec.targets)savedMaterials.set(m,{map:m.map,normalMap:m.normalMap,roughnessMap:m.roughnessMap,roughness:m.roughness,color:m.color.clone(),normalScale:m.normalScale.clone()});
+  for(const spec of materialSpecs)for(const m of spec.targets)savedMaterials.set(m,{map:m.map,bumpMap:m.bumpMap,normalMap:m.normalMap,roughnessMap:m.roughnessMap,roughness:m.roughness,color:m.color.clone(),normalScale:m.normalScale.clone()});
   const matStatus=document.getElementById('materialStatus'),matRows=document.getElementById('materialRows'),matPanel=document.getElementById('materialPanel'),matBtn=document.getElementById('materialToggle'),qualitySelect=document.getElementById('materialQuality');
   const matStates=new Map(),loadedTextures=new Set();
   let generation=0,materialsActive=false;
@@ -1862,7 +1927,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function setMatState(spec,mode,text){const state=matStates.get(spec.id);state.mode=mode;state.status.textContent=text;const n=[...matStates.values()].filter(v=>v.mode==='pbr').length;const partial=[...matStates.values()].filter(v=>v.mode==='partial').length;matStatus.textContent=n+' / '+materialSpecs.length+' PBR'+(partial?' · '+partial+' teilweise':'');}
   function originalMaterials(){
     generation++;materialsActive=false;
-    for(const [m,old] of savedMaterials){m.map=old.map;m.normalMap=old.normalMap;m.roughnessMap=old.roughnessMap;m.roughness=old.roughness;m.color.copy(old.color);m.normalScale.copy(old.normalScale);m.needsUpdate=true;}
+    for(const [m,old] of savedMaterials){m.map=old.map;m.bumpMap=old.bumpMap;m.normalMap=old.normalMap;m.roughnessMap=old.roughnessMap;m.roughness=old.roughness;m.color.copy(old.color);m.normalScale.copy(old.normalScale);m.needsUpdate=true;}
     for(const t of loadedTextures)t.dispose();loadedTextures.clear();
     for(const spec of materialSpecs)setMatState(spec,'fallback','Ersatz');
   }
@@ -1901,7 +1966,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const [diff,norm,rough]=await Promise.all([spec.normalOnly?Promise.resolve(null):fetchMap(spec,'diff',res,token,true),fetchMap(spec,'nor_gl',res,token,false),fetchMap(spec,'rough',res,token,false)]);
     if(token!==generation)return;
     for(const m of spec.targets){
-      if(diff){m.map=diff;if(spec.tint!==undefined)m.color.setHex(spec.tint);else if(frames.has(m))m.color.setHex(0xb9a99b);}
+      if(diff){m.map=diff;if(m===facadeMat)m.bumpMap=null;if(spec.tint!==undefined)m.color.setHex(spec.tint);else if(frames.has(m))m.color.setHex(0xb9a99b);}
       if(norm){m.normalMap=norm;m.normalScale.set(spec.normal,spec.normal);}
       if(rough){m.roughnessMap=rough;m.roughness=1;}
       m.needsUpdate=true;
@@ -2022,8 +2087,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     if(walk)return 'full';
     if(mode!=='auto')return mode;
     // Camera-facing exterior walls are lowered; far walls remain as a backdrop.
-    if(side==='left')return cameraX<-1?'half':'full';
-    if(side==='right')return cameraX>1?'half':'full';
+    if(side==='left')return cameraX<-1&&selection!==-1?'half':'full';
+    if(side==='right')return cameraX>1&&selection!==-1?'half':'full';
     if(side==='back')return cameraZ<-1?'half':'full';
     if(side==='front')return cameraZ>1?'off':'full';
     return 'half';
@@ -2061,6 +2126,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     for(const entry of visualFloorEntries){
       const {o,floor,stair,tall}=entry;
       o.visible=allowed(floor);
+      // A selected floor can show its genuine next slab as ceiling, even with the rooms above hidden.
+      if(!walkMode&&houseView.roof&&selection>=0&&o.userData.floorPlate===selection+1)o.visible=true;
       if(stair&&selection!==-1&&scope==='single'&&tall)o.visible=false;
     }
     roofSlab.visible=walkMode||(houseView.roof&&(selection===-1||selection===2));
@@ -2247,6 +2314,59 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     else if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();e.shiftKey?redoEditor():undoEditor();}
     else if((e.ctrlKey||e.metaKey)&&e.code==='KeyS'){e.preventDefault();saveEditor();}
   });
+  // Game economy, separate from real money: transactions are locally persisted.
+  const bizStorage='federfuchs-business-v1';
+  const bookPrices=[48,24,29,35,22,32];
+  function initialBusiness(){return {day:1,cash:250,stock:[3,5,4,4,6,3],damaged:[1,0,1,1,0,0],open:false,visitors:0,sales:0,totalSales:0,events:0,customer:null};}
+  let business=initialBusiness();
+  try{const data=JSON.parse(localStorage.getItem(bizStorage)||'null');if(data&&data.version===1&&data.state&&Number.isFinite(data.state.cash)&&data.state.cash>=0&&Array.isArray(data.state.stock)&&data.state.stock.length===library.length&&data.state.stock.every(v=>Number.isInteger(v)&&v>=0)){business={...business,...data.state,customer:null};}}catch(e){}
+  const bizEl=id=>document.getElementById(id),bizBook=bizEl('bizBook');
+  library.forEach((b,i)=>bizBook.add(new Option(b.title,String(i))));
+  function businessSave(){try{localStorage.setItem(bizStorage,JSON.stringify({version:1,state:{...business,customer:null}}));}catch(e){}}
+  function bizNotify(msg){bizEl('bizMessage').textContent=msg;businessSave();renderBusiness();}
+  function renderBusiness(){
+    const idx=Number(bizBook.value)||0;
+    bizEl('bizDay').textContent='Tag '+business.day;bizEl('bizOpen').textContent=business.open?'Geöffnet':'Geschlossen';
+    bizEl('bizCash').textContent=business.cash+' Bz.';bizEl('bizStock').textContent=business.stock.reduce((a,b)=>a+b,0);
+    bizEl('bizVisitors').textContent=business.visitors;bizEl('bizSales').textContent=business.sales;
+    bizEl('bizToggle').textContent=business.open?'Antiquariat schließen':'Antiquariat öffnen';
+    bizEl('bizBookInfo').textContent=business.stock[idx]+' verfügbar · '+business.damaged[idx]+' beschädigt · Verkauf '+bookPrices[idx]+' Bz. · Ankauf '+Math.ceil(bookPrices[idx]*.5)+' Bz.';
+    bizEl('bizCustomer').textContent=business.customer?'Kunde sucht: '+library[business.customer.book].title+' · '+bookPrices[business.customer.book]+' Bz.':'Noch keine Kundschaft.';
+    bizEl('bizSell').disabled=!business.open||!business.customer||business.stock[business.customer.book]<=business.damaged[business.customer.book];
+    bizEl('bizInvite').disabled=!business.open||!!business.customer;
+    bizEl('bizBuy').disabled=business.cash<Math.ceil(bookPrices[idx]*.5);
+    bizEl('bizRepair').disabled=business.damaged[idx]<=0||business.cash<5;
+    bizEl('bizEvent').disabled=!business.open||business.cash<15;
+  }
+  bizBook.addEventListener('change',renderBusiness);
+  bizEl('bizToggle').addEventListener('click',()=>{business.open=!business.open;entranceDoor.open=business.open;if(!business.open){business.customer=null;shopVisitor.visible=false;}bizNotify(business.open?'Die Ladentür ist geöffnet.':'Das Antiquariat ist geschlossen.');});
+  bizEl('bizInvite').addEventListener('click',()=>{if(!business.open||business.customer)return;const book=Math.floor(Math.random()*library.length);business.customer={book};business.visitors++;spawnShopVisitor();bizNotify('Ein Kunde hat ein bestimmtes Buch im Sinn.');});
+  bizEl('bizSell').addEventListener('click',()=>{const c=business.customer;if(!business.open||!c||business.stock[c.book]<=business.damaged[c.book])return;business.stock[c.book]--;business.cash+=bookPrices[c.book];business.sales++;business.totalSales++;business.customer=null;visitorLeaving=true;bizNotify('Verkauf abgeschlossen.');});
+  bizEl('bizBuy').addEventListener('click',()=>{const i=Number(bizBook.value),cost=Math.ceil(bookPrices[i]*.5);if(business.cash<cost)return;business.cash-=cost;business.stock[i]++;bizNotify('Ein Exemplar wurde angekauft und katalogisiert.');});
+  bizEl('bizRepair').addEventListener('click',()=>{const i=Number(bizBook.value);if(business.cash<5||business.damaged[i]<1)return;business.cash-=5;business.damaged[i]--;bizNotify('Ein beschädigtes Buch wurde restauriert.');});
+  bizEl('bizEvent').addEventListener('click',()=>{if(!business.open||business.cash<15)return;business.cash-=15;const guests=3+Math.floor(Math.random()*5);business.cash+=guests*6;business.visitors+=guests;business.events++;bizNotify('Lesung: '+guests+' Gäste, '+(guests*6-15)+' Bz. Überschuss.');});
+  bizEl('bizNextDay').addEventListener('click',()=>{business.day++;business.open=false;business.visitors=0;business.sales=0;business.customer=null;entranceDoor.open=false;shopVisitor.visible=false;bizNotify('Ein neuer Tag im Federfuchs beginnt.');});
+  // Lightweight grid pathfinding for one stylized customer; no new engine dependency.
+  const shopVisitor=new THREE.Group();root.add(shopVisitor);shopVisitor.visible=false;
+  const visitorCoat=new THREE.MeshStandardMaterial({color:0x536954,roughness:.92}),visitorSkin=new THREE.MeshStandardMaterial({color:0xd5b38d,roughness:.87});
+  oval(shopVisitor,visitorCoat,0,1.14,0,.23,.34,.14);oval(shopVisitor,visitorSkin,0,1.62,0,.13,.17,.13);
+  for(const side of [-1,1]){oval(shopVisitor,visitorCoat,side*.24,1.06,0,.075,.27,.075);oval(shopVisitor,darkMat,side*.10,.43,0,.085,.39,.086);}
+  let visitorPath=[],visitorLeaving=false,visitorClock=0;
+  function shopRoute(start,goal){
+    const step=.35,key=(i,j)=>i+','+j,toCell=p=>[Math.round(p.x/step),Math.round(p.z/step)];
+    const from=toCell(start),to=toCell(goal),queue=[from],parents=new Map([[key(...from),null]]);let end=null;
+    for(let n=0;n<queue.length&&n<3500;n++){const a=queue[n];if(Math.abs(a[0]-to[0])+Math.abs(a[1]-to[1])<=1){end=a;break;}
+      for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const b=[a[0]+di,a[1]+dj],k=key(...b);if(parents.has(k)||solid(b[0]*step,b[1]*step,1))continue;parents.set(k,a);queue.push(b);}
+    }if(!end)return [];const route=[];while(end&&key(...end)!==key(...from)){route.push(new THREE.Vector3(end[0]*step,elevations[1],end[1]*step));end=parents.get(key(...end));}return route.reverse();
+  }
+  function spawnShopVisitor(){visitorLeaving=false;shopVisitor.position.set(0,elevations[1],4.55);shopVisitor.visible=true;visitorPath=shopRoute(shopVisitor.position,{x:-3.5,z:1.65});}
+  function updateShopVisitor(dt){
+    shopVisitor.visible=(!!business.customer||visitorLeaving)&&(walkMode||houseView.floor===-1||houseView.floor===1||(houseView.scope==='stack'&&houseView.floor===2));
+    if(!shopVisitor.visible)return;
+    if(visitorLeaving&&!visitorPath.length){if(Math.hypot(shopVisitor.position.x,shopVisitor.position.z-4.55)<.6){shopVisitor.visible=false;visitorLeaving=false;return;}visitorPath=shopRoute(shopVisitor.position,{x:0,z:4.55});if(!visitorPath.length){visitorLeaving=false;shopVisitor.visible=false;return;}}
+    if(visitorPath.length){const target=visitorPath[0],delta=target.clone().sub(shopVisitor.position);delta.y=0;const d=delta.length();if(d<.06){visitorPath.shift();return;}if(solid(target.x,target.z,1)){visitorPath=[];return;}shopVisitor.rotation.y=Math.atan2(-delta.x,-delta.z);shopVisitor.position.addScaledVector(delta,Math.min(1,dt*1.6/d));visitorClock+=dt;shopVisitor.position.y=elevations[1]+.015*Math.sin(visitorClock*12);}
+  }
+  renderBusiness();
   // Mobile-first compact UI and floor-aware direct manipulation.
   let dragState=null,dragEnabled=true,showGrid=true,drawer=null,railCollapsed=false,gestureMode='orbit';
   const compactHud=document.getElementById('hud'),railToggle=document.getElementById('railToggle'),railTools=document.getElementById('railTools'),drawerTitle=document.getElementById('drawerTitle');
@@ -2254,8 +2374,8 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const toolbarButtons=[...document.querySelectorAll('#toolbar button')];
   const quickFloor=document.getElementById('quickFloor'),quickWalls=document.getElementById('quickWalls'),quickRoof=document.getElementById('quickRoof'),quickStand=document.getElementById('quickStand');
   const wallCycle=['auto','full','half','off'],floorShort=['UG','EG','OG'];
-  const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung'};
-  const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['materialPanel'],help:['helpPanel']};
+  const panelNames={view:'Haus & Etagen',camera:'Kamera',edit:'Einrichten',walk:'Freie Bewegung',settings:'Optionen',help:'Steuerung',shop:'Geschäftsbuch'};
+  const groups={view:['houseViewPanel'],camera:['cameraPanel'],edit:['editPanel'],walk:['walkPanel'],settings:['performancePanel','materialPanel'],help:['helpPanel'],shop:['businessPanel']};
   function setDrawer(kind){
     drawer=kind;compactHud.hidden=!kind;
     for(const b of panelButtons)b.setAttribute('aria-pressed',String(b.dataset.panel===kind||(b.dataset.panel==='walk'&&walkMode)||(b.dataset.panel==='edit'&&editMode)));
@@ -2281,6 +2401,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       if(!walkMode){setWalkMode(true);setDrawer(null);}else if(drawer==='walk'){setWalkMode(false);setDrawer(null);}else setDrawer('walk');
       return;
     }
+    if(k==='shop'){setDrawer(drawer==='shop'?null:'shop');return;}
     if(k==='edit'){if(!editMode)enterEditor();setDrawer(drawer==='edit'?null:'edit');return;}
     if(editMode&&k==='view')exitEditor();
     if(walkMode&&(k==='view'||k==='camera'))setWalkMode(false);
@@ -2399,10 +2520,56 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   goView('overview');
   applyHouseView(true);
   auditLayout();
-  setTimeout(()=>{installModels().then(()=>{rebuildEditorCollisions();auditLayout();}).catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
-  setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
-  setTimeout(()=>loading.classList.add('hide'), 550);
+  // Render first; expensive detail requests are deferred and may be opted into on mobile.
+  const perfEl=document.getElementById('performanceInfo'),qualityEl=document.getElementById('graphicsQuality'),accelEl=document.getElementById('accelInfo');
+  let perfFrames=0,perfStart=performance.now(),slowWindows=0,fastWindows=0,pixelCap=renderer.getPixelRatio(),detailBusy=false;
+  try{const q=localStorage.getItem('federfuchs-graphics');if(['auto','low','high'].includes(q))qualityEl.value=q;}catch(e){}
+  function graphicsSetting(){
+    const q=qualityEl.value,coarse=matchMedia('(pointer:coarse)').matches;
+    pixelCap=q==='low'?.8:q==='high'?Math.min(devicePixelRatio,1.75):Math.min(devicePixelRatio,coarse?1:1.5);
+    renderer.setPixelRatio(pixelCap);renderer.shadowMap.enabled=q!=='low';renderer.setSize(innerWidth,innerHeight);
+    try{localStorage.setItem('federfuchs-graphics',q);}catch(e){}
+  }
+  qualityEl.addEventListener('change',graphicsSetting);graphicsSetting();
+  function updatePerformance(t){
+    perfFrames++;if(t-perfStart<1400)return;
+    const fps=perfFrames*1000/(t-perfStart);perfFrames=0;perfStart=t;
+    if(qualityEl.value==='auto'){
+      slowWindows=fps<25?slowWindows+1:0;fastWindows=fps>52?fastWindows+1:0;
+      const min=.7,max=Math.min(devicePixelRatio,matchMedia('(pointer:coarse)').matches?1.25:1.65);
+      let next=pixelCap;if(slowWindows>=2)next=Math.max(min,pixelCap-.15);else if(fastWindows>=4)next=Math.min(max,pixelCap+.10);
+      if(Math.abs(next-pixelCap)>.01){pixelCap=next;renderer.setPixelRatio(next);renderer.setSize(innerWidth,innerHeight);slowWindows=fastWindows=0;}
+    }
+    perfEl.textContent=Math.round(fps)+' FPS · '+renderer.info.render.calls+' Draw calls · '+Math.round(renderer.info.render.triangles/1000)+'k Dreiecke · '+pixelCap.toFixed(2)+'× Auflösung';
+  }
+  // MIT-licensed three-mesh-bvh v0.7.6; acceleration for dense mesh picking only.
+  // Keep the native raycast as fallback. Do not change instanced book selection.
+  async function enableRayAcceleration(){
+    try{
+      const mod=await import('https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/build/index.module.js');
+      const processed=new Set();let n=0;
+      const meshes=[];house.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry?.attributes.position?.count>900)meshes.push(o);});
+      for(const m of meshes){
+        if(!processed.has(m.geometry)){mod.computeBoundsTree.call(m.geometry);processed.add(m.geometry);}
+        m.raycast=mod.acceleratedRaycast;n++;
+        if(n%12===0)await new Promise(r=>setTimeout(r,0));
+      }accelEl.textContent='BVH aktiv · '+n+' komplexe Meshes';
+    }catch(e){accelEl.textContent='BVH nicht verfügbar · Standard-Raycast aktiv';}
+  }
+  async function loadDetails(){
+    if(detailBusy)return;detailBusy=true;document.getElementById('assetLoad').disabled=true;
+    try{await restorePhotographic();await installModels();rebuildEditorCollisions();auditLayout();await enableRayAcceleration();}
+    catch(e){modelStatus.textContent='Detail-Ladefehler · Ersatz aktiv';}
+    finally{detailBusy=false;document.getElementById('assetLoad').disabled=false;}
+  }
+  document.getElementById('assetLoad').addEventListener('click',loadDetails);
+  document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
+  if('serviceWorker' in navigator&&location.protocol==='https:'){
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+  }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
+  requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
+  setTimeout(()=>{enableRayAcceleration();if(!matchMedia('(pointer:coarse)').matches)loadDetails();else modelStatus.textContent='Detailmodelle auf Wunsch unter Optionen laden';},1700);
 
 </script>
 </body>
