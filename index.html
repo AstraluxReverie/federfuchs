@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.9</title>
+  <title>Zum träumenden Federfuchs – v0.10</title>
   <style>
     :root{
       --bg:#10151b;
@@ -140,7 +140,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.9 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.10 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -155,7 +155,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.9 · Der Innenausbau</div>
+    <div id="sub">3D-Studie v0.10 · Dinge mit Geschichte</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -240,7 +240,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   controls.enableDamping = true;
   controls.enablePan = true;
   controls.target.set(0, 7.2, 0);
-  controls.minDistance = 2.5;
+  controls.minDistance = .9;
   controls.maxDistance = 46;
   controls.maxPolarAngle = Math.PI * 0.48;
 
@@ -684,11 +684,11 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   bookShelf(-6.7, levels.cellar+0.2,  0.1, 2.1, 2.9,.42);
   bookShelf(-6.7, levels.cellar+0.2,  3.3, 2.1, 2.9,.42);
   table(-4.8, levels.cellar, -1.3, 1.4,.75,.84); chair(-5.15,levels.cellar,-.45,Math.PI*.2); chair(-4.45,levels.cellar,-.45,-Math.PI*.18);
-  addMesh(new THREE.BoxGeometry(.55,.08,.55), paperMat,-4.8,levels.cellar+1,-1.3);
+
   lamp(-5.2, levels.cellar+3.5, -1.2, 0xffd8a6, 1.7, 8);
   // workshop center
   table(4.75, levels.cellar, -1.1, 1.8,.9,.85);
-  addMesh(new THREE.BoxGeometry(.8,.08,.5), paperMat,4.75,levels.cellar+1,-1.1);
+
   addMesh(new THREE.BoxGeometry(.38,.45,.38), ironMat,4.1,levels.cellar+0.25,-2.4);
   addMesh(new THREE.BoxGeometry(1.1,1.4,.75), ironMat,5.5,levels.cellar+0.7,-2.1);
   bookShelf(4.9, levels.cellar+0.2, -4.65, 2.2, 2.9,.45);
@@ -716,10 +716,9 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   const counter = new THREE.Group(); counter.position.set(-4.5, levels.shop, 2.65); house.add(counter);
   addMesh(new THREE.BoxGeometry(2.6,1.15,.95), woodMat,0,.58,0,counter);
   addMesh(new THREE.BoxGeometry(2.6,.18,1.02), darkMat,0,1.11,0,counter);
-  addMesh(new THREE.BoxGeometry(.35,.22,.25), paperMat,.2,1.28,0,counter);
-  addMesh(new THREE.BoxGeometry(.22,.1,.18), brassMat,.75,1.22,0,counter);
-  addMesh(new THREE.CylinderGeometry(.08,.08,.18,18), darkMat,-.65,1.2,-.12,counter);
-  addMesh(new THREE.BoxGeometry(.22,.02,.22), darkMat,-.65,1.32,-.12,counter);
+
+
+
   addMesh(new THREE.CylinderGeometry(.16,.16,.02,24), new THREE.MeshStandardMaterial({color:0xcfd7e0,roughness:.2,metalness:1}), -1.05,1.23,.12,counter);
   // louie bed-ish shape
   addMesh(new THREE.CylinderGeometry(.62,.62,.14,24), new THREE.MeshStandardMaterial({color:0x6f4e37, roughness:1}), -6.55, levels.shop+.08, 3.75);
@@ -799,8 +798,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.BoxGeometry(.8,.1,.58), ironMat,-6.95,levels.upper+.99,2.82);
   addMesh(new THREE.BoxGeometry(.55,.02,.55), new THREE.MeshStandardMaterial({color:0x3f4b57, roughness:.9}), -5.1, levels.upper+.99, 2.82);
   table(-4.95, levels.upper, 1.55, 1.15,.7,.8); chair(-5.4,levels.upper,2.05,-Math.PI*.2); chair(-4.55,levels.upper,2.0,Math.PI*.2);
-  addMesh(new THREE.CylinderGeometry(.14,.14,.33,16), new THREE.MeshStandardMaterial({color:0x8f2f35, roughness:1}), -5.95, levels.upper+1.08, 2.6);
-  addMesh(new THREE.CylinderGeometry(.14,.14,.33,16), new THREE.MeshStandardMaterial({color:0x8f2f35, roughness:1}), -5.6, levels.upper+1.08, 2.6);
+
   lamp(-5.4, levels.upper+3.55, 1.55, 0xffd2a1, 1.8, 8);
 
   // bathroom center right front
@@ -814,9 +812,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   table(5.5, levels.upper, -2.6, 1.9,.85,.82);
   chair(5.15, levels.upper, -1.85, Math.PI*.1);
   bookShelf(7.1, levels.upper+.2, -2.6, 1.8,3.1,.42);
-  addMesh(new THREE.BoxGeometry(.65,.08,.42), paperMat, 5.5, levels.upper+1, -2.6);
-  addMesh(new THREE.BoxGeometry(.38,.2,.38), ironMat, 4.95, levels.upper+1.13, -2.63);
-  addMesh(new THREE.BoxGeometry(.45,.03,.62), darkMat, 6.0, levels.upper+1.02, -2.45);
+
   lamp(6.25, levels.upper+3.5, -2.2, 0xffd29a, 1.7, 7);
   simpleWindow(6.0, levels.upper+2.25, -4.33, 1.8, 1.5);
 
@@ -825,7 +821,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   roundWindow(7.0, levels.upper+2.05, 4.55, 1.0).rotation.y=Math.PI;
   // Sofa geometry is built below as individual upholstered components.
   addMesh(new THREE.BoxGeometry(.45,.06,.45), woodMat, 5.15, levels.upper+.65, 2.55);
-  addMesh(new THREE.BoxGeometry(.3,.02,.3), paperMat, 5.15, levels.upper+.76, 2.55);
+
   rug(6.15, levels.upper+.03, 2.45, 3.2, 2.4);
   lamp(6.25, levels.upper+3.25, 2.65, 0xffd5a4, 1.65, 6);
 
@@ -946,6 +942,110 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       molding(counter,.60,.025,.025,x,.58+k*.31,.519,trimMat);
     }
   }
+  // Individually designed, inspectable antiques. Dimensions in metres.
+  const antiqueBrass=new THREE.MeshStandardMaterial({color:0xa17a43,metalness:.65,roughness:.48});
+  const ivory=new THREE.MeshStandardMaterial({color:0xe5d5b5,roughness:.32});
+  const inkBlue=new THREE.MeshStandardMaterial({color:0x182b41,roughness:.28});
+  const burgundy=new THREE.MeshStandardMaterial({color:0x603038,roughness:.83});
+  const greenGlaze=new THREE.MeshStandardMaterial({color:0x365b4e,roughness:.27});
+  const blackened=new THREE.MeshStandardMaterial({color:0x272621,roughness:.58,metalness:.40});
+  const artifactInfo={};
+  function artifact(id,title,description,x,y,z,rot=0){
+    const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=rot;house.add(g);
+    g.userData.inspectId=id;inspectables.push(g);artifactInfo[id]={title,text:description};return g;
+  }
+  function lathe(g,profile,mat,x=0,y=0,z=0,n=24){return addMesh(new THREE.LatheGeometry(profile.map(p=>new THREE.Vector2(p[0],p[1])),n),mat,x,y,z,g);}
+  function tube(g,points,r,mat){return addMesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p))),18,r,6,false),mat,0,0,0,g);}
+  function ellipse(g,rx,ry,r,mat,x,y,z){const m=addMesh(new THREE.TorusGeometry(1,r,8,32),mat,x,y,z,g);m.scale.set(rx,ry,1);return m;}
+  function printTexture(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');draw(ctx,w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+  function labelPlane(g,w,h,text,x,y,z,background='#dfcba5',ink='#382b20'){
+    const tex=printTexture(384,160,(c,W,H)=>{c.fillStyle=background;c.fillRect(0,0,W,H);c.strokeStyle=ink;c.lineWidth=2;c.strokeRect(8,8,W-16,H-16);c.font='24px Georgia';c.textAlign='center';c.fillStyle=ink;const lines=text.split('|');lines.forEach((l,i)=>c.fillText(l,W/2,H/2+(i-(lines.length-1)/2)*30+8,W-25));});
+    return addMesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tex,roughness:.91,side:THREE.DoubleSide}),x,y,z,g,false,true);
+  }
+  function folio(g,w,d,h,x,y,z,mat,angle=0){
+    const b=new THREE.Group();b.position.set(x,y,z);b.rotation.y=angle;g.add(b);
+    addMesh(new THREE.BoxGeometry(w,h,d),paperMat,0,h/2,0,b);
+    for(const yy of [.004,h-.004])addMesh(new THREE.BoxGeometry(w+.016,.009,d+.018),mat,0,yy,0,b);
+    addMesh(new THREE.BoxGeometry(.018,h+.006,d+.015),mat,-w/2, h/2,0,b);
+    for(const zz of [-d*.32,d*.32])addMesh(new THREE.BoxGeometry(.023,h+.01,.012),antiqueBrass,-w/2,h/2,zz,b);
+    return b;
+  }
+  // Shop: a real-shaped brass service bell, ledger, mechanical till and miniature armillary.
+  const bell=artifact('bell','Die Ladenglocke','Eine kleine Messingglocke mit abgewetztem Knopf. Sie ruft die Antiquare aus dem hinteren Teil des Ladens.',-3.54,1.215,2.80);
+  lathe(bell,[[0,0],[.095,0],[.107,.014],[.095,.025],[.077,.038],[.069,.073],[.045,.103],[.018,.111],[0,.111]],antiqueBrass);
+  lathe(bell,[[.018,.109],[.018,.14],[.031,.15],[.028,.166],[0,.169]],brassMat);
+  const ledger=artifact('ledger','Das Kassenbuch','Zwischen den handgezogenen Spalten stehen Eingänge, Verkäufe und Titel. Ein blaues Stoffband markiert die heutige Seite.',-4.28,1.205,2.65,-.16);
+  folio(ledger,.35,.27,.046,0,0,0,burgundy);
+  const ledgerTex=printTexture(512,512,(c,w,h)=>{c.fillStyle='#e7d8b8';c.fillRect(0,0,w,h);c.strokeStyle='#b29b75';c.lineWidth=2;for(let y=48;y<h-15;y+=34){c.beginPath();c.moveTo(15,y);c.lineTo(w-15,y);c.stroke();}for(const x of [60,256,408]){c.beginPath();c.moveTo(x,20);c.lineTo(x,h-20);c.stroke();}c.fillStyle='#5d4736';c.font='italic 24px Georgia';c.fillText('Eingänge · November',25,35);});
+  addMesh(new THREE.PlaneGeometry(.33,.25),new THREE.MeshStandardMaterial({map:ledgerTex,roughness:1}),0,.053,0,ledger,false,true).rotation.x=-Math.PI/2;
+  addMesh(new THREE.BoxGeometry(.018,.004,.29),inkBlue,.06,.059,.025,ledger);
+  const till=artifact('till','Die alte Registrierkasse','Eine mechanische Kasse mit kleinen Messingtasten und einer Schublade aus dunklem Holz.',-5.16,1.205,2.53,.10);
+  addMesh(new THREE.BoxGeometry(.48,.115,.36),woodMat,0,.057,0,till);
+  addMesh(new THREE.BoxGeometry(.44,.21,.20),blackened,0,.22,-.07,till);
+  const keyboard=addMesh(new THREE.BoxGeometry(.43,.055,.19),antiqueBrass,0,.145,.11,till);keyboard.rotation.x=-.30;
+  for(let a=0;a<3;a++)for(let b=0;b<6;b++)addMesh(new THREE.CylinderGeometry(.021,.021,.016,10),ivory,-.165+b*.065,.177+a*.016,.17-a*.064,till);
+  labelPlane(till,.31,.075,'0 0 0 · 0 0',0,.28,.035,'#242921','#e7ddba');
+  addMesh(new THREE.BoxGeometry(.17,.025,.025),brassMat,0,.06,.192,till);
+  const armillary=artifact('armillary','Die kleine Armillarsphäre','Verschränkte Messingringe um eine dunkle Weltkugel. Ein alter Anschauungsgegenstand für die Himmelsmechanik.',-5.61,1.205,2.80,.25);
+  lathe(armillary,[[0,0],[.12,0],[.12,.025],[.045,.045],[.035,.12],[.065,.145],[0,.15]],woodMat);
+  const planet=addMesh(new THREE.SphereGeometry(.075,20,14),inkBlue,0,.285,0,armillary);
+  for(const [a,b] of [[0,0],[Math.PI/2,0],[.55,1.15]]){const ring=addMesh(new THREE.TorusGeometry(.145,.006,8,40),antiqueBrass,0,.285,0,armillary);ring.rotation.set(a,b,.36);}
+  // Archive and bookbinding workshop: distinct instruments, not repeated crates.
+  const stack=artifact('archivefolio','Archivmappe mit Bindfaden','Drei unterschiedlich große, leicht schiefe Archivbände. Die Mappe trägt ein handgeschriebenes Etikett.',-4.85,levels.cellar+.875,-1.30,.16);
+  folio(stack,.47,.31,.063,0,0,0,greenGlaze,.08);folio(stack,.40,.28,.052,.024,.073,-.015,burgundy,-.12);
+  const tie=addMesh(new THREE.BoxGeometry(.016,.004,.31),antiqueBrass,.05,.134,0,stack);
+  const press=artifact('press','Die Buchbinderpresse','Zwei schwere Platten halten frisch verleimte Buchblöcke zusammen. Die Spindel lässt sich über das eiserne Handrad festziehen.',4.53,levels.cellar+.885,-1.19);
+  addMesh(new THREE.BoxGeometry(.50,.055,.35),woodMat,0,.027,0,press);
+  addMesh(new THREE.BoxGeometry(.47,.065,.33),woodMat,0,.33,0,press);
+  for(const x of [-.21,.21])addMesh(new THREE.CylinderGeometry(.023,.023,.36,12),ironMat,x,.19,0,press);
+  folio(press,.30,.23,.11,0,.056,0,burgundy);
+  addMesh(new THREE.CylinderGeometry(.031,.031,.20,14),ironMat,0,.44,0,press);
+  const wheel=addMesh(new THREE.TorusGeometry(.10,.013,8,24),ironMat,0,.55,0,press);wheel.rotation.x=Math.PI/2;
+  for(let i=0;i<3;i++){const m=addMesh(new THREE.BoxGeometry(.18,.015,.015),ironMat,0,.55,0,press);m.rotation.y=i*Math.PI/3;}
+  const repair=artifact('repair','Das Werkzeug der Buchbinderin','Falzbein, Garnrolle und Ahle liegen neben einem halbfertigen Einband.',5.27,levels.cellar+.887,-1.0,-.2);
+  const bone=addMesh(new THREE.SphereGeometry(1,12,10),ivory,-.08,.018,.03,repair);bone.scale.set(.10,.012,.025);
+  lathe(repair,[[.043,0],[.043,.013],[.031,.014],[.031,.083],[.043,.084],[.043,.096]],woodMat,.08,0,-.08);
+  const thread=new THREE.MeshStandardMaterial({color:0xc3b296,roughness:1});
+  addMesh(new THREE.CylinderGeometry(.036,.036,.061,18),thread,.08,.047,-.08,repair);
+  const awl=addMesh(new THREE.CylinderGeometry(.006,.006,.13,8),ironMat,.12,.023,.10,repair);awl.rotation.z=Math.PI/2;
+  const handle=addMesh(new THREE.SphereGeometry(1,12,8),woodMat,.026,.023,.10,repair);handle.scale.set(.047,.022,.022);
+  // Private study: a typewriter with keys and carriage, and inkwell with real feather geometry.
+  const typewriter=artifact('typewriter','Veronimus’ Schreibmaschine','Eine schwarz lackierte mechanische Schreibmaschine mit rundlichen Tasten und einem angefangenen Manuskript.',5.15,levels.upper+.855,-2.66,.10);
+  addMesh(new THREE.BoxGeometry(.44,.085,.37),blackened,0,.042,0,typewriter);
+  addMesh(new THREE.BoxGeometry(.41,.14,.20),blackened,0,.15,-.065,typewriter);
+  for(let row=0;row<4;row++)for(let col=0;col<9;col++){const k=addMesh(new THREE.CylinderGeometry(.015,.017,.012,9),ivory,(col-4)*.038,.093+row*.019,.145-row*.046,typewriter);k.rotation.x=.30;}
+  addMesh(new THREE.BoxGeometry(.19,.016,.031),blackened,0,.085,.183,typewriter);
+  const roller=addMesh(new THREE.CylinderGeometry(.032,.032,.46,18),blackened,0,.25,-.145,typewriter);roller.rotation.z=Math.PI/2;
+  for(const x of [-.255,.255]){const knob=addMesh(new THREE.CylinderGeometry(.045,.045,.026,16),antiqueBrass,x,.25,-.145,typewriter);knob.rotation.z=Math.PI/2;}
+  const typed=labelPlane(typewriter,.26,.19,'DAS GEWICHT DER|VERLORENEN DINGE',0,.33,-.137);typed.rotation.x=-.21;
+  const quill=artifact('quill','Feder und Tintenfass','Eine hellgraue Schreibfeder, ein dunkelblaues Tintenfass und eine noch leere Karte. Für Einfälle, die nicht bis morgen warten können.',5.89,levels.upper+.855,-2.68,-.19);
+  lathe(quill,[[0,0],[.064,0],[.070,.018],[.062,.071],[.035,.093],[.030,.13],[.037,.132],[.037,.145]],inkBlue,0,0,0,20);
+  tube(quill,[[0,.13,0],[.025,.24,0],[.06,.34,.012],[.12,.47,.02]],.004,ivory);
+  const feather=new THREE.Shape();feather.moveTo(.02,.21);feather.quadraticCurveTo(-.025,.37,.12,.47);feather.quadraticCurveTo(.16,.35,.02,.21);
+  addMesh(new THREE.ShapeGeometry(feather,12),new THREE.MeshStandardMaterial({color:0xd7ccbb,roughness:1,side:THREE.DoubleSide}),0,0,0,quill);
+  // Kitchen: ceramic teapot, hand-formed cups, utensils.
+  const tea=artifact('teapot','Die grüne Teekanne','Eine bauchige, grün glasierte Kanne mit einer leicht unregelmäßigen Tülle. Sie steht bereit für die nächste Lesestunde.',-5.82,levels.upper+.985,2.65,-.25);
+  lathe(tea,[[0,0],[.08,0],[.12,.035],[.15,.10],[.13,.17],[.075,.21],[.065,.22]],greenGlaze);
+  lathe(tea,[[0,.225],[.07,.225],[.072,.24],[.035,.26],[.017,.26],[.018,.28],[0,.285]],greenGlaze);
+  tube(tea,[[.12,.075,0],[.19,.10,0],[.24,.19,0],[.30,.225,0]],.025,greenGlaze);
+  tube(tea,[[-.12,.07,0],[-.22,.07,0],[-.23,.18,0],[-.13,.19,0]],.018,greenGlaze);
+  function cup(g,x,z,mat){lathe(g,[[0,0],[.046,0],[.052,.012],[.059,.086],[.054,.092],[.050,.085],[.043,.015],[0,.012]],mat,x,0,z);const handle=addMesh(new THREE.TorusGeometry(.03,.007,8,20),mat,x+.06,.054,z,g);addMesh(new THREE.CylinderGeometry(.048,.048,.002,22),new THREE.MeshStandardMaterial({color:0x55341f,roughness:.23}),x,.064,z,g);}
+  cup(tea,.33,.16,ivory);cup(tea,.08,.21,ivory);
+  // Reading corner: a brass clock and spectacles on a closed volume.
+  const clockObj=artifact('mantelclock','Die Uhr in der Lesehöhle','Eine kleine mechanische Uhr mit römischem Zifferblatt. Ob sie wirklich richtig geht, ist eine andere Frage.',5.15,levels.upper+.683,2.55,.08);
+  addMesh(new THREE.BoxGeometry(.32,.055,.17),woodMat,0,.027,0,clockObj);
+  const caseM=addMesh(new THREE.CylinderGeometry(.135,.135,.095,32),woodMat,0,.183,0,clockObj);caseM.rotation.x=Math.PI/2;
+  const dial=printTexture(256,256,(c,w,h)=>{c.fillStyle='#e4d2ad';c.fillRect(0,0,w,h);c.textAlign='center';c.textBaseline='middle';c.fillStyle='#3c2e24';c.font='22px Georgia';const roman=['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];for(let i=0;i<12;i++){const a=i*Math.PI/6;c.fillText(roman[i],128+93*Math.sin(a),128-93*Math.cos(a));}c.strokeStyle='#32291e';c.lineWidth=5;c.beginPath();c.moveTo(128,128);c.lineTo(83,91);c.moveTo(128,128);c.lineTo(190,113);c.stroke();});
+  addMesh(new THREE.CircleGeometry(.113,32),new THREE.MeshStandardMaterial({map:dial,roughness:.7}),0,.183,.050,clockObj);
+  addMesh(new THREE.TorusGeometry(.122,.008,8,36),antiqueBrass,0,.183,.055,clockObj);
+  const glasses=artifact('glasses','Die vergessene Lesebrille','Eine feine runde Metallbrille liegt auf einem geschlossenen Buch. Vermutlich wurde sie wieder einmal gesucht, während sie direkt vor einem lag.',4.64,levels.upper+.57,3.85,.38);
+  folio(glasses,.22,.15,.032,0,0,0,greenGlaze);
+  for(const x of [-.043,.043]){const m=addMesh(new THREE.TorusGeometry(.034,.003,7,20),antiqueBrass,x,.042,0,glasses);m.rotation.x=Math.PI/2;}
+  tube(glasses,[[-.012,.042,0],[0,.05,0],[.012,.042,0]],.003,antiqueBrass);
+  for(const x of [-.078,.078])tube(glasses,[[x,.042,0],[x,.043,-.035],[x*.85,.04,-.075]],.003,antiqueBrass);
+  // Stage: unique lectern with sloped top replaces the simple plank silhouette.
+  const stageNote=artifact('stageNote','Das Pult der offenen Lesebühne','Hier liegen die Notizen für den nächsten Literaturabend. Auf der Karte steht: Unfertige Geschichten sind willkommen.',5.10,levels.shop+1.64,2.55);
+  const stagePaper=labelPlane(stageNote,.36,.23,'Offene Lesebühne|Unfertiges willkommen',0,.01,0);stagePaper.rotation.x=-Math.PI/2;
   // overall lights
   const hemi = new THREE.HemisphereLight(0x9bb0c2, 0x58432e, 1.10); scene.add(hemi);
   const moon = new THREE.DirectionalLight(0x91b6d9, .86); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
@@ -1160,7 +1260,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   function inspect(id){
     if(id==='tableBook'){readBook(0);return;}
     if(id==='shelf'){shelfGoal=shelfGoal?0:-1.05;return;}
-    const item=details[id];if(!item)return;
+    const item=artifactInfo[id]||details[id];if(!item)return;
     showReader();readState=null;heading.textContent='Ein Gegenstand im Federfuchs';catalog.hidden=true;paper.hidden=false;foot.hidden=true;backBtn.hidden=false;
     const h=document.createElement('h2'),p=document.createElement('p');h.textContent=item.title;p.textContent=item.text;paper.replaceChildren(h,p);
   }
