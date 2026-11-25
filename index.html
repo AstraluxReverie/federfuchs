@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.26</title>
+  <title>Zum träumenden Federfuchs – v0.27</title>
   <style>
     :root{
       --bg:#10151b;
@@ -265,7 +265,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.26 · Grundarchitektur wird aufgebaut …</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.27 · Grundarchitektur wird aufgebaut …</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -301,7 +301,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.26 · Raumgedächtnis & Objektanker</div>
+    <div id="sub">v0.27 · Licht, Tiefe & Material</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -373,7 +373,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
       <button id="bizEvent" class="wideTool">Lesung veranstalten</button><button id="bizNextDay" class="wideTool">Neuer Tag</button>
       <p id="bizMessage" role="status" class="drawerHint"></p>
     </div>
-    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p class="drawerHint" id="detailProgress" role="status">Lokale Grundszene bereit</p><progress id="detailBar" max="1" value="0" style="width:100%;height:7px;accent-color:#91b6a0"></progress><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><details id="inventoryDetails"><summary>Produktionskatalog · 160 Assets</summary><p id="inventoryStatus" class="drawerHint">Katalog wird beim Öffnen geladen.</p><input id="inventorySearch" type="search" placeholder="ID, Name, Raum …" aria-label="Objekte suchen"><select id="inventoryFloor" aria-label="Geschoss filtern"><option value="">Alle Geschosse</option><option value="EG">Erdgeschoss</option><option value="OG">Obergeschoss</option><option value="UG">Untergeschoss</option><option value="ALLE">Architekturmodule</option></select><div id="inventoryList"></div></details><p id="localAssetStatus" class="drawerHint">Eigene GLB-Modelle: Assetliste wird geprüft</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><label class="drawerLabel" for="lightMood">Lichtstimmung</label><select id="lightMood"><option value="evening">Regenabend</option><option value="day">Bewölkter Tag</option><option value="night">Lesenacht</option></select><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
+    <div id="performancePanel" class="drawerSection" hidden><label class="drawerLabel" for="graphicsQuality">Grafik</label><select id="graphicsQuality"><option value="auto">Automatisch</option><option value="low">Flüssig</option><option value="high">Detailreich</option></select><p id="performanceInfo" class="drawerHint">Messung beginnt …</p><p class="drawerHint" id="detailProgress" role="status">Lokale Grundszene bereit</p><progress id="detailBar" max="1" value="0" style="width:100%;height:7px;accent-color:#91b6a0"></progress><p id="accelInfo" class="drawerHint">Objektauswahl: Standard</p><details id="inventoryDetails"><summary>Produktionskatalog · 160 Assets</summary><p id="inventoryStatus" class="drawerHint">Katalog wird beim Öffnen geladen.</p><input id="inventorySearch" type="search" placeholder="ID, Name, Raum …" aria-label="Objekte suchen"><select id="inventoryFloor" aria-label="Geschoss filtern"><option value="">Alle Geschosse</option><option value="EG">Erdgeschoss</option><option value="OG">Obergeschoss</option><option value="UG">Untergeschoss</option><option value="ALLE">Architekturmodule</option></select><div id="inventoryList"></div></details><p id="renderLightStatus" class="drawerHint">Lichtprofil wird aufgebaut</p><p id="localAssetStatus" class="drawerHint">Eigene GLB-Modelle: Assetliste wird geprüft</p><p id="cacheInfo" class="drawerHint">Dateicache: wird geprüft</p><label class="drawerLabel" for="lightMood">Lichtstimmung</label><select id="lightMood"><option value="evening">Regenabend</option><option value="day">Bewölkter Tag</option><option value="night">Lesenacht</option></select><button id="assetLoad" class="wideTool">Originalmodelle & Texturen laden</button><button id="assetStop" class="wideTool">Ersatzmaterialien verwenden</button></div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
       <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p><p id="layoutStatus" role="status">Wandprüfung …</p>
@@ -427,6 +427,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   import {DESIGN,WALL_MODES,wallMode,motifPath,sealArtwork} from './design-standard.js';
   import {ROOMS,TOUR,roomAt,naturalMood,validateVisit} from './rooms.js';
   import {ANCHOR_PLAN,anchorFor} from './asset-anchors.js';
+  import {moodFor,reflectionArtwork,roughnessArtwork,contactArtwork} from './lighting-art.js';
 
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -543,7 +544,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     }
   }, 1024, 256, 2, 1);
 
-  const woodMat = new THREE.MeshStandardMaterial({map:woodTex,color:0xc8b5a0,roughness:.82,metalness:0});
+  const woodMat = new THREE.MeshPhysicalMaterial({map:woodTex,color:0xc8b5a0,roughness:.77,metalness:0,clearcoat:.13,clearcoatRoughness:.55});
   const floorMat = new THREE.MeshStandardMaterial({map:plankTex, roughness:.78, metalness:0});
   const stoneMat = new THREE.MeshStandardMaterial({map:stoneTex, roughness:.95, metalness:0});
   // A visible, local fallback: staggered sandstone masonry with mortar, chips and weathering.
@@ -566,9 +567,9 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const facadeMat=new THREE.MeshStandardMaterial({map:facadeTex,bumpMap:facadeTex,bumpScale:.048,roughness:.94});
   const foundationMat=new THREE.MeshStandardMaterial({map:stoneTex,bumpMap:stoneTex,bumpScale:.055,color:0x9a9282,roughness:.96});
   const plasterMat = new THREE.MeshStandardMaterial({map:plasterTex, roughness:.94, metalness:0});
-  const brassMat = new THREE.MeshStandardMaterial({color:DESIGN.palette.brass, roughness:.47, metalness:.74});
-  const ironMat = new THREE.MeshStandardMaterial({color:0x2b2e34, roughness:.75, metalness:.18});
-  const fabricBlueMat = new THREE.MeshStandardMaterial({color:DESIGN.palette.midnight, roughness:.91});
+  const brassMat = new THREE.MeshStandardMaterial({color:DESIGN.palette.brass, roughness:.39, metalness:.82,envMapIntensity:1.05});
+  const ironMat = new THREE.MeshStandardMaterial({color:0x383a40, roughness:.72, metalness:.58,envMapIntensity:.72});
+  const fabricBlueMat = new THREE.MeshPhysicalMaterial({color:DESIGN.palette.midnight,roughness:.94,sheen:.63,sheenColor:0x6e8da8,sheenRoughness:.72});
   const cushionMat = new THREE.MeshStandardMaterial({color:0x7087a4, roughness:1});
   const rugMat = new THREE.MeshStandardMaterial({map:rugTex, roughness:1});
   const bookMat = new THREE.MeshStandardMaterial({map:bookTex, roughness:.8});
@@ -767,6 +768,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     return g;
   }
 
+  const pendantLights=[];
   function lamp(x,y,z,warm=0xffd39a,intensity=2.3,dist=9,group=house){
     const g = new THREE.Group(); g.position.set(x,y,z); group.add(g);
     // Period pendant with brass cap, cream glass shade and warm inner bulb.
@@ -782,7 +784,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     light.position.y=-.15;
     light.castShadow = false;
     light.shadow.mapSize.set(512,512);
-    g.add(light);
+    g.add(light);pendantLights.push({light,base:light.intensity,floor:y<-.25?0:y<4.95?1:2});
     return g;
   }
 
@@ -794,7 +796,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   const paneCtx=pane.getContext('2d');
   const rainTex=new THREE.CanvasTexture(pane);rainTex.colorSpace=THREE.SRGBColorSpace;
   const rainMat=new THREE.MeshBasicMaterial({map:rainTex,side:THREE.DoubleSide,transparent:true,depthWrite:false,opacity:.65});
-  const windowGlass=new THREE.MeshPhysicalMaterial({color:0xd0e1e5,transparent:true,opacity:.18,roughness:.08,metalness:0,clearcoat:1,clearcoatRoughness:.08,side:THREE.DoubleSide,depthWrite:false});
+  const windowGlass=new THREE.MeshPhysicalMaterial({color:0xe2edf1,transparent:true,opacity:.22,roughness:.16,metalness:0,clearcoat:1,clearcoatRoughness:.10,envMapIntensity:1.1,side:THREE.DoubleSide,depthWrite:false});
   const windowWood=new THREE.MeshStandardMaterial({color:0x563b28,map:woodTex,roughness:.72});
   const windowSeal=new THREE.MeshStandardMaterial({color:0x30281f,roughness:.88});
   const drops=Array.from({length:52},()=>({x:Math.random()*256,y:Math.random()*256,v:20+Math.random()*65,l:3+Math.random()*17,a:.12+Math.random()*.40}));
@@ -1201,7 +1203,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   lamp(6.25, levels.upper+3.25, 2.65, 0xffd5a4, 1.65, 6);
 
   // Upholstered reading sofa, folded blue throw, two cushions and an open book.
-  const velvet=new THREE.MeshStandardMaterial({color:DESIGN.palette.midnight,roughness:.94});
+  const velvet=new THREE.MeshPhysicalMaterial({color:DESIGN.palette.midnight,roughness:.94,sheen:.74,sheenColor:0x6c8cac,sheenRoughness:.65});
   const cloth=new THREE.MeshStandardMaterial({color:0x8399b5,roughness:1,side:THREE.DoubleSide});
   function softBox(w,h,d,x,y,z,mat){
     const shape=new THREE.Shape(),rad=Math.min(w,h)*.17;
@@ -1442,7 +1444,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   for(const x of [-7.37,-5.03])addMesh(new THREE.SphereGeometry(.07,12,10),woodMat,x,levels.upper+1.43,-4.04);
   addMesh(new THREE.BoxGeometry(.72,.17,.49),paperMat,-5.56,levels.upper+1.03,-3.48);
   // Porcelain sink bowl with faucet and controls, cooker rings and cabinet fronts.
-  const ceramic=new THREE.MeshStandardMaterial({color:0xe9e5db,roughness:.21});
+  const ceramic=new THREE.MeshPhysicalMaterial({color:0xe9e5db,roughness:.28,clearcoat:.58,clearcoatRoughness:.18});
   const sink=new THREE.Group();sink.position.set(-5.60,levels.upper+1.19,4.37);house.add(sink);
   lathe(sink,[[0,0],[.14,0],[.21,.05],[.23,.12],[.24,.13],[.23,.145],[.21,.13],[.16,.045],[0,.035]],ceramic,0,0,0,28);
   tube(sink,[[0,.03,-.23],[0,.30,-.23],[0,.36,-.13],[0,.29,-.035]],.016,antiqueBrass);
@@ -1663,11 +1665,11 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // overall lights
   const hemi = new THREE.HemisphereLight(0x9bb0c2,0x58432e,.86); scene.add(hemi);
   const moon = new THREE.DirectionalLight(0x91b6d9, .86); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
-  const envTex=canvasTexture((c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#2c3f57');g.addColorStop(.45,'#9cabb3');g.addColorStop(.52,'#817562');g.addColorStop(1,'#302820');c.fillStyle=g;c.fillRect(0,0,w,h);for(const x of [75,340]){const glow=c.createRadialGradient(x,h*.37,2,x,h*.37,82);glow.addColorStop(0,'#e9e3ce');glow.addColorStop(1,'#d8d0b900');c.fillStyle=glow;c.fillRect(x-82,0,164,h);}},512,256,1,1);envTex.mapping=THREE.EquirectangularReflectionMapping;scene.environment=envTex;scene.environmentIntensity=.38;
+  const envTex=canvasTexture(reflectionArtwork,1024,512);envTex.mapping=THREE.EquirectangularReflectionMapping;scene.environment=envTex;scene.environmentIntensity=.46;
   const fill = new THREE.DirectionalLight(0xffe6c0, .46); fill.position.set(8,14,8); scene.add(fill);
   moon.shadow.normalBias=.035;moon.shadow.radius=3;
   const lightMood=document.getElementById('lightMood');
-  function updateLightMood(){const q=lightMood.value;hemi.intensity=q==='day'?1.15:q==='night'?.45:.72;moon.intensity=q==='day'?1.35:q==='night'?.22:.65;fill.intensity=q==='day'?.42:q==='night'?.12:.30;renderer.toneMappingExposure=q==='day'?1.20:q==='night'?1.18:1.32;moon.color.setHex(q==='day'?0xc6d7e0:0x91b6d9);try{localStorage.setItem('federfuchs-light',q);}catch(e){}}
+  function updateLightMood(){const q=moodFor(lightMood.value);hemi.intensity=q.hemi;hemi.color.setHex(q.sky);hemi.groundColor.setHex(q.ground);moon.intensity=q.sun;fill.intensity=q.fill;renderer.toneMappingExposure=q.exposure;moon.color.setHex(q.sky);scene.environmentIntensity=q.env;scene.fog.color.setHex(q.fog);try{localStorage.setItem('federfuchs-light',lightMood.value);}catch(e){}}
   try{const mood=localStorage.getItem('federfuchs-light');if(['day','night','evening'].includes(mood))lightMood.value=mood;else lightMood.value='evening';}catch(e){}
   lightMood.addEventListener('change',updateLightMood);updateLightMood();
 
@@ -2026,7 +2028,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       if(move.lengthSq() > 0){ if(move.lengthSq()>1)move.normalize();move.multiplyScalar(player.speed * dt); const px=player.pos.x,pz=player.pos.z;navigate(move.x,move.z);distMoved=Math.hypot(player.pos.x-px,player.pos.z-pz); }
       syncWalkCamera();
     }
-    updateJourney(dt,t);
+    updateJourney(dt,t);updateRenderLighting(dt);
     if(!tourState)updateCameraKeys(dt);
     applyHouseView();
     updateCompactUI();
@@ -2057,6 +2059,12 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // Asset names checked against Poly Haven's public catalogue. Direct download paths
   // follow its published texture CDN convention; no API credentials or paid services.
   // Every image is independently decoded before application. Fallback remains visible.
+  const grainRough=canvasTexture((c,w,h)=>roughnessArtwork(c,w,h,222,30,83,true),512,512);grainRough.colorSpace=THREE.NoColorSpace;
+  const metalRough=canvasTexture((c,w,h)=>roughnessArtwork(c,w,h,206,42,91),256,256);metalRough.colorSpace=THREE.NoColorSpace;
+  const clothRough=canvasTexture((c,w,h)=>roughnessArtwork(c,w,h,244,15,101),256,256,2,2);clothRough.colorSpace=THREE.NoColorSpace;
+  woodMat.roughnessMap=grainRough;floorMat.roughnessMap=grainRough;trimMat.roughnessMap=grainRough;
+  brassMat.roughnessMap=metalRough;antiqueBrass.roughnessMap=metalRough;ironMat.roughnessMap=metalRough;blackened.roughnessMap=metalRough;
+  for(const m of [fabricBlueMat,cushionMat,velvet,cloth,upholstery,rugMat])m.roughnessMap=clothRough;
   const materialSpecs=[
     {id:'medieval_wall_02',label:'Außenfassade · Naturstein',targets:[facadeMat],normal:.65,repeat:[1,1]},
     {id:'wood_floor_worn',label:'Historische Dielen',targets:[floorMat],normal:.58,repeat:[1,1]},
@@ -2888,7 +2896,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   function startTour(){if(tourState)return;if(walkMode)setWalkMode(false);const before=snapshotVisit();if(!before)return;tourState={index:0,elapsed:0,paused:false,before,pending:null,transition:0,framed:false};resetInput();cameraKeys.clear();setDrawer(null);controls.enabled=false;document.body.classList.add('touring');tourHud.hidden=false;document.getElementById('tourPause').textContent='Pause';tourStopAt(0);}
   function endTour(){if(!tourState)return;const before=tourState.before;tourState=null;tourVeil.style.opacity='0';tourHud.hidden=true;document.body.classList.remove('touring');controls.enabled=true;applyVisit(before);}
-  function updateJourney(dt,t){syncTime(t);if(tourState&&!tourState.paused&&!advanceTourTransition(dt)){tourState.elapsed+=dt;if(tourState.elapsed>=7){if(tourState.index===TOUR.length-1)endTour();else tourStopAt(tourState.index+1);}}const p=activeRoomProfile(),factor=p?.light??1;roomLight+=(factor-roomLight)*Math.min(1,dt*1.7);const base=lightMood.value==='day'?1.20:lightMood.value==='night'?1.18:1.32;renderer.toneMappingExposure=base*roomLight;const key=p?.id||'overview';if(key!==lastRoomKey){lastRoomKey=key;roomProfileStatus.textContent=p?p.name+' · Raumlicht und gedämpfte Geräuschkulisse':'Gesamtansicht · neutrale Raumstimmung';}}
+  function updateJourney(dt,t){syncTime(t);if(tourState&&!tourState.paused&&!advanceTourTransition(dt)){tourState.elapsed+=dt;if(tourState.elapsed>=7){if(tourState.index===TOUR.length-1)endTour();else tourStopAt(tourState.index+1);}}const p=activeRoomProfile(),factor=p?.light??1;roomLight+=(factor-roomLight)*Math.min(1,dt*1.7);const base=moodFor(lightMood.value).exposure;renderer.toneMappingExposure=base*roomLight;const key=p?.id||'overview';if(key!==lastRoomKey){lastRoomKey=key;roomProfileStatus.textContent=p?p.name+' · Raumlicht und gedämpfte Geräuschkulisse':'Gesamtansicht · neutrale Raumstimmung';}}
   try{savedVisit=validateVisit(JSON.parse(localStorage.getItem('federfuchs-visit-v1')||'null'));const a=localStorage.getItem('federfuchs-clock');if(a==='real')clockChoice=a;const b=localStorage.getItem('federfuchs-weather');if(['rain','snow','clear','season'].includes(b))weatherChoice=b;}catch(e){}
   clockMode.value=clockChoice;weatherMode.value=weatherChoice;setWeatherChoice();saveVisitUi();lightMood.disabled=clockChoice==='real';
   clockMode.addEventListener('change',()=>{clockChoice=clockMode.value;lastClockCheck=-Infinity;lightMood.disabled=clockChoice==='real';try{localStorage.setItem('federfuchs-clock',clockChoice);}catch(e){}syncTime(performance.now());});
@@ -2913,6 +2921,49 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   memoryUi();document.getElementById('saveRoomState').addEventListener('click',captureRoomMemory);document.getElementById('restoreRoomState').addEventListener('click',restoreRoomMemory);
   addEventListener('pagehide',()=>rememberVisit());document.addEventListener('visibilitychange',()=>{if(document.hidden)rememberVisit();});
   house.updateMatrixWorld(true);for(const binding of inventoryBindings.values())for(const o of binding.objects){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())continue;const p=b.getCenter(new THREE.Vector3()),room=roomAt(floorOf(p.y),p.x,p.z);if(room)o.userData.roomId=room.id;}
+  // Approximate contact shadows, instanced per floor. Keep them independent from collision geometry.
+  const contactTex=canvasTexture(contactArtwork,128,128);
+  contactTex.wrapS=contactTex.wrapT=THREE.ClampToEdgeWrapping;
+  const contactMat=new THREE.MeshBasicMaterial({map:contactTex,transparent:true,opacity:.74,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+  const contactGeo=new THREE.PlaneGeometry(1,1);contactGeo.rotateX(-Math.PI/2);
+  const contactGroups=[],contactDummy=new THREE.Object3D();
+  for(let f=0;f<3;f++){
+    const items=editItems.filter(e=>e.floor===f&&e.kind!=='rug');
+    if(!items.length)continue;
+    const mesh=new THREE.InstancedMesh(contactGeo,contactMat,items.length);let count=0;
+    for(const item of items){
+      const b=new THREE.Box3().setFromObject(item.o),size=b.getSize(new THREE.Vector3()),p=b.getCenter(new THREE.Vector3());
+      if(b.isEmpty()||size.x<.001||size.z<.001||Math.abs(b.min.y-elevations[f])>.18)continue;
+      if(flights.some(v=>v.high===f&&Math.abs(p.x-v.x)<stairHalf+size.x*.5+.18&&p.z>zTop-size.z*.5&&p.z<zBottom+size.z*.5))continue;
+      contactDummy.position.set(p.x,elevations[f]+.023,p.z);contactDummy.scale.set(Math.max(.2,size.x*1.18),1,Math.max(.2,size.z*1.27));contactDummy.updateMatrix();mesh.setMatrixAt(count++,contactDummy.matrix);
+    }
+    mesh.count=count;mesh.instanceMatrix.needsUpdate=true;mesh.renderOrder=1;scene.add(mesh);contactGroups.push({mesh,f});
+  }
+  // Two reusable local window lights. They are artistic approximations, not physically traced light.
+  const windowPools=Array.from({length:2},()=>{const l=new THREE.SpotLight(0xc7d9e8,0,6,Math.PI/4,.78,2);l.castShadow=false;scene.add(l,l.target);return l;});
+  const windowSources=facadeWindows.filter(v=>v.floor!==0).map(v=>{
+    const sign=Math.sign(v.at),p=v.axis==='z'?new THREE.Vector3(v.center,v.y,v.at-sign*.23):new THREE.Vector3(v.at-sign*.23,v.y,v.center);
+    const normal=v.axis==='z'?new THREE.Vector3(0,0,-sign):new THREE.Vector3(-sign,0,0);
+    const interior=p.clone().addScaledVector(normal,1.15);return {v,p,normal,room:roomAt(v.floor,interior.x,interior.z)?.id};
+  });
+  windowSources.push({v:{floor:2},p:new THREE.Vector3(8.76,7.15,2.25),normal:new THREE.Vector3(-1,0,0),room:'nook'});
+  const renderLightStatus=document.getElementById('renderLightStatus');
+  let lastLightKey='',activePools=0;
+  function updateRenderLighting(dt){
+    const quality=qualityEl.value,mode=moodFor(lightMood.value),profile=activeRoomProfile(),floor=walkMode?navigation.floor:houseView.floor;
+    const selection=walkMode?-1:floor;
+    for(const c of contactGroups)c.mesh.visible=quality!=='low'&&floorAllowed(c.f,selection,houseView.scope);
+    for(const p of pendantLights){const allowed=walkMode?(p.floor===floor||navigation.flight!==null):floorAllowed(p.floor,selection,houseView.scope);const desired=allowed?p.base*mode.lamp:0;p.light.intensity+=(desired-p.light.intensity)*Math.min(1,dt*5);}
+    const pos=walkMode?player.pos:controls.target,key=[quality,profile?.id||'',floor,lightMood.value,Math.round(pos.x),Math.round(pos.z)].join('|');
+    if(key!==lastLightKey){
+      lastLightKey=key;
+      const nearby=quality==='low'||!profile||floor<0?[]:windowSources.filter(w=>w.v.floor===floor&&w.room===profile.id).sort((a,b)=>a.p.distanceToSquared(pos)-b.p.distanceToSquared(pos)).slice(0,quality==='high'?2:1);
+      activePools=nearby.length;
+      for(let i=0;i<windowPools.length;i++){const l=windowPools[i],w=nearby[i];l.userData.goal=w?mode.window:0;if(w){l.position.copy(w.p);l.target.position.copy(w.p).addScaledVector(w.normal,3.3);l.target.position.y-=1.5;l.color.setHex(mode.sky);}}
+      renderLightStatus.textContent=(quality==='low'?'Leichtprofil · keine Kontaktschatten':contactGroups.reduce((n,c)=>n+c.mesh.count,0)+' Kontaktflächen · '+activePools+' lokale Fensterlichter')+' · Materialreflexionen '+(quality==='low'?'aus':'aktiv');
+    }
+    for(const l of windowPools)l.intensity+=(Number(l.userData.goal||0)-l.intensity)*Math.min(1,dt*3);
+  }
   let detailActive=false,detailTotal=0,detailCompleted=0;
   function showDetailProgress(){const bar=document.getElementById('detailBar'),label=document.getElementById('detailProgress');bar.max=Math.max(1,detailTotal);bar.value=detailCompleted;label.textContent=detailActive?'Detailressourcen geprüft: '+detailCompleted+' / '+detailTotal:detailTotal?'Detailprüfung beendet: '+detailCompleted+' / '+detailTotal:'Lokale Grundszene bereit';}
   function detailDone(){if(detailActive){detailCompleted=Math.min(detailTotal,detailCompleted+1);showDetailProgress();}}
@@ -2925,7 +2976,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=026',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=027',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
