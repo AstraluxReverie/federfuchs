@@ -1,5 +1,5 @@
-// Federfuchs 0.20: network-first navigation; bounded cache for immutable game assets.
-const CACHE='federfuchs-assets-v020';
+// Federfuchs 0.31: network-first navigation; bounded cache for immutable game assets.
+const CACHE='federfuchs-assets-v031';
 const LIMIT=100;
 self.addEventListener('install',event=>{self.skipWaiting();});
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
