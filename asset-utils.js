@@ -2,8 +2,13 @@
 export function validateManifest(value){
  if(value?.version!==1||!Array.isArray(value.models))throw Error('Ungültige Assetliste');
  const seen=new Set();return value.models.map(item=>{
- if(!item||!/^([a-z0-9_]+)$/.test(item.slot)||!/^([a-z0-9][a-z0-9_-]*\.glb)$/.test(item.file)||seen.has(item.slot))throw Error('Ungültiger oder doppelter Asset-Eintrag');
- seen.add(item.slot);return item;
+ if(!item||typeof item.file!=='string'||!/^([a-zA-Z0-9][a-zA-Z0-9_-]*\.glb)$/.test(item.file))throw Error('Ungültiger Asset-Dateiname');
+ const id=item.id===undefined?null:String(item.id).padStart(3,'0');
+ if(id!==null&&(!/^\d{3}$/.test(id)||Number(id)<1||Number(id)>160))throw Error('Ungültige Katalog-ID');
+ const slot=id?'ff_'+id:item.slot;
+ if(!/^[a-z0-9_]+$/.test(slot||'')||seen.has(slot))throw Error('Ungültiger oder doppelter Asset-Eintrag');
+ if(id&&!new RegExp('^FF_'+id+'_','i').test(item.file))throw Error('Dateiname passt nicht zur Katalog-ID');
+ seen.add(slot);return {...item,id,slot};
  });
 }
 export function validateGLB(buffer){
