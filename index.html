@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.34</title>
+  <title>Zum träumenden Federfuchs – v0.35</title>
   <style>
     :root{
       --bg:#10151b;
@@ -317,7 +317,7 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
   <div class="card">
     <div id="drawerHeader"><strong id="drawerTitle">Hausansicht</strong><button id="drawerClose" type="button" aria-label="Menü schließen">×</button></div>
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">v0.34 · Wege durch das Haus</div>
+    <div id="sub">v0.35 · Das erste Original</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -1086,7 +1086,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
 
   // ===== SHOP =====
   // left wall shelving
-  for(const z of [-3.5,1.3]) bookShelf(-8.35, levels.shop+.2, z, 2.25, 3.3, .48).rotation.y=Math.PI/2;
+  bookShelf(-8.10,levels.shop+.175,-3.5,1.78,2.40,.86).rotation.y=Math.PI/2;
+  bookShelf(-8.35,levels.shop+.2,1.3,2.25,3.3,.48).rotation.y=Math.PI/2;
   // right wall shelving
   for(const z of [-3.5,1.3]) bookShelf(8.35, levels.shop+.2, z, 2.25, 3.3, .48).rotation.y=-Math.PI/2;
   // rear wall shelving central
@@ -1161,8 +1162,8 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // hallway central
   rug(-1.43, levels.upper+.19, .0, 1.55, 5.2);
   // Independent entrances to both sides of the private landing.
-  partitionX(-3.0,levels.upper,plasterMat,[-4.15,3.95]);
-  partitionX(2.9,levels.upper,plasterMat,[-4.15,2.35]);
+  partitionX(-3.0,levels.upper,plasterMat,[-4.15,1.85]);
+  partitionX(2.9,levels.upper,plasterMat,[-4.15,.15]);
   wall(5.825,H,.22,plasterMat,-5.9125,levels.upper+H/2,.8);
   wall(5.925,H,.22,plasterMat,5.8625,levels.upper+H/2,-1.5);
   // Continuous bathroom partition with a bookshelf fitted into the actual doorway.
@@ -1694,10 +1695,10 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
     outdoorRainGeo.attributes.position.needsUpdate=true;
   }
   // overall lights
-  const hemi = new THREE.HemisphereLight(0x9bb0c2,0x58432e,.86); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xb3bdca,0x624831,.92); scene.add(hemi);
   const moon = new THREE.DirectionalLight(0x91b6d9, .86); moon.position.set(-10,18,12); moon.castShadow = true; moon.shadow.mapSize.set(1024,1024); moon.shadow.camera.left=-14;moon.shadow.camera.right=14;moon.shadow.camera.top=14;moon.shadow.camera.bottom=-14;moon.shadow.camera.far=55; moon.shadow.bias=-.0003; scene.add(moon);
   const envTex=canvasTexture(reflectionArtwork,1024,512);envTex.mapping=THREE.EquirectangularReflectionMapping;scene.environment=envTex;scene.environmentIntensity=.46;
-  const fill = new THREE.DirectionalLight(0xffe6c0, .46); fill.position.set(8,14,8); scene.add(fill);
+  const fill = new THREE.DirectionalLight(0xffe0b0, .55); fill.position.set(8,14,8); scene.add(fill);
   moon.shadow.normalBias=.035;moon.shadow.radius=3;
   const lightMood=document.getElementById('lightMood');
   function updateLightMood(){const q=moodFor(lightMood.value);hemi.intensity=q.hemi;hemi.color.setHex(q.sky);hemi.groundColor.setHex(q.ground);moon.intensity=q.sun;fill.intensity=q.fill;renderer.toneMappingExposure=q.exposure;moon.color.setHex(q.sky);scene.environmentIntensity=q.env;scene.fog.color.setHex(q.fog);try{localStorage.setItem('federfuchs-light',lightMood.value);}catch(e){}}
@@ -1831,7 +1832,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   // Collision geometry is intentionally conservative for furniture and exact for partition walls.
   const furniture=[];
   function obstacle(floor,x,z,w,d){furniture.push({floor,x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});}
-  for(const z of [-3.5,1.3]){obstacle(1,-8.35,z,.60,2.44);obstacle(1,8.35,z,.60,2.44);}
+  obstacle(1,-8.10,-3.5,1.05,1.98);obstacle(1,-8.35,1.3,.60,2.44);for(const z of [-3.5,1.3])obstacle(1,8.35,z,.60,2.44);
   for(const x of [-6,-4,4,6])obstacle(1,x,-4.75,1.8,.38);
   obstacle(1,-7.45,4.83,.28,.28);obstacle(1,-4.5,2.65,2.6,1.02);obstacle(1,-6.55,3.75,1.25,1.25);obstacle(1,5.1,2.9,2.35,2.15);obstacle(1,6.95,2,.65,.5);for(const x of [4.4,5.2,6])obstacle(1,x,1.1,.48,.48);
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
@@ -2256,7 +2257,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
       if(!modelFits(placed)||placed.min.y<targetWorld.y-.03||placed.max.y>targetWorld.y+spec.max[1]+.03){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
       model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
       // Remove only after successful replacement. Retain inspectable parent and userData.
-      for(const child of fallback)spec.target.remove(child);
+      for(const child of fallback){const idx=pickableBooks.indexOf(child);if(idx>=0)pickableBooks.splice(idx,1);spec.target.remove(child);}
       spec.target.userData.originalModelLoaded=true;lines.push(spec.id+': Original');
       }finally{detailDone();}
     }
@@ -2350,7 +2351,7 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   }
   const shelves=house.children.filter(o=>o.userData.editKind==='shelf');
   bindAsset('001',shelves.filter(o=>Math.abs(o.position.y-.2)<.3),'approximate');
-  const originalShelfSlot=shelves.find(o=>Math.abs(o.position.y-.2)<.3&&Math.abs(o.position.x+8.35)<.02&&Math.abs(o.position.z+3.5)<.02);
+  const originalShelfSlot=shelves.find(o=>Math.abs(o.position.y-.2)<.3&&Math.abs(o.position.x+8.10)<.02&&Math.abs(o.position.z+3.5)<.02);
   if(originalShelfSlot)inventorySlots.ff_shelf_original={target:originalShelfSlot,max:[1.90,2.50,.95],normalizeHeight:2.40};
   bindAsset('002',counter,'approximate',{max:[2.60,1.20,1.06],props:true});
   bindAsset('003',readerChair,'location-mismatch');
@@ -3112,11 +3113,11 @@ window.addEventListener('error',(event)=>{document.getElementById('loading').cla
   document.getElementById('assetLoad').addEventListener('click',loadDetails);
   document.getElementById('assetStop').addEventListener('click',()=>{originalMaterials();});
   if('serviceWorker' in navigator&&location.protocol==='https:'){
-    navigator.serviceWorker.register('./sw.js?v=034',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
+    navigator.serviceWorker.register('./sw.js?v=035',{scope:'./',updateViaCache:'none'}).then(()=>{document.getElementById('cacheInfo').textContent='Dateicache registriert · greift nach Aktivierung';}).catch(()=>{document.getElementById('cacheInfo').textContent='Dateicache nicht verfügbar · normaler Browsercache';});
   }else document.getElementById('cacheInfo').textContent='Normaler Browsercache';
   requestAnimationFrame(()=>{loading.classList.add('hide');});
   animate();
-  setTimeout(()=>{if(qualityEl.value!=='low')loadDetails();else{enableRayAcceleration();modelStatus.textContent='Detailmodelle auf Wunsch unter Optionen laden';}},1700);
+  setTimeout(()=>{if(qualityEl.value!=='low')loadDetails();else{installLocalOriginals().then(()=>{rebuildEditorCollisions();auditLayout();});enableRayAcceleration();modelStatus.textContent='Detailmaterialien auf Wunsch unter Optionen laden';}},1700);
 
 </script>
 </body>
