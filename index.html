@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.11</title>
+  <title>Zum träumenden Federfuchs – v0.12</title>
   <style>
     :root{
       --bg:#10151b;
@@ -140,7 +140,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.11 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.12 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
 <div id="error"></div>
 <div id="readHint" role="status" hidden></div>
 <div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
@@ -155,7 +155,7 @@
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.11 · Raumkorrektur & Originalmodelle</div>
+    <div id="sub">3D-Studie v0.12 · Architektur & Antiquitäten</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -171,7 +171,7 @@
     </div>
     <div id="materialPanel" hidden>
       <div class="materialTitle"><strong>Oberflächen</strong><span id="materialStatus" role="status">Startet …</span></div>
-      <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p>
+      <div id="materialRows"></div><p id="modelStatus" role="status">3D-Originalmodelle: noch nicht geladen</p><p id="layoutStatus" role="status">Wandprüfung …</p>
       <div class="materialActions"><button id="materialClassic" type="button">Originaltexturen</button><button id="materialRetry" type="button">PBR erneut laden</button></div>
       <p>Fototexturen und optionale Originalmodelle von <a href="https://polyhaven.com/" target="_blank" rel="noopener">Poly Haven</a> (CC0). Ersatzmaterialien bleiben verfügbar. Mobil: 1K; Desktop: optional 2K.</p>
       <label for="materialQuality">Auflösung</label> <select id="materialQuality"><option value="1k">1K · Mobil</option><option value="2k">2K · Detail</option></select>
@@ -634,13 +634,41 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   cutFloor(levels.upper,flights[1].x);
   floorSlab(W,D,0,9.9,0,plasterMat); // ceiling / roof base
 
+  // Build real window openings instead of placing glass in front of a solid wall.
+  function perforatedWall(axis,at,lo,hi,base,mat,openings){
+    const thick=.35;
+    function segment(a,b,bottom,top){
+      if(b-a<.001||top-bottom<.001)return;
+      if(axis==='z')wall(b-a,top-bottom,thick,mat,(a+b)/2,(bottom+top)/2,at);
+      else wall(thick,top-bottom,b-a,mat,at,(bottom+top)/2,(a+b)/2);
+    }
+    let cursor=lo;
+    for(const o of [...openings].sort((a,b)=>a.center-b.center)){
+      const a=o.center-o.w/2,b=o.center+o.w/2;
+      segment(cursor,a,base,base+H);
+      segment(a,b,base,o.y-o.h/2);
+      segment(a,b,o.y+o.h/2,base+H);
+      cursor=b;
+    }
+    segment(cursor,hi,base,base+H);
+  }
   // Outer walls (front open)
-  wall(W,H,.35,plasterMat,0,levels.shop+H/2,-D/2,house); // back wall shop
+  perforatedWall('z',-D/2,-W/2,W/2,levels.shop,plasterMat,[{center:-1.8,w:1.72,y:levels.shop+2.3,h:1.42},{center:2.1,w:1.72,y:levels.shop+2.3,h:1.42}]);
   wall(.35,H,D,plasterMat,-W/2,levels.shop+H/2,0,house);
   wall(.35,H,D,plasterMat,W/2,levels.shop+H/2,0,house);
-  wall(W,H,.35,plasterMat,0,levels.upper+H/2,-D/2,house);
+  perforatedWall('z',-D/2,-W/2,W/2,levels.upper,plasterMat,[{center:-6.2,w:2.02,y:levels.upper+2.25,h:1.52},{center:6,w:1.72,y:levels.upper+2.25,h:1.42}]);
   wall(.35,H,D,plasterMat,-W/2,levels.upper+H/2,0,house);
-  wall(.35,H,D,plasterMat,W/2,levels.upper+H/2,0,house);
+    // Circular window: cut the square opening and fill its corners with curved stone/plaster infill.
+  const roundCy=levels.upper+2.05,roundCz=2.25,roundR=.94;
+  perforatedWall('x',W/2,-D/2,D/2,levels.upper,plasterMat,[{center:roundCz,w:1.88,y:roundCy,h:1.88}]);
+  for(const sideY of [-1,1])for(const sideZ of [-1,1]){
+    const shape=new THREE.Shape();
+    shape.moveTo(0,sideY*roundR);shape.lineTo(sideZ*roundR,sideY*roundR);shape.lineTo(sideZ*roundR,0);
+    for(let i=1;i<=16;i++){const a=i*Math.PI/32;shape.lineTo(sideZ*roundR*Math.cos(a),sideY*roundR*Math.sin(a));}
+    shape.closePath();
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:.35,bevelEnabled:false});geo.translate(0,0,-.175);
+    const infill=addMesh(geo,plasterMat,W/2,roundCy,roundCz,house,false,true);infill.rotation.y=-Math.PI/2;
+  }
   wall(W,H,.35,stoneMat,0,levels.cellar+H/2,-D/2,house);
   wall(.35,H,D,stoneMat,-W/2,levels.cellar+H/2,0,house);
   wall(.35,H,D,stoneMat,W/2,levels.cellar+H/2,0,house);
@@ -811,7 +839,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // writing room right rear
   table(5.5, levels.upper+.175, -2.92, 1.9,.85,.82);
   chair(5.15, levels.upper+.175, -2.05, Math.PI*.1);
-  bookShelf(7.1, levels.upper+.2, -2.6, 1.8,3.1,.42);
+  bookShelf(8.40, levels.upper+.2, -3.1, 1.8,3.1,.42).rotation.y=-Math.PI/2;
 
   lamp(6.25, levels.upper+3.5, -2.2, 0xffd29a, 1.7, 7);
   simpleWindow(6.0, levels.upper+2.25, -5.04, 1.8, 1.5);
@@ -864,13 +892,13 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   addMesh(new THREE.BoxGeometry(1.4,.9,.07), woodMat, 0.0, levels.shop+2.15, -4.05);
 
   // roof lantern stained glass glow
-  addMesh(new THREE.BoxGeometry(4.8,.14,2.8), glassMat, 0, 10.05, -1.0, house, false, true);
+  // Omit unsupported decorative roof glass; the roof is a continuous slab.
   const skylightGlow = new THREE.PointLight(0xf4d6a5, 2.4, 14, 2);
   skylightGlow.position.set(0,10.2,-1.0); skylightGlow.castShadow = false; house.add(skylightGlow);
 
   // Extra details: timber ceiling beams, reading corner, stove, framed sign.
   for(const y of [levels.shop,levels.upper]){
-    for(let x=-7.5;x<8;x+=2.5)addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,y+H-.14,0);
+    for(const x of [-7.5,-5,-3.2,3.2,5,7.5])addMesh(new THREE.BoxGeometry(.19,.22,D-.4),woodMat,x,y+H-.14,0);
     addMesh(new THREE.BoxGeometry(W-.4,.24,.2),woodMat,0,y+H-.18,-D/2+.22);
   }
   const stove=new THREE.Group();stove.position.set(7.85,levels.upper+.18,3.65);house.add(stove);
@@ -1071,7 +1099,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     shop:{pos:new THREE.Vector3(0, elevations[1]+1.65, 3.95), yaw:0},
     upper:{pos:new THREE.Vector3(-1.43, elevations[2]+1.65, 3.9), yaw:0},
     cellar:{pos:new THREE.Vector3(0, elevations[0]+1.65, 3.95), yaw:0},
-    nook:{pos:new THREE.Vector3(6.04, elevations[2]+1.65, 1.85), yaw:-1.15},
+    nook:{pos:new THREE.Vector3(5.89, elevations[2]+1.65, 1.58), yaw:-1.15},
   };
   let tween = null;
   let walkMode = false;
@@ -1169,7 +1197,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   for(const z of [-3.3,.1,3.3])obstacle(0,-6.7,z,2.1,.42);
   obstacle(0,-4.8,-1.3,1.4,.75);obstacle(0,4.75,-1.1,1.8,.9);obstacle(0,5.5,-2.1,1.1,.75);obstacle(0,4.9,-4.65,2.2,.45);obstacle(0,5.3,2.9,2.4,.42);for(let i=0;i<5;i++)obstacle(0,7.95,-3.75+i*1.15,.98,.78);
   obstacle(2,-6.2,-2.4,2.5,3.2);obstacle(2,-4.36,-3.2,.9,.9);obstacle(2,-6,2.8,2.8,.8);obstacle(2,-4.95,1.55,1.15,.7);
-  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,7.1,-2.6,1.8,.42);
+  obstacle(2,4.55,2.75,1.16,1.16);obstacle(2,4.25,1,.9,.55);obstacle(2,5.5,-2.92,1.9,.85);obstacle(2,5.15,-2.05,.58,.58);obstacle(2,8.40,-3.1,.53,1.98);
   obstacle(2,7.03,2.5,2.72,1.20);obstacle(2,7.85,3.65,.83,.74);obstacle(2,6.50,1.05,.76,.55);obstacle(2,6.05,3.92,.46,.46);
   const RADIUS=.19;
   function hitRect(x,z,r,pad=RADIUS){return x>r.x0-pad&&x<r.x1+pad&&z>r.z0-pad&&z<r.z1+pad;}
@@ -1474,10 +1502,20 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   // External glTF model integration: keep procedural objects until a complete model is decoded
   // and checked against the physical wall volumes. No API key; browser loads public CC0 CDN.
   const modelStatus=document.getElementById('modelStatus');
+    // Add a small dedicated vase on the side table near the counter, within the furniture envelope.
+  const vase=artifact('ceramicVase','Die blauweiße Porzellanvase','Eine kleine, blau dekorierte antike Vase, deren Glasur feine Altersspuren trägt.',-3.60,1.205,2.41);
+  lathe(vase,[[0,0],[.045,0],[.07,.025],[.085,.11],[.066,.19],[.042,.23],[.055,.26]],ivory);
+  for(const y of [.045,.10,.16,.23]){const ring=addMesh(new THREE.TorusGeometry(y===.10?.084:y===.16?.075:.053,.004,6,24),inkBlue,0,y,0,vase);ring.rotation.x=Math.PI/2;}
+  // A reading chair with a reserved footprint, clear of the partition and the staircase.
+  const readerChair=chair(-5.85,levels.shop+.175,-2.55,.25);
+  readerChair.userData.inspectId='readingChair';inspectables.push(readerChair);
+  artifactInfo.readingChair={title:'Der Lesesessel',text:'Ein einzelner historischer Sessel im Verkaufsraum, zum Blättern vor dem Kauf.'};
+  obstacle(1,-5.85,-2.55,1.05,1.05);
   const modelSpecs=[
     {id:'mantel_clock_01',target:clockObj,max:[.30,.37,.16],source:'https://polyhaven.com/a/mantel_clock_01'},
     {id:'tea_set_01',target:tea,max:[.72,.30,.42],source:'https://polyhaven.com/a/tea_set_01'},
-    {id:'wooden_table_02',target:readingTable,max:[.76,.56,.55],source:'https://polyhaven.com/a/WoodenTable_02'}
+    {id:'antique_ceramic_vase_01',target:vase,max:[.18,.30,.18],source:'https://polyhaven.com/a/antique_ceramic_vase_01'},
+    {id:'ArmChair_01',target:readerChair,max:[.86,1.16,.86],source:'https://polyhaven.com/a/ArmChair_01'}
   ];
   const intersectsWall=(box,w,eps=.012)=>box.min.x<w.x1-eps&&box.max.x>w.x0+eps&&box.min.y<w.y1-eps&&box.max.y>w.y0+eps&&box.min.z<w.z1-eps&&box.max.z>w.z0+eps;
   function modelFits(box){return !box.isEmpty()&&box.min.x>=-8.80&&box.max.x<=8.80&&box.min.z>=-5.06&&box.max.z<=5.12&&!wallBoxes.some(w=>intersectsWall(box,w));}
@@ -1490,10 +1528,11 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       modelStatus.textContent=lines.join(' · ')+(lines.length?' · ':'')+spec.id+' lädt …';
       let model=null;
       // Try known asset CDN naming variants. A failed or late request never replaces the fallback.
-      const ids=[...new Set([spec.id,spec.id==='wooden_table_02'?'WoodenTable_02':spec.id])];
+      const ids=[spec.id];
       for(const id of ids){
         if(model)break;
-        const url='https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/'+id+'/'+id+'_1k.gltf';
+        let url='https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/'+id+'/'+id+'_1k.gltf';
+        try{const response=await fetch('https://api.polyhaven.com/files/'+encodeURIComponent(id),{signal:AbortSignal.timeout(3500)});if(response.ok){const data=await response.json();const candidate=data?.gltf?.['1k']?.gltf?.url;if(typeof candidate==='string'&&candidate.startsWith('https://dl.polyhaven.org/'))url=candidate;}}catch(e){}
         model=await new Promise(resolve=>{
           let done=false;const timer=setTimeout(()=>{done=true;resolve(null);},16000);
           new GLTFLoader().load(url,g=>{if(done){disposeModel(g.scene);return;}done=true;clearTimeout(timer);resolve(g.scene);},undefined,()=>{if(done)return;done=true;clearTimeout(timer);resolve(null);});
@@ -1511,7 +1550,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       const fallback=[...spec.target.children];
       spec.target.add(model);spec.target.updateWorldMatrix(true,true);
       const placed=new THREE.Box3().setFromObject(model);
-      if(!modelFits(placed)){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
+      if(!modelFits(placed)||placed.min.y<spec.target.position.y-.03||placed.max.y>spec.target.position.y+spec.max[1]+.03){spec.target.remove(model);disposeModel(model);lines.push(spec.id+': Wandprüfung abgelehnt');continue;}
       model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
       // Remove only after successful replacement. Retain inspectable parent and userData.
       for(const child of fallback)spec.target.remove(child);
@@ -1519,8 +1558,24 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     }
     modelStatus.textContent=lines.join(' · ');
   }
+  // Check existing shelf, chair and artifact bounding boxes against the wall geometry.
+  // Report rather than blindly translating objects with connected props.
+  function auditLayout(){
+    house.updateMatrixWorld(true);
+    const candidates=new Set([...pickableBooks.map(m=>m.parent),...inspectables,readerChair,readingTable,clockStand]);
+    const conflicts=[];
+    for(const o of candidates){
+      if(o===hiddenShelf.group||o===stove)continue;
+      const box=new THREE.Box3().setFromObject(o);
+      if(wallBoxes.some(w=>intersectsWall(box,w,.035)))conflicts.push(o.userData.inspectId||'Regal bei '+o.position.x.toFixed(1)+', '+o.position.z.toFixed(1));
+    }
+    const el=document.getElementById('layoutStatus');
+    el.textContent=conflicts.length?'Wandprüfung: '+conflicts.length+' mögliche Überschneidungen · '+conflicts.join(', '):'Wandprüfung: '+candidates.size+' Objektgruppen geprüft, keine gemeldete Überschneidung.';
+    return conflicts;
+  }
   goView('overview');
-  setTimeout(()=>{installModels().catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
+  auditLayout();
+  setTimeout(()=>{installModels().then(auditLayout).catch(()=>{modelStatus.textContent='Originalmodelle: Ersatz aktiv';});},1500);
   setTimeout(()=>{restorePhotographic().catch(()=>{matStatus.textContent='Materialfehler · Ersatz verfügbar';});},850);
   setTimeout(()=>loading.classList.add('hide'), 550);
   animate();
