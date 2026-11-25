@@ -50,3 +50,7 @@ index.html ist jetzt eine eigenständige leichte Startseite; interior.html enth�
 ## Deployment-Diagnose 0.38
 
 main enthält index.html, entrance.html und interior.html. Service Worker trennt Navigationscache nach URL und wird auch aus interior.html mit v038 registriert. Nutzer meldet HTTP 404 für entrance.html; externe Abrufversuche nicht möglich. GitHub Pages Deploymentstatus und Einstellungen sind mit verfügbarem Connector nicht abrufbar. Keine weitere Versionsnummer bis Veröffentlichung geklärt. Fassadenbildtransfer weiterhin offen.
+
+## Eingang und Klangwelt
+
+Nutzer sieht weiterhin alte Live-Version. Veröffentlichung und Fassaden-Binärtransfer bleiben höchste Priorität. Eingang soll Straßenperspektive, fotorealistische Fassade, animierte Tür, Kamerafahrt und direkten Ich-Perspektive-Spawn bieten. Erste synthetische Außenklänge (Rascheln, Schritte, ferne Glockentöne) mit Audio-Opt-in implementiert; keine Originalbuch-Tonaufnahme. Weitere Klanggestaltung: Buchhändler, Papier, Federkiele, Wagen, fantastische Stadtbewohner, dezente Windgeräusche. Mobile Browser benötigen Nutzerinteraktion für Audio. Browser-Abnahme durch Nutzer.
