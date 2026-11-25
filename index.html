@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Zum träumenden Federfuchs – v0.6</title>
+  <title>Zum träumenden Federfuchs – v0.7</title>
   <style>
     :root{
       --bg:#10151b;
@@ -101,16 +101,49 @@
     #soundToggle[aria-pressed=true],#weatherToggle[aria-pressed=true]{border-color:#b89b6d;color:#efdbb5}
     #toolbar button{min-height:30px}
     @media(max-height:470px){#hud .card{max-width:350px}#toolbar button{padding:6px 8px;min-height:26px}#hud h1{font-size:15px}}
+
+    #readingDialog{position:fixed;inset:0;z-index:40;background:#101317bd;backdrop-filter:blur(7px);display:grid;place-items:center;padding:12px;touch-action:pan-y}
+    #readingDialog[hidden]{display:none!important}
+    #readingPanel{width:min(680px,100%);max-height:94vh;max-height:94dvh;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;background:#28221e;border:1px solid #9f825e;border-radius:15px;padding:15px;box-shadow:0 20px 90px #0009}
+    #readingHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+    #readingHeading{font:600 17px Georgia,serif;color:#ecdbba;margin:0}
+    #readingClose{padding:8px 12px}
+    #readingPaper{background:#eaddbf;color:#37291f;border-radius:4px 10px 10px 4px;padding:clamp(16px,4vw,34px);box-shadow:inset 10px 0 24px #69533721,0 4px 12px #0005;border-left:5px solid #b7a385;line-height:1.72;font:17px/1.65 Georgia,serif}
+    #readingPaper h2{font:normal 27px/1.17 Georgia,serif;margin:0 0 8px;color:#3e3028}
+    #readingPaper p{margin:12px 0;white-space:pre-wrap}
+    #readingPaper .bookMeta{font:11px/1.5 system-ui,sans-serif;color:#705c49;text-transform:uppercase;letter-spacing:.09em}
+    #readingFoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;flex-wrap:wrap}
+    #readingFoot button:disabled{opacity:.35;cursor:default}
+    #pageNumber{font-size:12px;color:#d8c5a7}
+    #catalogList{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:8px 0}
+    #catalogList button{text-align:left;padding:11px;background:#fff5e619;line-height:1.35;display:flex;gap:11px;align-items:center;color:#f8ecd9}
+    #catalogList .miniCover{height:57px;width:37px;flex:none;border-radius:2px 5px 5px 2px;border:1px solid #c3a06b;box-shadow:inset 5px 0 #0003,3px 3px #0004;display:grid;place-items:center;color:#dbc08b;font:20px Georgia,serif}
+    #catalogList small{display:block;font:11px system-ui;color:#c8b8a3;margin-top:3px}
+    #readingNote{font-size:12px;color:#c8b8a3;line-height:1.5;margin:8px 0}
+    #readHint{position:fixed;bottom:155px;left:50%;transform:translateX(-50%);font-size:12px;color:#f1e2c9;z-index:14;background:#25201be0;padding:8px 12px;border-radius:8px;max-width:80vw;text-align:center;pointer-events:none}
+    #readHint[hidden],body.quiet #readHint{display:none!important}
+    body.reading #mobileControls,body.reading #interactDoor{display:none!important}
+    @media(max-height:470px){#readingPanel{max-height:90dvh;padding:10px}#readingPaper{padding:16px;font-size:15px}#readingPaper h2{font-size:22px}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.6 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
-<div id="error"></div><button id="quietExit" type="button">Menü anzeigen</button>
+<div id="loading"><div class="inner"><strong>Zum träumenden Federfuchs</strong><span>Version 0.7 lädt … diesmal gemütlicher, stimmungsvoller und deutlich weniger kantig.</span></div></div>
+<div id="error"></div>
+<div id="readHint" role="status" hidden></div>
+<div id="readingDialog" role="dialog" aria-modal="true" aria-labelledby="readingHeading" hidden>
+  <div id="readingPanel" tabindex="-1">
+    <div id="readingHeader"><h2 id="readingHeading">Ein Buch aus dem Federfuchs</h2><button id="readingClose" type="button">Schließen ✕</button></div>
+    <div id="readingCatalog" hidden><p id="readingNote">Kleine Originaltexte, eigens für unser Antiquariat verfasst. Wähle ein Buch oder tippe direkt auf einen Buchrücken im 3D-Raum.</p><div id="catalogList"></div></div>
+    <article id="readingPaper"></article>
+    <div id="readingFoot"><button id="readPrev" type="button">← Zurück</button><span id="pageNumber" aria-live="polite"></span><button id="readNext" type="button">Weiter →</button></div>
+    <button id="backCatalog" type="button" style="margin-top:10px">Zum Bücherregal</button>
+  </div>
+</div><button id="quietExit" type="button">Menü anzeigen</button>
 <div id="hud">
   <div class="card">
     <h1>Zum träumenden Federfuchs</h1>
-    <div id="sub">3D-Studie v0.6 · Ein Abend in Buchhaim</div>
+    <div id="sub">3D-Studie v0.7 · Zwischen den Buchseiten</div>
     <div id="toolbar">
       <button data-view="overview" class="active">Gesamtansicht</button>
       <button data-view="shop">Laden</button>
@@ -121,6 +154,7 @@
       <button id="weatherToggle" type="button" aria-pressed="true">Regen: an</button>
       <button id="soundToggle" type="button" aria-pressed="false">Ton: aus</button>
       <button id="quietToggle" type="button" aria-pressed="false">Ruhemodus</button>
+      <button id="libraryToggle" type="button">Bücher entdecken</button>
     </div>
     <div id="note">
       Fokus dieser Version: <strong>Stimmung und Gestaltung plus echte Erkundung</strong>. Du kannst zwischen Überblick und freier Bewegung wechseln.
@@ -340,6 +374,41 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
 
   function post(x,y,z,h=3.5,group=house){ return addMesh(new THREE.BoxGeometry(.35,h,.35), woodMat, x,y,z, group); }
 
+  // Original fictional titles and texts; no imported book excerpts.
+  const library=[
+    {title:"Das Gewicht der verlorenen Dinge",author:"Veronimus von Federfunkel",kind:"Romanwerkstatt · neue Miniatur",color:"#344c66",pages:[
+      "Im Fundbüro gab es ein Regal für Schirme, eines für Handschuhe und ein drittes für alles, was sich weigerte, in die ersten beiden zu passen. Elias hatte auf die letzte Kategorie ein Schild geklebt: Sonstiges. Es war inzwischen sein größtes Regal.",
+      "Am Dienstag brachte eine Dame ein Einmachglas vorbei. Darin schwappte ein kleines Meer. Elias fragte, ob es Salzwasser sei. Die Dame nickte. Er holte einen besonders großen Fundzettel hervor und schrieb zunächst nur: Glas, gefüllt.",
+      "Als er sich nach dem Namen der Besitzerin erkundigte, zeigte die Dame auf das Wasser. Ein winziges Boot trieb darin. Elias schob vorsichtig den Stapel unbearbeiteter Formulare beiseite. Für heute, entschied er, würde das Regal warten müssen."
+    ]},
+    {title:"Die Kunst, Regen zu lesen",author:"Mira Tintenblatt",kind:"Kleine Nachtlektüre · Originaltext",color:"#38564e",pages:[
+      "Ein guter Regenschauer hat Absätze. Die ersten Tropfen sind seine Überschrift. Dann folgen manchmal sehr lange Sätze, in denen sich der Himmel verhaspelt.",
+      "Auf Schiefer klingt derselbe Satz anders als auf einem Fensterbrett. Wer vorhat, das zu erforschen, benötigt einen Stuhl, einen freien Abend und ein Handtuch für die Fensterbank.",
+      "Manchmal endet das Kapitel mitten im Satz. Dann bleibt nur das Tropfen der Dachrinne. Man kann das Buch getrost offen liegen lassen."
+    ]},
+    {title:"Ein Fuchs zwischen den Zeilen",author:"L. Silberpfote",kind:"Kleine Erzählung · Originaltext",color:"#765047",pages:[
+      "Ein weißer Fuchs hatte sich in einer Bibliothek verirrt. Er fand das gar nicht schlimm. Im dritten Regal von links roch es nach getrockneten Äpfeln, und unter dem Lesepult gab es einen ausgezeichneten Schlafplatz.",
+      "Jeden Morgen fand der Bibliothekar ein anderes Buch aufgeschlagen. Er verdächtigte zunächst den Wind, dann einen Studenten. Schließlich legte er einen Keks neben das Pult.",
+      "Der Keks war am nächsten Morgen verschwunden. Dafür lag auf dem Tisch ein Buch über Füchse, aufgeschlagen bei der Zeichnung eines Eichhörnchens. Der Bibliothekar verzichtete auf weitere Ermittlungen."
+    ]},
+    {title:"Handbuch der eigensinnigen Bücher",author:"Ida Seitenwender",kind:"Kuriositäten · Originaltext",color:"#69434b",pages:[
+      "Bücher, die von allein zuklappen, sollten niemals mit Gewalt geöffnet werden. Manche sind bloß schüchtern. Andere haben eine außergewöhnlich schlechte Meinung von ihrem letzten Kapitel.",
+      "Ein Buch, das sich im Regal nach links lehnt, ist nicht zwangsläufig unglücklich. Prüfen Sie zuerst, ob ihm ein Nachbarband fehlt.",
+      "Und sollte ein Buch eines Tages seinen Platz wechseln, fragen Sie nicht sofort, wer es verstellt hat. Vielleicht hat es sich einfach in einen anderen Titel verliebt."
+    ]},
+    {title:"Der Mond im Teekessel",author:"N. Abendstern",kind:"Abendgeschichte · Originaltext",color:"#887043",pages:[
+      "Der Teekessel auf dem Herd pfiff jeden Abend um acht. An diesem Abend jedoch pfiff er eine Melodie. Die Antiquarin stellte zwei Tassen hin und hörte zu.",
+      "Im blanken Deckel spiegelte sich der Mond, obwohl die Küche überhaupt kein Fenster zur Mondseite hatte. Sie hob den Kessel hoch. Der Mond hob sich mit.",
+      "Sie schenkte ein, brachte die Tassen ins Wohnzimmer und stellte eine davon ans gegenüberliegende Ende des Sofas. Die Melodie war inzwischen zu Ende. Der Tee war ausgezeichnet."
+    ]},
+    {title:"Notizen aus dem Buchkeller",author:"Archiv des Federfuchses",kind:"Werkstattbuch · Originaltext",color:"#625548",pages:[
+      "Heute kamen drei beschädigte Bände an. Nummer eins: lockerer Rücken. Nummer zwei: ein Tintenklecks, der aussieht wie ein Wal. Nummer drei: ein fremdes Lesezeichen aus blauem Stoff.",
+      "Den Rücken habe ich repariert. Den Wal habe ich gelassen. Das Lesezeichen liegt jetzt auf dem Arbeitstisch, falls sein Besitzer noch einmal vorbeikommt.",
+      "Unter der Werkbank steht übrigens eine Kiste mit Marmelade. Sie gehört nicht zum Bestand. Wer sie katalogisiert, muss den Inventareintrag wieder löschen."
+    ]}
+  ];
+  const pickableBooks=[],inspectables=[];
+  let shelfSerial=0;
   const bookGeo=new THREE.BoxGeometry(1,1,1);
   const bookLeather=new THREE.MeshStandardMaterial({roughness:.86});
   const goldDetail=new THREE.MeshStandardMaterial({color:0xc2a46e,roughness:.68,metalness:.2});
@@ -352,7 +421,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     for(const sign of [-1,1])addMesh(new THREE.BoxGeometry(.085,h,d),woodMat,sign*(w-.085)/2,h/2,0,g);
     addMesh(new THREE.BoxGeometry(w+.12,.14,d+.09),woodMat,0,h-.04,0,g);
     addMesh(new THREE.BoxGeometry(w+.04,.15,d+.05),woodMat,0,.08,0,g);
-    const books=[],bands=[];
+    const books=[],bands=[],catalogOffset=shelfSerial++;
     const step=(h-.25)/5;
     for(let j=0;j<5;j++){
       const bottom=.17+j*step;
@@ -367,7 +436,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
         cursor+=bw+.012+Math.random()*.018;
       }
     }
-    function batch(items,mat,colored){const m=new THREE.InstancedMesh(bookGeo,mat,items.length);for(let i=0;i<items.length;i++){const v=items[i];dummy.position.set(v.x,v.y,v.z);dummy.scale.set(v.w,v.h,v.d);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(colored)m.setColorAt(i,new THREE.Color(v.c));}g.add(m);m.receiveShadow=true;}
+    function batch(items,mat,colored){const m=new THREE.InstancedMesh(bookGeo,mat,items.length);for(let i=0;i<items.length;i++){const v=items[i];dummy.position.set(v.x,v.y,v.z);dummy.scale.set(v.w,v.h,v.d);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(colored)m.setColorAt(i,new THREE.Color(v.c));}g.add(m);m.receiveShadow=true;if(colored){m.userData.bookIds=items.map((_,i)=>(catalogOffset+i)%library.length);pickableBooks.push(m);}}
     batch(books,bookLeather,true);batch(bands,goldDetail,false);
     return g;
   }
@@ -751,6 +820,11 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
     const page=addMesh(new THREE.BoxGeometry(.145,.026,.194),paperMat,side*.074,.026,0,openBook);page.rotation.z=side*-.08;
     for(let j=0;j<6;j++)addMesh(new THREE.BoxGeometry(.098,.002,.003),darkMat,side*.075,.042,-.062+j*.023,openBook,false,false);
   }
+  // Interactive reading-table objects.
+  openBook.userData.inspectId='tableBook';inspectables.push(openBook);
+  stove.userData.inspectId='stove';inspectables.push(stove);
+  counter.userData.inspectId='counter';inspectables.push(counter);
+  hiddenShelf.group.userData.inspectId='shelf';inspectables.push(hiddenShelf.group);
   const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=384;
   const signCtx=signCanvas.getContext('2d');signCtx.fillStyle='#312219';signCtx.fillRect(0,0,1024,384);
   signCtx.strokeStyle='#b08d58';signCtx.lineWidth=12;signCtx.strokeRect(16,16,992,352);
@@ -935,13 +1009,70 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
   hiddenShelf.group.position.z = .95;
   const ray = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  renderer.domElement.addEventListener('click', ev=>{
-    const rect = renderer.domElement.getBoundingClientRect();
-    pointer.x = ((ev.clientX-rect.left)/rect.width)*2-1;
-    pointer.y = -((ev.clientY-rect.top)/rect.height)*2+1;
-    ray.setFromCamera(pointer, camera);
-    const hits = ray.intersectObject(hiddenShelf.group, true);
-    if(hits.length){ shelfGoal = shelfGoal ? 0 : -1.05; }
+  // Reading panel: touch and keyboard friendly, preserves the current camera and navigation.
+  const dialog=document.getElementById('readingDialog'),paper=document.getElementById('readingPaper'),catalog=document.getElementById('readingCatalog'),list=document.getElementById('catalogList'),foot=document.getElementById('readingFoot');
+  const prevBtn=document.getElementById('readPrev'),nextBtn=document.getElementById('readNext'),pageNum=document.getElementById('pageNumber'),backBtn=document.getElementById('backCatalog'),heading=document.getElementById('readingHeading');
+  const noteHint=document.getElementById('readHint');
+  let readState=null,previousFocus=null,hintUntil=0;
+  const bookmarks={};
+  try{const saved=JSON.parse(localStorage.getItem('federfuchs-bookmarks-v1')||'{}');if(saved&&typeof saved==='object')for(let i=0;i<library.length;i++){if(Number.isInteger(saved[i]))bookmarks[i]=Math.max(0,Math.min(library[i].pages.length-1,saved[i]));}}catch(e){}
+  function resetInput(){for(const k in keys)keys[k]=false;moveStick.x=moveStick.y=lookStick.x=lookStick.y=0;lookDrag.active=false;}
+  function showReader(){if(dialog.hidden)previousFocus=document.activeElement;dialog.hidden=false;document.body.classList.add('reading');resetInput();controls.enabled=false;document.getElementById('readingPanel').focus();}
+  function closeReader(){dialog.hidden=true;document.body.classList.remove('reading');readState=null;resetInput();controls.enabled=!walkMode;if(previousFocus&&previousFocus.focus)previousFocus.focus();}
+  function catalogView(){
+    showReader();readState=null;heading.textContent='Das Bücherregal';catalog.hidden=false;paper.hidden=true;foot.hidden=true;backBtn.hidden=true;
+    list.replaceChildren();
+    library.forEach((b,i)=>{
+      const btn=document.createElement('button'),cover=document.createElement('span'),copy=document.createElement('span'),name=document.createElement('strong'),meta=document.createElement('small');
+      btn.type='button';cover.className='miniCover';cover.style.background=b.color;cover.textContent='❦';name.textContent=b.title;meta.textContent=b.author+(bookmarks[i]>0?' · Seite '+(bookmarks[i]+1):'');
+      copy.append(name,meta);btn.append(cover,copy);btn.addEventListener('click',()=>readBook(i));list.append(btn);
+    });
+  }
+  function readBook(i){if(!library[i])return;showReader();readState={id:i,page:bookmarks[i]||0};renderPage();}
+  function renderPage(){
+    const b=library[readState.id],p=readState.page;heading.textContent=b.title;catalog.hidden=true;paper.hidden=false;foot.hidden=false;backBtn.hidden=false;
+    const meta=document.createElement('div'),title=document.createElement('h2'),author=document.createElement('div'),body=document.createElement('p');
+    meta.className='bookMeta';meta.textContent=b.kind;title.textContent=b.title;author.className='bookMeta';author.textContent=b.author;body.textContent=b.pages[p];
+    paper.replaceChildren(meta,title,author,body);pageNum.textContent='Seite '+(p+1)+' / '+b.pages.length;prevBtn.disabled=p===0;nextBtn.disabled=p===b.pages.length-1;
+    bookmarks[readState.id]=p;try{localStorage.setItem('federfuchs-bookmarks-v1',JSON.stringify(bookmarks));}catch(e){}
+    document.getElementById('readingPanel').scrollTop=0;
+  }
+  function turnPage(delta){if(!readState)return;const b=library[readState.id];const p=readState.page+delta;if(p>=0&&p<b.pages.length){readState.page=p;renderPage();}}
+  const details={
+    stove:{title:'Der kleine Gusseisenofen',text:'Hinter der geschlossenen Glastür flackert das Feuer. Eine Steinplatte schützt den Holzboden. Setz dich in die Leseecke und schalte den Ton ein, wenn du das Knistern hören möchtest.'},
+    counter:{title:'Der Verkaufstresen',text:'Hier werden Bücher angenommen, begutachtet und verkauft. Auf der Arbeitsplatte liegen das Kassenbuch und die Dinge, die im Laufe eines Abends immer wieder gebraucht werden.'}
+  };
+  function inspect(id){
+    if(id==='tableBook'){readBook(0);return;}
+    if(id==='shelf'){shelfGoal=shelfGoal?0:-1.05;return;}
+    const item=details[id];if(!item)return;
+    showReader();readState=null;heading.textContent='Ein Gegenstand im Federfuchs';catalog.hidden=true;paper.hidden=false;foot.hidden=true;backBtn.hidden=false;
+    const h=document.createElement('h2'),p=document.createElement('p');h.textContent=item.title;p.textContent=item.text;paper.replaceChildren(h,p);
+  }
+  document.getElementById('libraryToggle').addEventListener('click',catalogView);
+  document.getElementById('readingClose').addEventListener('click',closeReader);
+  backBtn.addEventListener('click',catalogView);prevBtn.addEventListener('click',()=>turnPage(-1));nextBtn.addEventListener('click',()=>turnPage(1));
+  dialog.addEventListener('pointerdown',e=>{if(e.target===dialog)closeReader();});
+  addEventListener('keydown',e=>{if(dialog.hidden)return;if(e.code==='Escape'){closeReader();e.preventDefault();}else if(e.code==='ArrowLeft'||e.code==='ArrowRight'){turnPage(e.code==='ArrowLeft'?-1:1);e.preventDefault();}});
+  function flashHint(msg){noteHint.textContent=msg;noteHint.hidden=false;hintUntil=performance.now()+2400;}
+  let down=null;
+  renderer.domElement.addEventListener('pointerdown',e=>{if(e.isPrimary)down={x:e.clientX,y:e.clientY,id:e.pointerId};else down=null;});
+  renderer.domElement.addEventListener('pointercancel',()=>down=null);
+  renderer.domElement.addEventListener('pointerup',e=>{
+    if(!down||e.pointerId!==down.id||Math.hypot(e.clientX-down.x,e.clientY-down.y)>9||!dialog.hidden){down=null;return;}
+    down=null;
+    const rect=renderer.domElement.getBoundingClientRect();
+    pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);
+    const bookHit=ray.intersectObjects(pickableBooks,false)[0];
+    const propHit=ray.intersectObjects(inspectables,true)[0];
+    const hit=bookHit&&(!propHit||bookHit.distance<=propHit.distance+.04)?bookHit:propHit;
+    if(!hit)return;
+    if(walkMode&&hit.distance>3.0){flashHint('Geh etwas näher heran.');return;}
+    // Prevent selecting through opaque geometry. Gold spine decorations may sit just ahead of a book.
+    const front=ray.intersectObject(house,true).find(h=>h.object.isMesh&&h.object.material?.transparent!==true);
+    if(front&&front.distance<hit.distance-.075)return;
+    if(hit===bookHit){const id=hit.object.userData.bookIds[hit.instanceId];if(Number.isInteger(id))readBook(id);return;}
+    for(let o=hit.object;o;o=o.parent){if(o.userData.inspectId){inspect(o.userData.inspectId);break;}}
   });
 
   // Atmosphere particles
@@ -1010,7 +1141,7 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       controls.target.lerpVectors(tween.fromTar, tween.toTar, e);
       if(p>=1) tween = null;
     }
-    if(walkMode){
+    if(walkMode&&dialog.hidden){
       const forward = (keys.KeyW||keys.ArrowUp?1:0) - (keys.KeyS||keys.ArrowDown?1:0) + (-moveStick.y);
       const strafe = (keys.KeyD||keys.ArrowRight?1:0) - (keys.KeyA||keys.ArrowLeft?1:0) + (moveStick.x);
       player.yaw -= lookStick.x * 1.8 * dt;
@@ -1025,11 +1156,12 @@ window.addEventListener('error',()=>{document.getElementById('loading').classLis
       syncWalkCamera();
     }
     ambience(dt,visualTime,distMoved);
+    if(performance.now()>hintUntil)noteHint.hidden=true;
     updateDoors();
     shelfAngle += (shelfGoal - shelfAngle) * 0.08;
     hiddenShelf.group.rotation.y = shelfAngle;
     dustPts.rotation.y += 0.0006;
-    if(!walkMode) controls.update();
+    if(!walkMode&&dialog.hidden) controls.update();
     renderer.render(scene, camera);
   }
 
