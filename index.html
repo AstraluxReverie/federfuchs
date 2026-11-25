@@ -271,6 +271,13 @@ button:focus-visible{outline:2px solid #e1deb1;outline-offset:2px}
 #quickDock button[aria-pressed=true],#toolRail button[aria-pressed=true]{background:#526b56;border-color:#e3c58b}
 #hud .card{border-color:#b99b6277;background:#203735f5}#hud h2,#hud h3,#sceneStatus{font-family:Georgia,serif;color:#f5e6c8}
 @media(pointer:coarse){#quickDock .dockGroup:last-child{display:none}}
+</style><style>
+#toolRail{width:64px}
+#toolRail button{width:64px;min-width:64px}
+#toolRail button small{white-space:nowrap;word-break:normal;overflow-wrap:normal;font-size:9px;max-width:100%;line-height:12px}
+#hud.compactHud{left:80px;width:min(238px,calc(100vw - 88px))}
+#quickDock button,#sceneHome,#sceneWalkExit{white-space:nowrap;word-break:normal;overflow-wrap:normal}
+@media(max-width:420px){#toolRail{width:58px}#toolRail button{width:58px;min-width:58px}#hud.compactHud{left:72px;width:min(238px,calc(100vw - 80px))}}
 </style></head>
 <body>
 <div id="app"></div>
