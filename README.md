@@ -66,3 +66,34 @@ Freigegebene neue Bildkomposition: vollständiges Haus, Buchhaimer Gassen, Himme
 ### Grafische Navigation – Nutzerentscheidung
 
 Goldene Pfeile der freigegebenen Panorama-Grafik bleiben sichtbar und erhalten deckungsgleiche transparente Buttons. Buchsymbol öffnet ein Besuchermenü; Zentrierung verfügbar. Tür-Hotspot an neue Komposition angepasst, künstlicher CSS-Türflügel deaktiviert. Zielasset assets/buchhaim-panorama.webp noch nicht übertragen. Bildverschiebung bleibt 2D-Prototyp; echte Panorama-Projektion und Originaltür-Freistellung offen. Syntaxprüfung erfolgreich, keine Browser-Abnahme.
+
+
+## Verbindlicher Übergabestand – 26.11.2026, Arbeitspause
+
+Maßgeblich ist main, nicht eine frühere Chat-Vorschau. Letzte bestätigte Codeänderungen: 8cb8fdcaeb9795abd8451a4cc4ce931dc6bbc0b0 (index.html), 1b1213b8f8ca74963bbd7fff8ab5e4fc26c3f851 (entrance.html). Beide Eingangsseiten identisch, sichtbare goldfarbene Ersatzbuttons außerhalb der beweglichen Kulisse; JavaScript syntaktisch geprüft. Originalgrafik der Buttons noch nicht integriert. Keine neue Release-Nummer, keine erfolgreiche Live-Abnahme.
+
+### Changelog (Ergänzung)
+- 0.36: Treppenläufer, Messingdetails, GLB-Versionierung, responsive UI.
+- 0.37: Trennung leichter Eingang / bestehende 3D-Innenwelt.
+- 0.38: URL-spezifischer Navigationscache; direkter Eingang mit entry=door; synthetische Klangkulisse; begrenzte Blicksteuerung; Besuchermenü; sichtbare Ersatznavigation.
+- Lokale HTML-Prototypen mit eingebetteten Bildern, Türtextur und Symbolausschnitten wurden erstellt, aber nicht ins Repository übertragen. Nutzer meldete fehlende Grafiken, zu kleine Darstellung und funktionslose Symbole. Keine weitere lokale HTML-Vorschau als Release präsentieren.
+- Letzte GitHub-Prüfung: assets/facade.webp und assets/buchhaim-panorama.webp liefern beide 404 im Repository. Vercel-Freigabe wiederholt fehlgeschlagen (abgelaufener Link); diesen Weg nicht erneut ohne ausdrücklichen Wunsch verfolgen. GitHub Pages zeigte alte Version bzw. 404; main/root laut Nutzer bereits eingestellt.
+
+### Nächstes Arbeitspaket in Prioritätsreihenfolge
+1. Original-Panorama aus dem bisherigen Chat bzw. gesicherten Dateien wiederbeschaffen und binär ins Repository übertragen. Freigegebene Komposition: ganzes Haus, Buchhaimer Gasse, Himmel, Pflaster, warmes Licht, blaues Sofa, goldene Richtungspfeile und Buchsymbol. Schriftzug exakt „Zum träumenden Federfuchs“. Keine beliebige Ersatzgrafik als Original ausgeben. Bilddateien nach Upload erneut abrufen und Format/Größe prüfen.
+2. Originalsymbole freistellen und als feste, funktionierende Touch-/Maus-Schaltflächen über der Kulisse platzieren; eingebrannte Symbole aus beweglichem Hintergrund entfernen. Fester Standort, Blick links/rechts/oben/unten, kein Blick nach hinten. Echte zusätzliche Bildinformation bzw. passende Projektion statt bloßem Verschieben eines Einzelbildes. Mobil ausreichend große Darstellung, keine abgeschnittenen Wörter.
+3. Originaltür aus Fassadentextur freistellen, korrekte Scharnierbewegung, sichtbarer Innenraum hinter der Tür, passende Beleuchtung, Türgeräusch und Kamerafahrt; Übergang in bestehende Ich-Perspektive des Ladens. Keine künstliche braune Ersatztür. Außen-3D-Code erhalten, aber nicht anzeigen.
+4. Klangwelt ausbauen: Papier, Federkiele, Buchhändlerstimmen, Schritte, Wagen, Glocken, fantastische Bewohner, Wind; Audio-Opt-in und Stummschaltung, Überblendung beim Eintritt. Bisherige Synthese ist nur Prototyp.
+5. Innenwelt erhalten und vervollständigen: drei Geschosse, Treppe A mit integriertem Regal, Goldornamenten, bordeauxrotem Läufer, Büchern, Efeu, Laternen; freie obere Austritte, funktionierende Türen, Kollisions- und Laufwegprüfung; hochwertige vollständige Texturen, Möbelplatzhalter, Originalregal und Drive-Import. Fenster und sichtbare Möbel mit Fassade abgleichen.
+6. Technische Prüfungen: Dateireferenzen, Assetformate, JS-Syntax, Kollisionslogik, Ladefehler, Cache und Deployment. GitHub Pages tatsächlich überprüfen, nicht aus erfolgreichen Commits auf Veröffentlichung schließen. Direkter HTTPS-Versionslink erst nach bestätigter Veröffentlichung; visuelle und Browser-Abnahme ausschließlich Nutzer.
+7. README und Changelog nach größeren Arbeitspaketen aktualisieren. Keine Zugangsdaten speichern, keine öffentlichen Drive-Freigaben ohne Zustimmung.
+
+### Arbeitsweise und Wiederaufnahme
+Nutzer möchte eigenständige zusammenhängende Umsetzung, alternative Lösungswege bei Hindernissen, keine wiederholten Problembeschreibungen ohne Handlung, keine unnötigen Rückfragen und keine Zwischenprototypen als fertige Ergebnisse. Laptop muss nicht eingeschaltet sein. Warm und ehrlich kommunizieren; keine Behauptung über ausgeführte Arbeit ohne Tool-Ergebnis. Bei Chatwechsel zuerst README und tatsächlichen Repository-Stand lesen. Nicht erneut Vercel-Freigaben oder bereits erfolglose Vorschauwege wiederholen.
+
+### Lokale Referenzen (nur bisherige Sitzung, Persistenz nicht garantiert)
+- /mnt/data/facade.webp
+- /mnt/data/federfuchs-browser.html
+- /mnt/data/federfuchs-aussenwelt-korrigiert.html
+- /mnt/data/federfuchs-aussenwelt.html
+- Freigegebene Panorama-Bildgeneration: ac50853c-1e5b-40dd-93ca-80f2e95b18f0; isolierte Hausvorlage: fae2a08f-22f5-4fdb-a678-a838d5f0b8a2. IDs sind Wiederauffindehinweise, keine öffentlichen Asset-URLs. Originaldateien im neuen Chat ggf. erneut beschaffen.
